@@ -1,0 +1,235 @@
+<script setup lang="jsx">
+import { useRoute } from "vue-router";
+import { onMounted, reactive, inject } from "vue";
+import { getYearMonth, getFullTime } from "../func";
+import { courses, grades } from "../const";
+import { useRouter } from "vue-router";
+import { Search, ArrowForwardOutline } from "@vicons/ionicons5";
+
+const axios = inject("axios");
+const collapsed = inject("collapsed");
+const route = useRoute();
+const router = useRouter();
+
+const cntRef = ref(null);
+const loading = ref(false);
+
+const searchInfo = reactive({
+    s: route.query.s ? route.query.s : "",
+    range: [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()],
+    grade: null,
+    courses: [],
+});
+const queryResult = reactive({
+    list: [],
+    cnt: 0,
+});
+
+const getOptions = (items) =>
+    items.map((item, index) => ({
+        label: item,
+        value: index,
+    }));
+
+const goQuery = () => {
+    loading.value = true;
+    if (searchInfo.s) router.push({ query: { s: searchInfo.s } });
+    axios
+        .post("/search/query", {
+            name: searchInfo.s,
+            start: searchInfo.range[0],
+            end: searchInfo.range[1],
+            courses: searchInfo.courses,
+            grade: searchInfo.grade
+        })
+        .then((response) => {
+            if (response.data.list) {
+                queryResult.list = response.data.list;
+                queryResult.cnt = response.data.count;
+                loading.value = false;
+                cntRef.value?.play();
+            }
+        });
+};
+
+const gotoExam = (eid) => {
+    router.push({ name: "exam", query: { eid: eid } });
+};
+
+const tableColumns = [
+    {
+        title: "查看",
+        key: "go",
+        render: (row) => (
+            <n-button
+                size="small"
+                type="info"
+                quaternary
+                on-click={() => gotoExam(row.eid)}
+            >
+                {{
+                    icon: (
+                        <n-icon>
+                            <ArrowForwardOutline />
+                        </n-icon>
+                    ),
+                }}
+            </n-button>
+        ),
+    },
+    {
+        title: "联盟",
+        key: "union",
+        render: (row) => (
+            <router-link
+                class="text-sky-800 hover:text-sky-900 transition"
+                to={{ name: "union", query: { nid: row.union.nid } }}
+            >
+                {row.union.name}
+            </router-link>
+        ),
+    },
+    {
+        title: "考试",
+        key: "exam",
+        render: (row) => (
+            <router-link
+                class="text-sky-800 hover:text-sky-900 transition"
+                to={{ name: "examgroup", query: { egid: row.examgroup.egid } }}
+            >
+                {getYearMonth(row.examgroup.date) + " " + row.examgroup.name}
+            </router-link>
+        ),
+    },
+    {
+        title: "日期",
+        key: "date",
+        render: (row) => <span>{row.date}</span>,
+        sorter: (row1, row2) => new Date(row1.date) - new Date(row2.date),
+    },
+    {
+        title: "版本",
+        key: "version",
+        render: (row) => (
+            <div>
+                {row.papers.map((item) => (
+                    <n-tag type="info">{item.comment}</n-tag>
+                ))}
+            </div>
+        ),
+    },
+    {
+        title: "科目",
+        key: "course",
+        render: (row) => <span>{courses[row.course]}</span>,
+    },
+    {
+        title: "年级",
+        key: "grade",
+        render: (row) => <span>{grades[row.grade]}</span>,
+    },
+    {
+        title: "浏览量",
+        key: "views",
+        sorter: (row1, row2) => row1.views - row2.views,
+    },
+];
+
+if (route.query.s) {
+    goQuery();
+}
+</script>
+
+<template>
+    <div class="mt-8 flex flex-col items-center md:mt-10">
+        <div
+            class="mx-8 flex items-center gap-x-4 md:mx-auto md:w-96 lg:w-[40vw] overflow-y-hidden"
+        >
+            <span class="whitespace-nowrap md:text-lg">试卷</span>
+            <n-input
+                ref="inputRef"
+                :size="collapsed ? 'medium' : 'large'"
+                v-model:value="searchInfo.s"
+                @keyup.enter="goQuery"
+                placeholder="搜索"
+            >
+                <template #prefix>
+                    <n-icon :component="Search" />
+                </template>
+            </n-input>
+            <n-button :size="collapsed ? 'medium' : 'large'" @click="goQuery">
+                检索
+            </n-button>
+        </div>
+        <div
+            class="mx-auto mt-4 w-full self-start px-8 md:w-[80vw] lg:w-[60vw]"
+        >
+            <n-collapse display-directive="show">
+                <n-collapse-item title="筛选">
+                    <n-form
+                        :size="collapsed ? 'small' : 'medium'"
+                        class="flex flex-col gap-x-4 md:flex-row"
+                    >
+                        <div class="w-full md:w-1/5">
+                            <n-form-item label="年级">
+                                <n-select
+                                    v-model:value="searchInfo.grade"
+                                    type="daterange"
+                                    :options="getOptions(grades)"
+                                />
+                            </n-form-item>
+                        </div>
+                        <div class="w-full md:w-2/5">
+                            <n-form-item label="科目">
+                                <n-select
+                                    v-model:value="searchInfo.courses"
+                                    max-tag-count="responsive"
+                                    multiple
+                                    clearable
+                                    :options="getOptions(courses)"
+                                />
+                            </n-form-item>
+                        </div>
+                        <div class="w-full md:w-2/5">
+                            <n-form-item label="时间">
+                                <n-date-picker
+                                    v-model:value="searchInfo.range"
+                                    type="daterange"
+                                    clearable
+                                />
+                            </n-form-item>
+                        </div>
+                    </n-form>
+                </n-collapse-item>
+            </n-collapse>
+        </div>
+        <n-divider></n-divider>
+        <n-spin :show="loading" class="px-8 w-full md:mx-auto md:w-[80vw]">
+            <div class="mb-4">
+                <n-statistic label="共计找到了" tabular-nums>
+                    <n-number-animation
+                        ref="cntRef"
+                        :from="0"
+                        :to="queryResult.cnt"
+                    />
+                    <template #suffix> 张试卷 </template>
+                </n-statistic>
+            </div>
+            <div v-if="queryResult.cnt">
+                <n-data-table
+                    :columns="tableColumns"
+                    :data="queryResult.list"
+                    :pagination="{ pageSize: 10 }"
+                    class="whitespace-nowrap md:whitespace-normal"
+                />
+            </div>
+            <template #description> 正在加载 </template>
+        </n-spin>
+    </div>
+</template>
+
+<style lang="postcss">
+.paperTable tr:hover td {
+    @apply bg-blue-50;
+}
+</style>

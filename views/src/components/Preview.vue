@@ -1,0 +1,22 @@
+<script setup>
+import { pic_ext } from "../const";
+const props = defineProps(["src", "title", "ext"]);
+
+const pic = computed(() => pic_ext.includes(props.ext));
+const title = computed(() => (props.title ? props.title : "文件预览"));
+</script>
+
+<template>
+    <n-modal preset="card" class="preview-modal" :title="title">
+        <iframe class="w-full h-[80vh]" :src="props.src" v-if="!pic"></iframe>
+        <img :src="props.src" style="width: 100%" v-else />
+    </n-modal>
+</template>
+
+<style>
+.preview-modal {
+    width: max(300px, 60%);
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+</style>
