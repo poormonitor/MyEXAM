@@ -32,7 +32,7 @@ const goQuery = () => {
             <div class="text-5xl tracking-widest md:text-7xl">试卷分享平台</div>
         </div>
     </div>
-    <div class="mt-8 flex justify-center md:mt-12">
+    <div class="mt-10 flex justify-center md:mt-12">
         <div class="mx-8 flex items-center gap-x-4 md:mx-auto md:w-[40vw]">
             <span class="whitespace-nowrap md:text-lg">试卷</span>
             <n-input

@@ -12,7 +12,6 @@ class Settings(BaseSettings):
     S3_REGION: str = ""
     S3_BUCKET: str = ""
     S3_PREFIX: str = ""
-    S3_DOMAIN_PREFIX: str = ""
     REGISTER: int = 1
 
     class Config:

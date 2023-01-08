@@ -252,12 +252,14 @@ const setUploadURL = async (options) => {
             .then((response) => {
                 if (response.data.result == "success") {
                     uploadInfo.files.push({
+                        id: options.file.id,
                         fid: response.data.fid,
                         name: options.file.name,
                         type: 0,
                         key: response.data.key,
                         url: response.data.url,
                         obj: options.file,
+                        status: 0,
                     });
                     uploadFile.url = response.data.url;
                     uploadFile.key = response.data.key;
@@ -266,6 +268,16 @@ const setUploadURL = async (options) => {
                 reject();
             });
     });
+};
+
+const setFinishUpload = (options) => {
+    console.log(options);
+    uploadInfo.files.find((item) => item.id == options.file.id).status = 2;
+};
+
+const setFailedUpload = (options) => {
+    console.log(options);
+    uploadInfo.files.find((item) => item.id == options.file.id).status = 1;
 };
 
 const handlePDFUpload = async (file, name) => {
@@ -305,22 +317,23 @@ const postToS3 = (file, url, key) => {
 };
 
 const removeFile = (fid) => {
-    return new Promise((resolve, reject) => {
-        axios
-            .post("/new/delete_file", {
-                fid: fid,
-            })
-            .catch(reject)
-            .then((response) => {
-                if (response.data.result == "success") {
-                    uploadInfo.files = uploadInfo.files.filter(
-                        (item) => item.fid != fid
-                    );
-                    resolve();
-                }
-                reject();
-            });
-    });
+    if (uploadInfo.files.find((item) => item.fid == fid).status === 1) {
+        uploadInfo.files = uploadInfo.files.filter((item) => item.fid != fid);
+        return;
+    }
+
+    axios
+        .post("/new/delete_file", {
+            fid: fid,
+        })
+        .catch(reject)
+        .then((response) => {
+            if (response.data.result == "success") {
+                uploadInfo.files = uploadInfo.files.filter(
+                    (item) => item.fid != fid
+                );
+            }
+        });
 };
 
 watch(
@@ -379,6 +392,26 @@ const tableColumns = [
         },
     },
     {
+        title: "上传状态",
+        key: "status",
+        render: (row) => {
+            switch (row.status) {
+                case 0:
+                    return (
+                        <div class="flex items-center gap-x-2">
+                            <n-spin size="small"></n-spin>
+                            <span>上传中</span>
+                        </div>
+                    );
+                case 1:
+                    return <span class="text-red-500">错误发生</span>;
+                case 2:
+                default:
+                    return <span class="text-green-500">上传成功</span>;
+            }
+        },
+    },
+    {
         title: "类型",
         key: "type",
         render: (row) => {
@@ -412,6 +445,7 @@ const tableColumns = [
                 secondary
                 round
                 type="error"
+                disabled={row.status === 0}
                 on-click={() => removeFile(row.fid)}
             >
                 删除
@@ -425,6 +459,7 @@ const tableData = computed(() => {
         fid: item.fid,
         name: item.name,
         type: item.type,
+        status: item.status,
     }));
 });
 
@@ -438,10 +473,12 @@ const confirmUpload = async () => {
             eid: uploadInfo.eid,
             pid: uploadInfo.pid,
             comment: uploadInfo.comment,
-            files: uploadInfo.files.map((item) => ({
-                fid: item.fid,
-                type: item.type,
-            })),
+            files: uploadInfo.files
+                .filter((item) => item.status === 2)
+                .map((item) => ({
+                    fid: item.fid,
+                    type: item.type,
+                })),
         })
         .then((response) => {
             if (response.data.result == "success") {
@@ -557,7 +594,8 @@ fetchUnions();
             :action="uploadFile.url"
             :data="{ key: uploadFile.key, acl: 'private' }"
             :on-before-upload="setUploadURL"
-            :on-remove="removeFile"
+            :on-success="setFinishUpload"
+            :on-error="setFailedUpload"
             v-if="examFinalName"
         >
             <n-upload-dragger>

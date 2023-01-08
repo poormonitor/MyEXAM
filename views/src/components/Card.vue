@@ -3,7 +3,7 @@ const props = defineProps(["title"])
 </script>
 
 <template>
-    <div class="bg-gray-100 rounded-2xl p-4 md:p-8 md:mx-2">
+    <div class="bg-gray-500/10 rounded-2xl p-5 md:p-8 md:mx-2">
         <p class="text-lg md:text-2xl font-bold">{{ props.title }}</p>
         <p class="pt-2 md:text-lg"><slot name="content"></slot></p>
     </div>
