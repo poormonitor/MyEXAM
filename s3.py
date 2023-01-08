@@ -16,6 +16,7 @@ minioClient = Minio(
 
 def get_presigned_post_url(ext: str, id: str) -> str:
     key = config["S3_PREFIX"] + "/" + id + "." + ext
+    key = key.strip("/")
 
     url = minioClient.get_presigned_url(
         "POST", config["S3_BUCKET"], key, expires=timedelta(hours=1)
@@ -26,6 +27,8 @@ def get_presigned_post_url(ext: str, id: str) -> str:
 
 def get_presigned_get_url(ext: str, id: str, file: str = None) -> str:
     key = config["S3_PREFIX"] + "/" + id + "." + ext
+    key = key.strip("/")
+
     filename = file if file else id + "." + ext
     extra = {"response-content-disposition": "attachment; filename=%s" % filename}
 
@@ -42,4 +45,6 @@ def get_presigned_get_url(ext: str, id: str, file: str = None) -> str:
 
 def delete_from_s3(ext: str, fid: str):
     key = config["S3_PREFIX"] + "/" + fid + "." + ext
+    key = key.strip("/")
+
     minioClient.remove_object(config["S3_BUCKET"], key)
