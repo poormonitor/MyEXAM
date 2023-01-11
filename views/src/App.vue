@@ -3,8 +3,6 @@ import { NConfigProvider } from "naive-ui";
 import { zhCN, dateZhCN } from "naive-ui";
 import { useOsTheme, darkTheme } from "naive-ui";
 import { computed, provide } from "vue";
-import Header from "./components/Header.vue";
-import Footer from "./components/Footer.vue";
 
 const osThemeRef = useOsTheme();
 const theme = computed(() => (osThemeRef.value === "dark" ? darkTheme : null));
@@ -39,7 +37,7 @@ provide("collapsed", collapsed);
                 <n-layout-header bordered>
                     <Header></Header>
                 </n-layout-header>
-                <n-layout-content id="main-layout-content">
+                <n-layout-content>
                     <router-view></router-view>
                 </n-layout-content>
                 <n-layout-footer bordered position="absolute">

@@ -4,9 +4,6 @@ import { paramsError } from "../discrete";
 import { courses, grades, office_ext } from "../const";
 import { getYearMonth } from "../func";
 import { CloudDownloadOutline, Easel, AttachOutline } from "@vicons/ionicons5";
-import FileList from "../components/FileList.vue";
-import InfoTag from "../components/InfoTag.vue";
-import Preview from "../components/Preview.vue";
 import { Suspense } from "vue";
 
 const axios = inject("axios");

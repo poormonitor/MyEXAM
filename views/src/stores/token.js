@@ -14,7 +14,7 @@ export const useTokenStore = defineStore(
     },
     {
         persist: {
-            storage: window.localStorage,
+            storage: localStorage,
         },
     }
 );

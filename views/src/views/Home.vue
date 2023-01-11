@@ -2,7 +2,6 @@
 import { Search } from "@vicons/ionicons5";
 import { onMounted, ref, inject } from "vue";
 import { useRouter } from "vue-router";
-import Intro from "../components/Intro.vue";
 
 const collapsed = inject("collapsed");
 const router = useRouter();

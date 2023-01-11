@@ -1,9 +1,7 @@
 <script setup lang="jsx">
-import { useRoute } from "vue-router";
-import { onMounted, reactive, inject } from "vue";
-import { getYearMonth, getFullTime } from "../func";
+import { useRoute, useRouter } from "vue-router";
+import { getYearMonth } from "../func";
 import { courses, grades } from "../const";
-import { useRouter } from "vue-router";
 import { Search, ArrowForwardOutline } from "@vicons/ionicons5";
 
 const axios = inject("axios");
@@ -40,7 +38,7 @@ const goQuery = () => {
             start: searchInfo.range[0],
             end: searchInfo.range[1],
             courses: searchInfo.courses,
-            grade: searchInfo.grade
+            grade: searchInfo.grade,
         })
         .then((response) => {
             if (response.data.list) {

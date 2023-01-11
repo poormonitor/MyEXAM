@@ -7,11 +7,12 @@ import {
     AppsOutline,
     NavigateCircle,
 } from "@vicons/ionicons5";
-import { inject } from "vue";
+import UserPanel from "./UserPanel.vue";
 
 const route = useRoute();
 
 const collapsed = inject("collapsed");
+const showSideBar = ref(false);
 
 const renderLabel = (icon, target, label) => {
     return () => (
@@ -41,8 +42,26 @@ const menuOptions = [
 </script>
 
 <template>
-    <div class="px-6 py-3 md:pt-2 md:pb-1 flex items-baseline" id="main-header">
-        <div class="select-none flex items-baseline md:mr-4">
+    <n-drawer
+        v-model:show="showSideBar"
+        placement="left"
+        width="180px"
+        v-if="collapsed"
+    >
+        <n-menu :value="route.name" :options="menuOptions" />
+    </n-drawer>
+    <div class="py-3 md:pt-2 md:pb-1 flex items-center" id="main-header">
+        <div class="pl-3">
+            <n-button
+                @click="showSideBar = true"
+                size="small"
+                quaternary
+                v-if="collapsed"
+            >
+                <n-icon size="1rem"><AppsOutline /></n-icon>
+            </n-button>
+        </div>
+        <div class="pl-3 select-none flex items-baseline">
             <router-link
                 :to="{ name: 'home' }"
                 class="font-sans text-2xl font-bold gradient-title from-indigo-600 via-violet-500 to-purple-400"
@@ -51,17 +70,14 @@ const menuOptions = [
             </router-link>
         </div>
         <n-menu
+            class="pl-3"
             :value="route.name"
             v-if="!collapsed"
             mode="horizontal"
             :options="menuOptions"
         />
-        <div class="flex flex-grow justify-end">
-            <n-dropdown size="large" :options="menuOptions" v-if="collapsed">
-                <n-button>
-                    <n-icon size="1rem"><AppsOutline /></n-icon>
-                </n-button>
-            </n-dropdown>
+        <div class="flex grow justify-end pr-6 md:pr-10">
+            <UserPanel v-if="route.name !== 'login'" />
         </div>
     </div>
 </template>

@@ -1,10 +1,8 @@
 <script setup lang="jsx">
 import { Archive } from "@vicons/ionicons5";
-import { reactive, inject, ref } from "vue";
 import { courses, grades, file_types, paper_types } from "../const";
 import { getYearMonth } from "../func";
 import { AddCircleOutline } from "@vicons/ionicons5";
-import PicPdf from "../components/PicPdf.vue";
 import { useDialog } from "naive-ui";
 import { message } from "../discrete";
 

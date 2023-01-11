@@ -4,7 +4,6 @@ import { paramsError } from "../discrete";
 import { getYearMonth } from "../func";
 import { courses, grades } from "../const";
 import { ArrowForwardOutline } from "@vicons/ionicons5";
-import InfoTag from "../components/InfoTag.vue";
 
 const axios = inject("axios");
 const route = useRoute();

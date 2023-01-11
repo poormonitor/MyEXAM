@@ -12,12 +12,14 @@ def init_app_routes(app: FastAPI):
     from .new import router as new_router
     from .user import router as user_router
     from .discover import router as discover_router
+    from .admin import router as admin_router
 
     app.include_router(search_router, prefix="/api/search", tags=["search"])
     app.include_router(list_router, prefix="/api/list", tags=["list"])
     app.include_router(new_router, prefix="/api/new", tags=["new"])
     app.include_router(user_router, prefix="/api/user", tags=["user"])
     app.include_router(discover_router, prefix="/api/discover", tags=["discover"])
+    app.include_router(admin_router, prefix="/api/admin", tags=["admin"])
 
     @app.get("/")
     def index():

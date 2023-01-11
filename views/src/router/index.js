@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from "vue-router";
+import { useUserStore } from "../stores/user";
 
 const router = createRouter({
     history: createWebHashHistory(),
@@ -10,6 +11,24 @@ const router = createRouter({
             meta: {
                 requiresAuth: false,
                 title: "首页",
+            },
+        },
+        {
+            path: "/login",
+            name: "login",
+            component: () => import("../views/Login.vue"),
+            meta: {
+                requiresAuth: false,
+                title: "用户登录",
+            },
+        },
+        {
+            path: "/reg",
+            name: "reg",
+            component: () => import("../views/Reg.vue"),
+            meta: {
+                requiresAuth: false,
+                title: "用户注册",
             },
         },
         {
@@ -80,12 +99,11 @@ router.beforeEach((to, from) => {
     if (to.meta.title) {
         document.title = to.meta.title + " - MyEXAM";
     }
-    let token = sessionStorage.getItem("access_token_myexam");
-    if (to.meta.requiresAuth && !token) {
-        return {
-            name: "login",
-        };
-    }
+    const userStore = useUserStore();
+
+    if (to.meta.requiresAuth && !userStore.uid) return { name: "login" };
+    if (userStore.uid && ["login", "reg"].includes(to.name))
+        return { name: "home" };
 });
 
 export default router;
