@@ -269,12 +269,10 @@ const setUploadURL = async (options) => {
 };
 
 const setFinishUpload = (options) => {
-    console.log(options);
     uploadInfo.files.find((item) => item.id == options.file.id).status = 2;
 };
 
 const setFailedUpload = (options) => {
-    console.log(options);
     uploadInfo.files.find((item) => item.id == options.file.id).status = 1;
 };
 
@@ -362,7 +360,7 @@ watch(
     }
 );
 
-const examFinalName = computed(() => {
+const ExamFinalName = computed(() => {
     let union = unionList.value.find((item) => item.value == uploadInfo.nid);
     let examgroup = examGroupList.value.find(
         (item) => item.value == uploadInfo.egid
@@ -502,8 +500,8 @@ fetchUnions();
 <template>
     <PicPdf
         v-model:show="showPDF"
-        :hint="examFinalName"
-        :key="examFinalName"
+        :hint="ExamFinalName"
+        :key="ExamFinalName"
         @confirm="handlePDFUpload"
     />
     <div class="mx-8 w-auto lg:mx-auto lg:w-[60vw] mt-8">
@@ -574,11 +572,11 @@ fetchUnions();
         </n-form>
         <div
             class="flex flex-col md:flex-row gap-x-6 gap-y-2 items-start md:items-end"
-            v-if="examFinalName"
+            v-if="ExamFinalName"
         >
             <div>
                 <p class="text-sky-800">您即将上传</p>
-                <p class="text-lg">{{ examFinalName }}</p>
+                <p class="text-lg">{{ ExamFinalName }}</p>
             </div>
             <n-button size="small" secondary @click="showPDF = true" type="info"
                 >图片生成PDF</n-button
@@ -592,9 +590,9 @@ fetchUnions();
             :action="uploadFile.url"
             :data="{ key: uploadFile.key, acl: 'private' }"
             :on-before-upload="setUploadURL"
-            :on-success="setFinishUpload"
+            :on-finish="setFinishUpload"
             :on-error="setFailedUpload"
-            v-if="examFinalName"
+            v-if="ExamFinalName"
         >
             <n-upload-dragger>
                 <div style="margin-bottom: 12px">
@@ -618,7 +616,7 @@ fetchUnions();
         />
         <div
             class="mt-4 mb-8 flex justify-center"
-            v-if="examFinalName && uploadInfo.files.length"
+            v-if="ExamFinalName && uploadInfo.files.length"
         >
             <n-button :on-click="confirmUpload" type="primary"
                 >确认上传</n-button

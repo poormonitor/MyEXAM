@@ -12,7 +12,7 @@ from models.examgroup import ExamGroup
 from models.file import File
 from models.paper import Paper
 from models.union import Union
-from s3 import get_presigned_get_url
+from misc.s3 import get_presigned_get_url
 
 router = APIRouter()
 

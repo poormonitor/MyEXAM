@@ -1,4 +1,5 @@
 from datetime import timedelta
+from tempfile import NamedTemporaryFile
 
 from minio import Minio
 
@@ -48,3 +49,14 @@ def delete_from_s3(ext: str, fid: str):
     key = key.strip("/")
 
     minioClient.remove_object(config["S3_BUCKET"], key)
+
+
+def get_file_local(ext: str, fid: str):
+    new_file = NamedTemporaryFile("w", delete=False)
+
+    key = config["S3_PREFIX"] + "/" + fid + "." + ext
+    key = key.strip("/")
+
+    minioClient.fget_object(config["S3_BUCKET"], key, new_file.name)
+
+    return new_file.name

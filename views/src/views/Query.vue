@@ -33,7 +33,7 @@ const goQuery = () => {
     loading.value = true;
     if (searchInfo.s) router.push({ query: { s: searchInfo.s } });
     axios
-        .post("/search/query", {
+        .post("/search/exam", {
             name: searchInfo.s,
             start: searchInfo.range[0],
             end: searchInfo.range[1],
@@ -140,93 +140,26 @@ if (route.query.s) {
 
 <template>
     <div class="mt-8 flex flex-col items-center md:mt-10">
-        <div
-            class="mx-8 flex items-center gap-x-4 md:mx-auto md:w-96 lg:w-[40vw] overflow-y-hidden"
-        >
-            <span class="whitespace-nowrap md:text-lg">试卷</span>
-            <n-input
-                ref="inputRef"
-                :size="collapsed ? 'medium' : 'large'"
-                v-model:value="searchInfo.s"
-                @keyup.enter="goQuery"
-                placeholder="搜索"
-            >
-                <template #prefix>
-                    <n-icon :component="Search" />
-                </template>
-            </n-input>
-            <n-button :size="collapsed ? 'medium' : 'large'" @click="goQuery">
-                检索
-            </n-button>
-        </div>
-        <div
-            class="mx-auto mt-4 w-full self-start px-8 md:w-[80vw] lg:w-[60vw]"
-        >
-            <n-collapse display-directive="show">
-                <n-collapse-item title="筛选">
-                    <n-form
-                        :size="collapsed ? 'small' : 'medium'"
-                        class="flex flex-col gap-x-4 md:flex-row"
-                    >
-                        <div class="w-full md:w-1/5">
-                            <n-form-item label="年级">
-                                <n-select
-                                    v-model:value="searchInfo.grade"
-                                    type="daterange"
-                                    :options="getOptions(grades)"
-                                />
-                            </n-form-item>
-                        </div>
-                        <div class="w-full md:w-2/5">
-                            <n-form-item label="科目">
-                                <n-select
-                                    v-model:value="searchInfo.courses"
-                                    max-tag-count="responsive"
-                                    multiple
-                                    clearable
-                                    :options="getOptions(courses)"
-                                />
-                            </n-form-item>
-                        </div>
-                        <div class="w-full md:w-2/5">
-                            <n-form-item label="时间">
-                                <n-date-picker
-                                    v-model:value="searchInfo.range"
-                                    type="daterange"
-                                    clearable
-                                />
-                            </n-form-item>
-                        </div>
-                    </n-form>
-                </n-collapse-item>
-            </n-collapse>
-        </div>
-        <n-divider></n-divider>
-        <n-spin :show="loading" class="px-8 w-full md:mx-auto md:w-[80vw]">
-            <div class="mb-4">
-                <n-statistic label="共计找到了" tabular-nums>
-                    <n-number-animation
-                        ref="cntRef"
-                        :from="0"
-                        :to="queryResult.cnt"
-                    />
-                    <template #suffix> 张试卷 </template>
-                </n-statistic>
-            </div>
-            <div v-if="queryResult.cnt">
-                <n-data-table
-                    :columns="tableColumns"
-                    :data="queryResult.list"
-                    :pagination="{ pageSize: 10 }"
-                    class="whitespace-nowrap md:whitespace-normal"
-                />
-            </div>
-            <template #description> 正在加载 </template>
-        </n-spin>
+        <n-tabs type="segment">
+            <n-tab-pane name="exam" tab="搜索考试">
+                <QueryExam />
+            </n-tab-pane>
+            <n-tab-pane name="file" tab="搜索文件">
+                <QueryFile />
+            </n-tab-pane>
+        </n-tabs>
     </div>
 </template>
 
 <style lang="postcss">
+.n-tabs-nav {
+    @apply justify-center mb-1;
+}
+
+.n-tabs-rail {
+    @apply w-64 !important;
+}
+
 .paperTable tr:hover td {
     @apply bg-blue-50;
 }

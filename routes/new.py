@@ -2,7 +2,7 @@ import os
 from datetime import date
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, BackgroundTasks
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
@@ -13,7 +13,8 @@ from models.examgroup import ExamGroup
 from models.file import File
 from models.paper import Paper
 from models.union import Union
-from s3 import delete_from_s3, get_presigned_post_url
+from misc.s3 import delete_from_s3, get_presigned_post_url, get_file_local
+from misc.ocr import WriteOCR
 
 router = APIRouter()
 
@@ -63,7 +64,7 @@ def new_union(data: NewUnion, db: Session = Depends(get_db)):
     union = db.query(Union).filter_by(name=data.name).first()
     if union:
         return {"result": "success", "nid": union.nid}
-        
+
     new_union = Union(**vars(data))
     db.add(new_union)
     db.commit()
@@ -125,7 +126,12 @@ def delete_file(data: DeleteFile, db: Session = Depends(get_db)):
 
 
 @router.post("/confirm")
-def delete_file(data: NewConfirm, request: Request, db: Session = Depends(get_db)):
+def delete_file(
+    data: NewConfirm,
+    background: BackgroundTasks,
+    request: Request,
+    db: Session = Depends(get_db),
+):
     paper = db.query(Paper).filter_by(pid=data.pid).first()
     paper.comment = data.comment
     paper.created_at = func.now()
@@ -140,6 +146,8 @@ def delete_file(data: NewConfirm, request: Request, db: Session = Depends(get_db
         if i.fid in target:
             i.type = target[i.fid]
             i.upload_time = func.now()
+            tempfile = get_file_local(i.ext, i.fid)
+            background.add_task(WriteOCR, tempfile, i.ext, i.fid, db)
         else:
             db.delete(i)
 

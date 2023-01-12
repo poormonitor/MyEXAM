@@ -16,3 +16,4 @@ class File(Base):
     pid = Column(String(64), ForeignKey("papers.pid"))
     upload_time = Column(DateTime, default=func.now())
     views = Column(Integer, default=0)
+    ocr = Column(Text)

@@ -48,7 +48,11 @@ const menuOptions = [
         width="180px"
         v-if="collapsed"
     >
-        <n-menu :value="route.name" :options="menuOptions" />
+        <n-menu
+            :value="route.name"
+            @update:value="showSideBar = false"
+            :options="menuOptions"
+        />
     </n-drawer>
     <div class="py-3 md:pt-2 md:pb-1 flex items-center" id="main-header">
         <div class="pl-3">
