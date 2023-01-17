@@ -1,7 +1,7 @@
 <script setup lang="jsx">
 import { useRoute, useRouter } from "vue-router";
 import { paramsError } from "../discrete";
-import { getYearMonth } from "../func";
+import { GetYearMonth } from "../func";
 import { courses, grades } from "../const";
 import { ArrowForwardOutline } from "@vicons/ionicons5";
 
@@ -76,7 +76,7 @@ const data = await axios
         </p>
         <p class="text-4xl font-bold mb-3">
             <span class="whitespace-nowrap mr-2">
-                {{ getYearMonth(data.date) }}
+                {{ GetYearMonth(data.date) }}
             </span>
             <span class="whitespace-nowrap">
                 {{ data.name }}
@@ -102,14 +102,14 @@ const data = await axios
         </InfoTag>
         <InfoTag class="col-span-3" label="考试名称">
             <span class="whitespace-nowrap mr-2">
-                {{ getYearMonth(data.date) }}
+                {{ GetYearMonth(data.date) }}
             </span>
             <span class="whitespace-nowrap">
                 {{ data.name }}
             </span>
         </InfoTag>
         <InfoTag class="col-span-3" label="考试年月">
-            {{ getYearMonth(data.date) }}
+            {{ GetYearMonth(data.date) }}
         </InfoTag>
     </div>
     <n-divider title-placement="left">

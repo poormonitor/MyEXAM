@@ -1,7 +1,7 @@
 <script setup lang="jsx">
 import { useRoute, useRouter } from "vue-router";
 import { paramsError } from "../discrete";
-import { getYearMonth } from "../func";
+import { GetYearMonth } from "../func";
 import { courses, grades } from "../const";
 import { ArrowForwardOutline } from "@vicons/ionicons5";
 
@@ -42,7 +42,7 @@ const tableColumns = [
     {
         title: "考试名称",
         key: "name",
-        render: (row) => <span>{getYearMonth(row.date) + " " + row.name}</span>,
+        render: (row) => <span>{GetYearMonth(row.date) + " " + row.name}</span>,
         rowSpan: (rowData) => (rowData.e === 0 ? rowData.cnt : 1),
     },
     {

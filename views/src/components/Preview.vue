@@ -1,15 +1,23 @@
 <script setup>
 import { pic_ext } from "../const";
+
 const props = defineProps(["src", "title", "ext"]);
 
+const pdf = computed(() => props.ext === "pdf");
 const pic = computed(() => pic_ext.includes(props.ext));
 const title = computed(() => (props.title ? props.title : "文件预览"));
 </script>
 
 <template>
     <n-modal preset="card" class="preview-modal" :title="title">
-        <iframe class="w-full h-[80vh]" :src="props.src" v-if="!pic"></iframe>
-        <img :src="props.src" style="width: 100%" v-else />
+        <embed
+            class="w-full h-[80vh]"
+            type="application/pdf"
+            :src="props.src"
+            v-if="pdf"
+        />
+        <img :src="props.src" style="width: 100%" v-else-if="pic" />
+        <iframe class="w-full h-[80vh]" :src="props.src" v-else></iframe>
     </n-modal>
 </template>
 

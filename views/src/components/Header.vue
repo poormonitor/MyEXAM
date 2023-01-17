@@ -54,7 +54,7 @@ const menuOptions = [
             :options="menuOptions"
         />
     </n-drawer>
-    <div class="py-3 md:pt-2 md:pb-1 flex items-center" id="main-header">
+    <div class="h-14 flex items-center" id="main-header">
         <div class="pl-3">
             <n-button
                 @click="showSideBar = true"

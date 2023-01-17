@@ -1,5 +1,5 @@
 <script setup lang="jsx">
-import { getFullTime } from "../func";
+import { GetFullTime } from "../func";
 import { file_types } from "../const";
 
 const props = defineProps(["pid"]);
@@ -8,7 +8,7 @@ const axios = inject("axios");
 
 const downloadFile = (fid) => {
     axios
-        .get("/list/file", {
+        .get("/list/url", {
             params: { fid: fid },
         })
         .then((response) => {
@@ -51,7 +51,7 @@ const columns = [
     {
         title: "上传时间",
         key: "upload_time",
-        render: (row) => <span>{getFullTime(row.upload_time)}</span>,
+        render: (row) => <span>{GetFullTime(row.upload_time)}</span>,
     },
     {
         title: "下载量",

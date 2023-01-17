@@ -6,88 +6,128 @@ const router = createRouter({
     routes: [
         {
             path: "/",
-            name: "home",
-            component: () => import("../views/Home.vue"),
-            meta: {
-                requiresAuth: false,
-                title: "首页",
-            },
-        },
-        {
-            path: "/login",
-            name: "login",
-            component: () => import("../views/Login.vue"),
-            meta: {
-                requiresAuth: false,
-                title: "用户登录",
-            },
-        },
-        {
-            path: "/reg",
-            name: "reg",
-            component: () => import("../views/Reg.vue"),
-            meta: {
-                requiresAuth: false,
-                title: "用户注册",
-            },
-        },
-        {
-            path: "/query",
-            name: "query",
-            component: () => import("../views/Query.vue"),
-            meta: {
-                requiresAuth: false,
-                title: "搜试卷",
-            },
-        },
-        {
-            path: "/discover",
-            name: "discover",
-            component: () => import("../views/Discover.vue"),
-            meta: {
-                requiresAuth: false,
-                title: "探索",
-            },
-        },
-        {
-            path: "/upload",
-            name: "upload",
-            component: () => import("../views/Upload.vue"),
-            meta: {
-                requiresAuth: false,
-                title: "传试卷",
-            },
-        },
-        {
-            path: "/view",
+            name: "index",
             redirect: { name: "home" },
-            component: () => import("../views/View.vue"),
+            component: () => import("../views/Index.vue"),
+            meta: {
+                requiresAuth: false,
+                requiresAdmin: false,
+            },
             children: [
                 {
-                    path: "exam",
-                    name: "exam",
-                    component: () => import("../views/Exam.vue"),
+                    path: "",
+                    name: "home",
+                    component: () => import("../views/Home.vue"),
                     meta: {
-                        requiresAuth: false,
-                        title: "试卷",
+                        title: "首页",
                     },
                 },
                 {
-                    path: "union",
-                    name: "union",
-                    component: () => import("../views/Union.vue"),
+                    path: "login",
+                    name: "login",
+                    component: () => import("../views/Login.vue"),
                     meta: {
-                        requiresAuth: false,
-                        title: "联盟",
+                        title: "用户登录",
                     },
                 },
                 {
-                    path: "examgroup",
-                    name: "examgroup",
-                    component: () => import("../views/ExamGroup.vue"),
+                    path: "reg",
+                    name: "reg",
+                    component: () => import("../views/Reg.vue"),
                     meta: {
-                        requiresAuth: false,
-                        title: "考试",
+                        title: "用户注册",
+                    },
+                },
+                {
+                    path: "query",
+                    name: "query",
+                    component: () => import("../views/Query.vue"),
+                    meta: {
+                        title: "搜试卷",
+                    },
+                },
+                {
+                    path: "discover",
+                    name: "discover",
+                    component: () => import("../views/Discover.vue"),
+                    meta: {
+                        title: "探索",
+                    },
+                },
+                {
+                    path: "upload",
+                    name: "upload",
+                    component: () => import("../views/Upload.vue"),
+                    meta: {
+                        title: "传试卷",
+                    },
+                },
+                {
+                    path: "view",
+                    name: "view",
+                    redirect: { name: "home" },
+                    component: () => import("../views/View.vue"),
+                    children: [
+                        {
+                            path: "exam",
+                            name: "exam",
+                            component: () => import("../views/Exam.vue"),
+                            meta: {
+                                title: "试卷",
+                            },
+                        },
+                        {
+                            path: "union",
+                            name: "union",
+                            component: () => import("../views/Union.vue"),
+                            meta: {
+                                title: "联盟",
+                            },
+                        },
+                        {
+                            path: "examgroup",
+                            name: "examgroup",
+                            component: () => import("../views/ExamGroup.vue"),
+                            meta: {
+                                title: "考试",
+                            },
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            path: "/admin",
+            name: "admin",
+            redirect: { name: "manage" },
+            component: () => import("../views/Admin.vue"),
+            meta: {
+                requiresAuth: true,
+                requiresAdmin: true,
+            },
+            children: [
+                {
+                    path: "manage",
+                    name: "manage",
+                    component: () => import("../views/Manage.vue"),
+                    meta: {
+                        title: "试卷管理",
+                    },
+                },
+                {
+                    path: "user",
+                    name: "user",
+                    component: () => import("../views/User.vue"),
+                    meta: {
+                        title: "用户管理",
+                    },
+                },
+                {
+                    path: "system",
+                    name: "system",
+                    component: () => import("../views/System.vue"),
+                    meta: {
+                        title: "系统管理",
                     },
                 },
             ],
@@ -102,6 +142,7 @@ router.beforeEach((to, from) => {
     const userStore = useUserStore();
 
     if (to.meta.requiresAuth && !userStore.uid) return { name: "login" };
+    if (to.meta.requiresAdmin && !userStore.admin) return { name: "home" };
     if (userStore.uid && ["login", "reg"].includes(to.name))
         return { name: "home" };
 });

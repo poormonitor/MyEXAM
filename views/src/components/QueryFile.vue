@@ -1,6 +1,6 @@
 <script setup lang="jsx">
 import { useRoute, useRouter } from "vue-router";
-import { getYearMonth } from "../func";
+import { GetYearMonth } from "../func";
 import { courses, grades } from "../const";
 import { Search, ArrowForwardOutline } from "@vicons/ionicons5";
 
@@ -18,9 +18,16 @@ const searchInfo = reactive({
     grade: null,
     courses: [],
 });
+
 const queryResult = reactive({
     list: [],
     cnt: 0,
+});
+
+const pagination = reactive({
+    page: 0,
+    pageCount: 0,
+    pageSize: 10,
 });
 
 const getOptions = (items) =>
@@ -39,11 +46,15 @@ const goQuery = () => {
             end: searchInfo.range[1],
             courses: searchInfo.courses,
             grade: searchInfo.grade,
+            page: pagination.page,
         })
         .then((response) => {
             if (response.data.list) {
                 queryResult.list = response.data.list;
                 queryResult.cnt = response.data.count;
+                pagination.pageCount = Math.ceil(
+                    queryResult.cnt / pagination.pageCount
+                );
                 loading.value = false;
                 cntRef.value?.play();
             }
@@ -56,6 +67,15 @@ const gotoExam = (eid) => {
 
 const tableColumns = [
     {
+        type: "expand",
+        renderExpand: (row) => {
+            let text = row.text
+                .replaceAll("*s*", `<span class="font-bold text-indigo-600">`)
+                .replaceAll("*e*", "</span>");
+            return <div class="whitespace-pre" innerHTML={text}></div>;
+        },
+    },
+    {
         title: "查看",
         key: "go",
         render: (row) => (
@@ -66,7 +86,7 @@ const tableColumns = [
                 on-click={() => gotoExam(row.exam.eid)}
             >
                 {{
-                    icon: (
+                    icon: () => (
                         <n-icon>
                             <ArrowForwardOutline />
                         </n-icon>
@@ -95,15 +115,14 @@ const tableColumns = [
                 class="text-sky-800 hover:text-sky-900 transition"
                 to={{ name: "examgroup", query: { egid: row.examgroup.egid } }}
             >
-                {getYearMonth(row.examgroup.date) + " " + row.examgroup.name}
+                {GetYearMonth(row.examgroup.date) + " " + row.examgroup.name}
             </router-link>
         ),
     },
     {
         title: "日期",
         key: "date",
-        render: (row) => <span>{row.date}</span>,
-        sorter: (row1, row2) => new Date(row1.date) - new Date(row2.date),
+        render: (row) => <span>{row.exam.date}</span>,
     },
     {
         title: "版本",
@@ -127,7 +146,6 @@ const tableColumns = [
     {
         title: "浏览量",
         key: "views",
-        sorter: (row1, row2) => row1.views - row2.views,
     },
 ];
 
@@ -197,7 +215,7 @@ if (route.query.s) {
         </n-collapse>
     </div>
     <n-divider></n-divider>
-    <n-spin :show="loading" class="px-8 w-full md:mx-auto md:w-[80vw]">
+    <div class="px-8 w-full md:mx-auto md:w-[80vw]">
         <div class="mb-4">
             <n-statistic label="共计找到了" tabular-nums>
                 <n-number-animation
@@ -212,10 +230,12 @@ if (route.query.s) {
             <n-data-table
                 :columns="tableColumns"
                 :data="queryResult.list"
-                :pagination="{ pageSize: 10 }"
+                :loading="loading"
+                :pagination="pagination"
                 class="whitespace-nowrap md:whitespace-normal"
+                @update:page="goQuery"
+                default-expand-all
             />
         </div>
-        <template #description> 正在加载 </template>
-    </n-spin>
+    </div>
 </template>

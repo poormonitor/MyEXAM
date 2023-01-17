@@ -50,7 +50,7 @@ const goQuery = () => {
             >
         </div>
     </div>
-    <div class="mx-8 mt-10 md:mt-16">
+    <div class="mx-8 my-10 md:my-16">
         <Intro />
     </div>
 </template>

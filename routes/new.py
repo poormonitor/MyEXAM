@@ -2,19 +2,18 @@ import os
 from datetime import date
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, Request, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
+from misc.s3 import delete_object_from_s3, get_file_local, get_presigned_post_url
 from models import get_db
 from models.exam import Exam
 from models.examgroup import ExamGroup
 from models.file import File
 from models.paper import Paper
 from models.union import Union
-from misc.s3 import delete_from_s3, get_presigned_post_url, get_file_local
-from misc.ocr import WriteOCR
 
 router = APIRouter()
 
@@ -118,7 +117,7 @@ def new_file(data: NewFile, db: Session = Depends(get_db)):
 def delete_file(data: DeleteFile, db: Session = Depends(get_db)):
     file = db.query(File).filter_by(fid=data.fid).first()
     if file:
-        delete_from_s3(file.ext, file.fid)
+        delete_object_from_s3(file.ext, file.fid)
         db.delete(file)
         db.commit()
         return {"result": "success"}
@@ -126,17 +125,19 @@ def delete_file(data: DeleteFile, db: Session = Depends(get_db)):
 
 
 @router.post("/confirm")
-def delete_file(
+def confirm_paper(
     data: NewConfirm,
     background: BackgroundTasks,
     request: Request,
     db: Session = Depends(get_db),
 ):
+    from misc.ocr import WriteOCR
+
     paper = db.query(Paper).filter_by(pid=data.pid).first()
     paper.comment = data.comment
     paper.created_at = func.now()
     paper.uploader_ip = request.client.host
-    paper.user_token = request.headers.get("X-MyExam-Token", "")
+    paper.user_token = request.headers.get("X-MyExam-Token")
     paper.eid = data.eid
     paper.receipt = True
 
@@ -146,9 +147,9 @@ def delete_file(
         if i.fid in target:
             i.type = target[i.fid]
             i.upload_time = func.now()
-            tempfile = get_file_local(i.ext, i.fid)
-            background.add_task(WriteOCR, tempfile, i.ext, i.fid, db)
+            background.add_task(WriteOCR, i.ext, i.fid, db)
         else:
+            delete_object_from_s3(i.ext, i.fid)
             db.delete(i)
 
     db.commit()

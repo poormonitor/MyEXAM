@@ -1,3 +1,4 @@
+import re
 from datetime import date, datetime, timedelta
 from typing import List, Optional
 
@@ -16,7 +17,7 @@ from models.union import Union
 router = APIRouter()
 
 
-class searchFile(BaseModel):
+class SearchFile(BaseModel):
     s: Optional[str] = ""
     start: Optional[date] = datetime.now() - timedelta(days=30)
     end: Optional[date] = datetime.now()
@@ -25,7 +26,7 @@ class searchFile(BaseModel):
     page: Optional[int] = 0
 
 
-class searchExam(BaseModel):
+class SearchExam(BaseModel):
     name: Optional[str] = ""
     start: Optional[date] = datetime.now() - timedelta(days=30)
     end: Optional[date] = datetime.now()
@@ -55,6 +56,14 @@ class OnePaper(BaseModel):
 
 
 class OneExam(BaseModel):
+    eid: str
+    course: int
+    grade: int
+    views: int
+    date: date
+
+
+class Exams(BaseModel):
     union: OneUnion
     examgroup: OneExamGroup
     eid: str
@@ -65,21 +74,37 @@ class OneExam(BaseModel):
     papers: List[OnePaper]
 
 
-class OneFile(BaseModel):
+class Files(BaseModel):
     fid: str
     name: str
     ext: str
     type: int
     views: int
     upload_time: datetime
+    text: str
     union: OneUnion
     examgroup: OneExamGroup
     exam: OneExam
     paper: OnePaper
 
 
+def GetHighlight(text: str, keyword: str):
+    f = []
+
+    target = "|".join(keyword.split(" "))
+    rs = re.findall(r"(.{0,8})(%s)(.{0,8})" % target, text)
+
+    if not rs:
+        return None
+
+    for i in rs:
+        f.append(i[0] + "*s*" + i[1] + "*e*" + i[2])
+
+    return "\n".join(f[:5])
+
+
 @router.post("/exam")
-def search(info: searchExam, db: Session = Depends(get_db)):
+def search_exam(info: SearchExam, db: Session = Depends(get_db)):
     k = info.name.split(" ")
     query = (
         db.query(Exam, Union, ExamGroup, Paper)
@@ -104,14 +129,14 @@ def search(info: searchExam, db: Session = Depends(get_db)):
 
     if info.courses:
         query = query.filter(Exam.course.in_(info.courses))
-    if info.grade:
+    if info.grade is not None:
         query = query.filter(Exam.grade == info.grade)
 
     cnt = query.count()
-    result = query.limit(50).offset(info.page * 50).all()
+    result = query.limit(10).offset(info.page * 10).all()
 
     lst = [
-        OneExam(
+        Exams(
             **vars(item[0]),
             union=OneUnion(**vars(item[1])),
             examgroup=OneExamGroup(**vars(item[2])),
@@ -124,7 +149,7 @@ def search(info: searchExam, db: Session = Depends(get_db)):
 
 
 @router.post("/file")
-def search(info: searchFile, db: Session = Depends(get_db)):
+def search_file(info: SearchFile, db: Session = Depends(get_db)):
     k = info.s.split(" ")
     query = (
         db.query(File, Union, ExamGroup, Exam, Paper)
@@ -144,15 +169,16 @@ def search(info: searchFile, db: Session = Depends(get_db)):
         query = query.filter(Exam.grade == info.grade)
 
     cnt = query.count()
-    result = query.limit(50).offset(info.page * 50).all()
+    result = query.limit(10).offset(info.page * 10).all()
 
     lst = [
-        OneFile(
+        Files(
             **vars(item[0]),
-            union=OneUnion(**vars(item[4])),
-            examgroup=OneExamGroup(**vars(item[3])),
-            exam=OneExam(**vars(item[2])),
-            paper=OnePaper(**vars(item[1])),
+            union=OneUnion(**vars(item[1])),
+            examgroup=OneExamGroup(**vars(item[2])),
+            exam=OneExam(**vars(item[3])),
+            paper=OnePaper(**vars(item[4])),
+            text=GetHighlight(item[0].ocr, info.s),
         )
         for item in result
     ]

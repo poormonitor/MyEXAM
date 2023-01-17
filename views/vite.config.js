@@ -35,4 +35,23 @@ export default defineConfig({
             "@": fileURLToPath(new URL("./src", import.meta.url)),
         },
     },
+    build: {
+        chunkSizeWarningLimit: 500,
+        cssCodeSplit: false,
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    vue: ["vue", "vue-router", "pinia"],
+                    icons: ["@vicons/ionicons5"],
+                },
+                chunkFileNames: (chunkInfo) => {
+                    if (chunkInfo.moduleIds[0].includes("node_modules")) {
+                        return "assets/vendor-[hash].js";
+                    }
+                    return "assets/index-[hash].js";
+                },
+            },
+        },
+        brotliSize: false,
+    },
 });

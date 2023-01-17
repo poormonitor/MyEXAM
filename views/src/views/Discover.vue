@@ -1,5 +1,5 @@
 <script setup>
-import { getYearMonth } from "../func";
+import { GetYearMonth } from "../func";
 import { courses, grades } from "../const";
 import { Eye } from "@vicons/ionicons5";
 import { useRouter } from "vue-router";
@@ -35,7 +35,7 @@ const gotoExam = (eid) => {
 const getExamName = (item) => {
     let union = item.union.name;
     let name = item.examgroup.name;
-    let date = getYearMonth(item.examgroup.date);
+    let date = GetYearMonth(item.examgroup.date);
     return `${union} ${date} ${name}`;
 };
 

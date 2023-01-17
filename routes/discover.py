@@ -14,7 +14,7 @@ from models.union import Union
 router = APIRouter()
 
 
-class searchInfo(BaseModel):
+class SearchInfo(BaseModel):
     course: Optional[int] = None
     grade: Optional[int] = None
 
@@ -43,7 +43,7 @@ class Exams(BaseModel):
 
 
 @router.post("/exams")
-def search(data: Optional[searchInfo] = None, db: Session = Depends(get_db)):
+def search(data: Optional[SearchInfo] = None, db: Session = Depends(get_db)):
     query = (
         db.query(Exam, Union, ExamGroup, Paper)
         .outerjoin(ExamGroup, ExamGroup.egid == Exam.egid)
@@ -54,9 +54,9 @@ def search(data: Optional[searchInfo] = None, db: Session = Depends(get_db)):
         .filter(Paper.receipt == True)
     )
 
-    if data.course:
+    if data.course is not None:
         query = query.filter(Exam.course == data.course)
-    if data.grade:
+    if data.grade is not None:
         query = query.filter(Exam.grade == data.grade)
 
     result = query.limit(20).all()

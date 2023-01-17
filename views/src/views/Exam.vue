@@ -2,7 +2,7 @@
 import { useRoute } from "vue-router";
 import { paramsError } from "../discrete";
 import { courses, grades, office_ext } from "../const";
-import { getYearMonth } from "../func";
+import { GetYearMonth } from "../func";
 import { CloudDownloadOutline, Easel, AttachOutline } from "@vicons/ionicons5";
 import { Suspense } from "vue";
 
@@ -23,8 +23,8 @@ if (!route.query.eid) {
 
 const previewFile = (fid, ext, name) => {
     axios
-        .get("/list/file", {
-            params: { fid: fid },
+        .get("/list/url", {
+            params: { fid: fid, download: false },
         })
         .then((response) => {
             if (response.data.url) {
@@ -126,7 +126,7 @@ await fetchExam();
         </p>
         <p class="text-4xl font-bold mb-3">
             <span class="whitespace-nowrap mr-2">
-                {{ getYearMonth(showData.examgroup.date) }}
+                {{ GetYearMonth(showData.examgroup.date) }}
             </span>
             <span class="whitespace-nowrap">
                 {{ showData.examgroup.name }}
@@ -164,7 +164,7 @@ await fetchExam();
                     }"
                 >
                     <span class="whitespace-nowrap mr-2">
-                        {{ getYearMonth(showData.examgroup.date) }}
+                        {{ GetYearMonth(showData.examgroup.date) }}
                     </span>
                     <span class="whitespace-nowrap">
                         {{ showData.examgroup.name }}

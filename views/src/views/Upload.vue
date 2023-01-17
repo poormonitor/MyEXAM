@@ -1,7 +1,7 @@
 <script setup lang="jsx">
 import { Archive } from "@vicons/ionicons5";
 import { courses, grades, file_types, paper_types } from "../const";
-import { getYearMonth } from "../func";
+import { GetYearMonth } from "../func";
 import { AddCircleOutline } from "@vicons/ionicons5";
 import { useDialog } from "naive-ui";
 import { message } from "../discrete";
@@ -37,6 +37,14 @@ const getOptions = (items) =>
         value: index,
     }));
 
+const TypeHint = computed(() => {
+    return getOptions(
+        paper_types
+            .filter((item) => !uploadInfo.comment.includes(item))
+            .map((item) => `${uploadInfo.comment} ${item}`)
+    );
+});
+
 const fetchUnions = () => {
     axios.get("/list/unions").then((response) => {
         unionList.value = response.data.list.map((item) => ({
@@ -61,7 +69,7 @@ const fetchExamGroups = () => {
             if (response.data.union) {
                 examGroupList.value = response.data.union.examgroups.map(
                     (item) => ({
-                        label: getYearMonth(item.date) + " " + item.name,
+                        label: GetYearMonth(item.date) + " " + item.name,
                         value: item.egid,
                         date: item.date,
                     })
@@ -208,7 +216,7 @@ const newExamGroupDialog = () => {
                             (item) => item.value == uploadInfo.nid
                         ).label +
                             " " +
-                            getYearMonth(newExamGroupForm.date) +
+                            GetYearMonth(newExamGroupForm.date) +
                             " " +
                             newExamGroupForm.name}
                     </p>
@@ -222,7 +230,7 @@ const newExamGroupDialog = () => {
                 );
                 examGroupList.value.splice(-2, 0, {
                     label:
-                        getYearMonth(newExamGroupForm.date) +
+                        GetYearMonth(newExamGroupForm.date) +
                         " " +
                         newExamGroupForm.name,
                     value: "create",
@@ -537,7 +545,7 @@ fetchUnions();
                     <n-auto-complete
                         class="w-full"
                         placeholder="图片版, 详解版 ..."
-                        :options="getOptions(paper_types)"
+                        :options="TypeHint"
                         v-model:value="uploadInfo.comment"
                     />
                 </n-form-item>

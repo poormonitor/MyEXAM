@@ -1,10 +1,11 @@
 <script setup>
-import { useUserStore } from "../stores/user";
-import { useRouter } from "vue-router";
 import sha256 from "crypto-js/sha256";
-import { message } from "../discrete";
+import { useRouter } from "vue-router";
+import { useTokenStore } from "../stores/token";
+import { useUserStore } from "../stores/user";
 
 const userStore = useUserStore();
+const tokenStore = useTokenStore();
 const router = useRouter();
 const axios = inject("axios");
 
@@ -27,9 +28,8 @@ const submitLogin = () => {
                     response.data.access_token,
                     response.data.admin
                 );
+                tokenStore.token = response.data.uid;
                 router.push({ name: "home" });
-            } else {
-                message.error(response.data.detail);
             }
         });
 };

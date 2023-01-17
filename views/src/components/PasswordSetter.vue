@@ -71,10 +71,9 @@ const submitRequest = () => {
         positive-text="确认"
         negative-text="取消"
         @positive-click="submitRequest"
-        class="w-4/5 md:3/5 lg:w-2/5"
     >
         <n-form :rules="rules" :model="passwdSet" ref="form">
-            <div class="m-8">
+            <div class="mx-8 mb-6 mt-10">
                 <n-form-item label="原密码" path="old">
                     <n-input
                         placeholder="原密码"

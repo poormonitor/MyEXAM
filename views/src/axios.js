@@ -2,9 +2,7 @@ import axios from "axios";
 import { message } from "./discrete";
 import { useTokenStore } from "./stores/token";
 import { useUserStore } from "./stores/user";
-import { useRouter } from "vue-router";
-
-const router = useRouter();
+import router from "./router/index";
 
 export default {
     install: (app, options) => {
@@ -19,18 +17,17 @@ export default {
                 const userStore = useUserStore();
 
                 let access_token = userStore.access_token;
-                let token = tokenStore.token;
-
-                if (!token) {
-                    tokenStore.createToken();
-                    token = tokenStore.token;
-                }
-
-                config.headers["X-MyExam-Token"] = token;
 
                 if (access_token) {
                     config.headers.Authorization = "Bearer " + access_token;
+                    tokenStore.token = userStore.uid;
                 }
+
+                if (!tokenStore.token) {
+                    tokenStore.createToken();
+                }
+
+                config.headers["X-MyExam-Token"] = tokenStore.token;
 
                 return config;
             },
@@ -45,9 +42,11 @@ export default {
             },
             (error) => {
                 if (error.response?.status === 401) {
+                    const userStore = useUserStore();
+                    userStore.logout();
                     message.error("登录失效，请重新登录。");
                     router.push({ name: "login" });
-                } else if (error.response?.data) {
+                } else if (error.response?.data.detail instanceof String) {
                     message.error(error.response.data.detail);
                 } else {
                     message.error(error.message);

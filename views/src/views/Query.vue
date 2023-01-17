@@ -1,6 +1,6 @@
 <script setup lang="jsx">
 import { useRoute, useRouter } from "vue-router";
-import { getYearMonth } from "../func";
+import { GetYearMonth } from "../func";
 import { courses, grades } from "../const";
 import { Search, ArrowForwardOutline } from "@vicons/ionicons5";
 
@@ -95,7 +95,7 @@ const tableColumns = [
                 class="text-sky-800 hover:text-sky-900 transition"
                 to={{ name: "examgroup", query: { egid: row.examgroup.egid } }}
             >
-                {getYearMonth(row.examgroup.date) + " " + row.examgroup.name}
+                {GetYearMonth(row.examgroup.date) + " " + row.examgroup.name}
             </router-link>
         ),
     },

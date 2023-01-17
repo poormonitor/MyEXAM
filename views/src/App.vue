@@ -33,17 +33,7 @@ provide("collapsed", collapsed);
     >
         <n-global-style />
         <n-dialog-provider>
-            <n-layout class="min-h-full pb-12">
-                <n-layout-header bordered>
-                    <Header></Header>
-                </n-layout-header>
-                <n-layout-content>
-                    <router-view></router-view>
-                </n-layout-content>
-                <n-layout-footer bordered position="absolute">
-                    <Footer></Footer>
-                </n-layout-footer>
-            </n-layout>
+            <router-view></router-view>
         </n-dialog-provider>
     </n-config-provider>
 </template>

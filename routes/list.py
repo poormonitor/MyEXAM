@@ -1,18 +1,18 @@
 from datetime import date, datetime
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from misc.model import get_courses
+from misc.s3 import get_presigned_get_url
 from models import get_db
 from models.exam import Exam
 from models.examgroup import ExamGroup
 from models.file import File
 from models.paper import Paper
 from models.union import Union
-from misc.s3 import get_presigned_get_url
 
 router = APIRouter()
 
@@ -168,6 +168,17 @@ def get_exam(eid: str, db: Session = Depends(get_db)):
     return {"exam": examdata}
 
 
+@router.get("/paper")
+def get_paper(pid: str, db: Session = Depends(get_db)):
+    paper = db.query(Paper).filter(Paper.pid == pid).first()
+    data = OnePaper(**vars(paper), fcnt=len(paper.files))
+
+    paper.views += 1
+    db.commit()
+
+    return {"paper": data}
+
+
 @router.get("/files")
 def get_files(pid: str, db: Session = Depends(get_db)):
     paper = db.query(Paper).filter_by(pid=pid).first()
@@ -182,7 +193,18 @@ def get_files(pid: str, db: Session = Depends(get_db)):
 @router.get("/file")
 def get_url(fid: str, db: Session = Depends(get_db)):
     file = db.query(File).filter(File.fid == fid).first()
-    url = get_presigned_get_url(file.ext, file.fid, file.name)
+    data = OneFile(**vars(file))
+
+    file.views += 1
+    db.commit()
+
+    return {"file": data}
+
+
+@router.get("/url")
+def get_url(fid: str, download: Optional[bool] = True, db: Session = Depends(get_db)):
+    file = db.query(File).filter(File.fid == fid).first()
+    url = get_presigned_get_url(file.ext, file.fid, file.name, download)
 
     file.views += 1
     db.commit()

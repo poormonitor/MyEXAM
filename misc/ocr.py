@@ -1,6 +1,6 @@
 import os
-
 import re
+
 import cv2
 import docx
 import fitz
@@ -10,6 +10,8 @@ from PIL import Image
 from sqlalchemy.orm import Session
 
 from models.file import File
+
+from .s3 import get_file_local
 
 
 def get_text_pdf(file_path: str) -> str:
@@ -78,12 +80,12 @@ def get_text(file_path: str, ext: str) -> str:
     return text
 
 
-def WriteOCR(file_path: str, ext: str, fid: str, db: Session):
+async def WriteOCR(ext: str, fid: str, db: Session):
+    file_path = get_file_local(file.ext, file.fid)
     text = get_text(file_path, ext)
 
     file = db.query(File).filter_by(fid=fid).first()
-    if file:
-        file.ocr = text
+    file.ocr = text
 
     os.remove(file_path)
     db.commit()
