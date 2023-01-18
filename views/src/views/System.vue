@@ -32,7 +32,7 @@ const CleanIsolateAction = () => {
                 </div>
             </template>
         </n-card>
-        <n-card title="清理孤立试卷">
+        <n-card title="清理孤立项目">
             清理系统中孤立的项目，包括考试、试卷和文件。
             <template #action>
                 <div class="flex justify-end">

@@ -11,6 +11,7 @@ router = APIRouter()
 
 
 class Users(BaseModel):
+    uid: str
     nick: str
     email: str
     admin: bool
@@ -43,31 +44,32 @@ def list_users(s: str = "", page: int = 0, db: Session = Depends(get_db)):
 @router.post("/delete")
 def delete_user(data: DelUser, db: Session = Depends(get_db)):
     user = db.query(User).filter_by(uid=data.uid).first()
-    if user:
-        db.delete(user)
-        db.commit()
-        return {"result": "success"}
 
-    raise HTTPException(status_code=404, detail="用户未找到。")
+    if not user:
+        raise HTTPException(status_code=404, detail="用户未找到。")
+
+    db.delete(user)
+    db.commit()
+    return {"result": "success"} 
 
 
 @router.post("/passwd")
 def modify_password(data: PasswdModify, db: Session = Depends(get_db)):
     user = db.query(User).filter_by(uid=data.uid).first()
-    if user:
-        user.passwd = hash_passwd(data.passwd)
-        db.commit()
-        return {"result": "success"}
+    if not user:
+        raise HTTPException(status_code=404, detail="用户未找到。")
 
-    raise HTTPException(status_code=404, detail="用户未找到。")
+    user.passwd = hash_passwd(data.passwd)
+    db.commit()
+    return {"result": "success"}
 
 
 @router.post("/admin")
 def switch_admin(data: SwitchAdmin, db: Session = Depends(get_db)):
     user = db.query(User).filter_by(uid=data.uid).first()
-    if user:
-        user.admin = data.admin
-        db.commit()
-        return {"result": "success"}
+    if not user:
+        raise HTTPException(status_code=404, detail="用户未找到。")
 
-    raise HTTPException(status_code=404, detail="用户未找到。")
+    user.admin = data.admin
+    db.commit()
+    return {"result": "success"}

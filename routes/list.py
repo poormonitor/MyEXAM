@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import Dict, List, Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -93,6 +93,10 @@ def get_unions(db: Session = Depends(get_db)):
 @router.get("/union")
 def get_union(nid: str, db: Session = Depends(get_db)):
     union = db.query(Union).filter_by(nid=nid).first()
+    
+    if not union:
+        raise HTTPException(status_code=404, detail="项目未找到。")
+
     examgroups = [
         OneExamGroup(
             **vars(i),
@@ -115,6 +119,10 @@ def get_union(nid: str, db: Session = Depends(get_db)):
 @router.get("/examgroup")
 def get_union(egid: str, db: Session = Depends(get_db)):
     eg = db.query(ExamGroup).filter_by(egid=egid).first()
+
+    if not eg:
+        raise HTTPException(status_code=404, detail="项目未找到。")
+
     un = db.query(Union).filter_by(nid=eg.nid).first()
     union = OneUnion(**vars(un))
     exams = [OneExam(**vars(i)) for i in eg.exams]
@@ -147,6 +155,9 @@ def get_exam(eid: str, db: Session = Depends(get_db)):
     )
     result = query.first()
 
+    if not result:
+        raise HTTPException(status_code=404, detail="项目未找到。")
+
     exam = result[0]
     union = OneUnion(**vars(result[1]))
     examgroup = OneExamGroup(**vars(result[2]), courses=get_courses(result[2].exams))
@@ -171,6 +182,10 @@ def get_exam(eid: str, db: Session = Depends(get_db)):
 @router.get("/paper")
 def get_paper(pid: str, db: Session = Depends(get_db)):
     paper = db.query(Paper).filter(Paper.pid == pid).first()
+
+    if not paper:
+        raise HTTPException(status_code=404, detail="项目未找到。")
+
     data = OnePaper(**vars(paper), fcnt=len(paper.files))
 
     paper.views += 1
@@ -181,11 +196,8 @@ def get_paper(pid: str, db: Session = Depends(get_db)):
 
 @router.get("/files")
 def get_files(pid: str, db: Session = Depends(get_db)):
-    paper = db.query(Paper).filter_by(pid=pid).first()
-    lst = [OneFile(**vars(i)) for i in paper.files]
-
-    paper.views += 1
-    db.commit()
+    files = db.query(File).filter_by(pid=pid).all()
+    lst = [OneFile(**vars(i)) for i in files]
 
     return {"list": lst}
 
@@ -193,6 +205,10 @@ def get_files(pid: str, db: Session = Depends(get_db)):
 @router.get("/file")
 def get_url(fid: str, db: Session = Depends(get_db)):
     file = db.query(File).filter(File.fid == fid).first()
+    
+    if not file:
+        raise HTTPException(status_code=404, detail="项目未找到。")
+        
     data = OneFile(**vars(file))
 
     file.views += 1
@@ -204,6 +220,10 @@ def get_url(fid: str, db: Session = Depends(get_db)):
 @router.get("/url")
 def get_url(fid: str, download: Optional[bool] = True, db: Session = Depends(get_db)):
     file = db.query(File).filter(File.fid == fid).first()
+
+    if not file:
+        raise HTTPException(status_code=404, detail="项目未找到。")
+
     url = get_presigned_get_url(file.ext, file.fid, file.name, download)
 
     file.views += 1

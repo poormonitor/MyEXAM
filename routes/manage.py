@@ -1,31 +1,46 @@
+import os
+import subprocess
+import sys
 from datetime import datetime
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from misc.auth import admin_required
+from misc.s3 import delete_object_from_s3, delete_objects_from_s3
 from models import get_db
 from models.exam import Exam
 from models.examgroup import ExamGroup
 from models.file import File
 from models.paper import Paper
 from models.union import Union
-from misc.s3 import delete_object_from_s3, delete_objects_from_s3
 
 router = APIRouter()
 
 
-@router.post("/ocr/file", dependencies=[Depends(admin_required)])
-def perform_ocr(
-    fid: str,
-    background: BackgroundTasks,
-    db: Session = Depends(get_db),
-):
-    from misc.ocr import WriteOCR
+class ReOCR(BaseModel):
+    fid: str
 
-    file = db.query(File).filter_by(fid=fid).first()
-    background.add_task(WriteOCR, file.ext, file.fid, db)
+
+@router.post("/ocr/file")
+def perform_ocr(data: ReOCR, db: Session = Depends(get_db)):
+    file = db.query(File).filter_by(fid=data.fid).first()
+
+    if not file:
+        raise HTTPException(status_code=404, detail="项目未找到。")
+
+    subprocess.Popen(
+        [
+            sys.executable,
+            os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                "..",
+                "misc",
+                "ocr.py",
+            ),
+            file.fid,
+        ],
+    )
 
     return {"result": "success"}
 
@@ -125,14 +140,19 @@ def edit_file(data: EditFile, db: Session = Depends(get_db)):
 
     file.name = data.name
     file.type = data.type
+    file.receipt = True
 
     db.commit()
     return {"result": "success"}
 
 
+class DeleteUnion(BaseModel):
+    nid: str
+
+
 @router.post("/delete/union")
-def delete_union(nid: str, db: Session = Depends(get_db)):
-    union = db.query(Union).filter_by(nid=nid).first()
+def delete_union(data: DeleteUnion, db: Session = Depends(get_db)):
+    union = db.query(Union).filter_by(nid=data.nid).first()
 
     if not union:
         raise HTTPException(status_code=404, detail="项目未找到。")
@@ -145,9 +165,13 @@ def delete_union(nid: str, db: Session = Depends(get_db)):
     return {"result": "success"}
 
 
+class DeleteExamGroup(BaseModel):
+    egid: str
+
+
 @router.post("/delete/examgroup")
-def delete_examgroup(egid: str, db: Session = Depends(get_db)):
-    examgroup = db.query(ExamGroup).filter_by(egid=egid).first()
+def delete_examgroup(data: DeleteExamGroup, db: Session = Depends(get_db)):
+    examgroup = db.query(ExamGroup).filter_by(egid=data.egid).first()
 
     if not examgroup:
         raise HTTPException(status_code=404, detail="项目未找到。")
@@ -160,9 +184,13 @@ def delete_examgroup(egid: str, db: Session = Depends(get_db)):
     return {"result": "success"}
 
 
+class DeleteExam(BaseModel):
+    eid: str
+
+
 @router.post("/delete/exam")
-def delete_exam(eid: str, db: Session = Depends(get_db)):
-    exam = db.query(Exam).filter_by(eid=eid).first()
+def delete_exam(data: DeleteExam, db: Session = Depends(get_db)):
+    exam = db.query(Exam).filter_by(eid=data.eid).first()
 
     if not exam:
         raise HTTPException(status_code=404, detail="项目未找到。")
@@ -175,23 +203,31 @@ def delete_exam(eid: str, db: Session = Depends(get_db)):
     return {"result": "success"}
 
 
+class DeletePaper(BaseModel):
+    pid: str
+
+
 @router.post("/delete/paper")
-def delete_paper(pid: str, db: Session = Depends(get_db)):
-    paper = db.query(Paper).filter_by(pid=pid).first()
+def delete_paper(data: DeletePaper, db: Session = Depends(get_db)):
+    paper = db.query(Paper).filter_by(pid=data.pid).first()
 
     if not paper:
         raise HTTPException(status_code=404, detail="项目未找到。")
 
     delete_objects_from_s3([(i.fid, i.ext) for i in paper.files])
-    db.query(File).filter_by(pid=pid).delete()
+    db.query(File).filter_by(pid=paper.pid).delete()
     db.delete(paper)
     db.commit()
     return {"result": "success"}
 
 
+class DeleteFile(BaseModel):
+    fid: str
+
+
 @router.post("/delete/file")
-def delete_file(fid: str, db: Session = Depends(get_db)):
-    file = db.query(File).filter_by(fid=fid).first()
+def delete_file(data: DeleteFile, db: Session = Depends(get_db)):
+    file = db.query(File).filter_by(fid=data.fid).first()
 
     if not file:
         raise HTTPException(status_code=404, detail="项目未找到。")

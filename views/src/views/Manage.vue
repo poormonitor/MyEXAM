@@ -105,21 +105,25 @@ const tableColumns = [
     {
         title: "日期",
         key: "date",
+        className: "whitespace-nowrap",
         render: (row) => <span>{row.date}</span>,
     },
     {
         title: "科目",
         key: "course",
+        className: "whitespace-nowrap",
         render: (row) => <span>{courses[row.course]}</span>,
     },
     {
         title: "年级",
         key: "grade",
+        className: "whitespace-nowrap",
         render: (row) => <span>{grades[row.grade]}</span>,
     },
     {
         title: "浏览量",
         key: "views",
+        className: "whitespace-nowrap",
     },
     {
         title: "版本",
@@ -182,14 +186,13 @@ fetchData();
 </script>
 
 <template>
-    <Suspense>
-        <EditItem
-            v-model:show="ModifyAction.show"
-            :type="ModifyAction.type"
-            :id="ModifyAction.id"
-            v-if="ModifyAction.type"
-        />
-    </Suspense>
+    <EditItem
+        v-model:show="ModifyAction.show"
+        :type="ModifyAction.type"
+        :id="ModifyAction.id"
+        @update:modify="fetchData"
+        v-if="ModifyAction.type"
+    />
     <p class="text-3xl font-bold pb-6 pt-2">试卷管理</p>
     <div>
         <n-form class="flex flex-col gap-x-4 md:flex-row mb-2">

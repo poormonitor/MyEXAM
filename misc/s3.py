@@ -68,6 +68,7 @@ def delete_objects_from_s3(lst: List[Tuple[str, str]]):
 
 def get_file_local(ext: str, fid: str):
     new_file = NamedTemporaryFile("w", delete=False, suffix="." + ext)
+    new_file.close()
 
     key = config["S3_PREFIX"] + "/" + fid + "." + ext
     key = key.strip("/")

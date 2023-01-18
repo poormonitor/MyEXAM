@@ -1,13 +1,15 @@
 import os
+import subprocess
+import sys
 from datetime import date
 from typing import List
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
-from misc.s3 import delete_object_from_s3, get_file_local, get_presigned_post_url
+from misc.s3 import delete_object_from_s3, get_presigned_post_url
 from models import get_db
 from models.exam import Exam
 from models.examgroup import ExamGroup
@@ -116,24 +118,27 @@ def new_file(data: NewFile, db: Session = Depends(get_db)):
 @router.post("/delete_file")
 def delete_file(data: DeleteFile, db: Session = Depends(get_db)):
     file = db.query(File).filter_by(fid=data.fid).first()
-    if file:
-        delete_object_from_s3(file.ext, file.fid)
-        db.delete(file)
-        db.commit()
-        return {"result": "success"}
-    raise HTTPException(status_code=404, detail="The file you request does not exist.")
+
+    if not file:
+        raise HTTPException(status_code=404, detail="项目未找到。")
+
+    delete_object_from_s3(file.ext, file.fid)
+    db.delete(file)
+    db.commit()
+    return {"result": "success"}
 
 
 @router.post("/confirm")
 def confirm_paper(
     data: NewConfirm,
-    background: BackgroundTasks,
     request: Request,
     db: Session = Depends(get_db),
 ):
-    from misc.ocr import WriteOCR
-
     paper = db.query(Paper).filter_by(pid=data.pid).first()
+
+    if not paper:
+        raise HTTPException(status_code=404, detail="项目未找到。")
+
     paper.comment = data.comment
     paper.created_at = func.now()
     paper.uploader_ip = request.client.host
@@ -147,10 +152,22 @@ def confirm_paper(
         if i.fid in target:
             i.type = target[i.fid]
             i.upload_time = func.now()
-            background.add_task(WriteOCR, i.ext, i.fid, db)
         else:
             delete_object_from_s3(i.ext, i.fid)
             db.delete(i)
+
+    subprocess.Popen(
+        [
+            sys.executable,
+            os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                "..",
+                "misc",
+                "ocr.py",
+            ),
+        ]
+        + list(target.keys()),
+    )
 
     db.commit()
     return {"result": "success"}

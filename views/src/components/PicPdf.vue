@@ -68,6 +68,7 @@ const handleConfirm = () => {
 <template>
     <Preview v-model:show="showPreviewPDF" title="PDF预览" :src="PdfUri" />
     <n-modal
+        class="w-4/5 md:3/5 lg:w-2/5"
         v-model:show="showPreviewPic"
         preset="card"
         :title="previewImage.name"

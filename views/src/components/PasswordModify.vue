@@ -59,6 +59,7 @@ const submitRequest = () => {
         preset="dialog"
         positive-text="确认"
         negative-text="取消"
+        class="w-4/5 md:3/5 lg:w-2/5"
         @positive-click="submitRequest"
     >
         <n-form :rules="rules" :model="passwdSet" ref="form">

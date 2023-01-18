@@ -46,7 +46,7 @@ export default {
                     userStore.logout();
                     message.error("登录失效，请重新登录。");
                     router.push({ name: "login" });
-                } else if (error.response?.data.detail instanceof String) {
+                } else if (typeof error.response?.data?.detail === "string") {
                     message.error(error.response.data.detail);
                 } else {
                     message.error(error.message);

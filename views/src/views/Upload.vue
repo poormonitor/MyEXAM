@@ -14,6 +14,7 @@ const unionList = ref([]);
 const examGroupList = ref([]);
 const newUnionForm = reactive({ name: "", member: "" });
 const newExamGroupForm = reactive({ name: "", date: Date.now() });
+
 const uploadFile = reactive({
     url: null,
     key: null,
@@ -38,10 +39,16 @@ const getOptions = (items) =>
     }));
 
 const TypeHint = computed(() => {
+    if (!uploadInfo.comment) return getOptions(paper_types);
+    let current = uploadInfo.comment.split(" ");
     return getOptions(
         paper_types
             .filter((item) => !uploadInfo.comment.includes(item))
-            .map((item) => `${uploadInfo.comment} ${item}`)
+            .map((item) =>
+                item.startsWith(current.pop())
+                    ? current.concat([item]).join(" ")
+                    : `${uploadInfo.comment} ${item}`
+            )
     );
 });
 
@@ -101,7 +108,11 @@ const createNewUnion = async () => {
             member: newUnionForm.member,
         })
         .then((response) => {
-            if (response.data.result == "success") return response.data.nid;
+            if (response.data.result == "success") {
+                unionList.value.find((item) => item.value === "create").value =
+                    response.data.nid;
+                return response.data.nid;
+            }
         });
 };
 
@@ -113,7 +124,12 @@ const createNewExamGroup = async () => {
             nid: uploadInfo.nid,
         })
         .then((response) => {
-            if (response.data.result == "success") return response.data.egid;
+            if (response.data.result == "success") {
+                examGroupList.value.find(
+                    (item) => item.value === "create"
+                ).value = response.data.egid;
+                return response.data.egid;
+            }
         });
 };
 
@@ -209,18 +225,20 @@ const newExamGroupDialog = () => {
                         ></n-date-picker>
                     </n-form-item>
                 </n-form>
-                <div v-if={newExamGroupForm.name}>
-                    <p class="text-sky-800 text-sm">您即将创建</p>
-                    <p class="text-lg">
-                        {unionList.value.find(
-                            (item) => item.value == uploadInfo.nid
-                        ).label +
-                            " " +
-                            GetYearMonth(newExamGroupForm.date) +
-                            " " +
-                            newExamGroupForm.name}
-                    </p>
-                </div>
+                {newExamGroupForm.name ? (
+                    <div>
+                        <p class="text-sky-800 text-sm">您即将创建</p>
+                        <p class="text-lg">
+                            {unionList.value.find(
+                                (item) => item.value == uploadInfo.nid
+                            ).label +
+                                " " +
+                                GetYearMonth(newExamGroupForm.date) +
+                                " " +
+                                newExamGroupForm.name}
+                        </p>
+                    </div>
+                ) : null}
             </div>
         ),
         onPositiveClick: () => {
@@ -398,6 +416,7 @@ const tableColumns = [
     {
         title: "上传状态",
         key: "status",
+        className: "whitespace-nowrap",
         render: (row) => {
             switch (row.status) {
                 case 0:

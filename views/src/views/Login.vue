@@ -36,7 +36,7 @@ const submitLogin = () => {
 </script>
 
 <template>
-    <div class="mx-8 w-auto md:mx-auto md:w-[60vw] lg:w-[40vw] mt-20">
+    <div class="mx-8 w-auto md:mx-auto md:w-[60vw] lg:w-[40vw] my-20">
         <div class="border px-8 md:px-20 py-12 rounded-2xl">
             <p class="text-lg text-indigo-600 mb-2">欢迎使用 MyEXAM</p>
             <p class="text-4xl font-bold">登录</p>
