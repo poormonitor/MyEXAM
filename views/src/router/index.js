@@ -69,7 +69,7 @@ const router = createRouter({
                     component: () => import("../views/View.vue"),
                     children: [
                         {
-                            path: "exam",
+                            path: "exam/:eid",
                             name: "exam",
                             component: () => import("../views/Exam.vue"),
                             meta: {
@@ -77,7 +77,7 @@ const router = createRouter({
                             },
                         },
                         {
-                            path: "union",
+                            path: "union/:nid",
                             name: "union",
                             component: () => import("../views/Union.vue"),
                             meta: {
@@ -85,7 +85,7 @@ const router = createRouter({
                             },
                         },
                         {
-                            path: "examgroup",
+                            path: "examgroup/:egid",
                             name: "examgroup",
                             component: () => import("../views/ExamGroup.vue"),
                             meta: {
@@ -132,6 +132,7 @@ const router = createRouter({
                 },
             ],
         },
+        { path: "/:pathMatch(.*)*", name: "lost", component: () => import("../views/NotFound.vue") },
     ],
 });
 

@@ -21,7 +21,7 @@ credentials_exception = HTTPException(
 
 
 def create_access_token(
-    uid: str, expires_delta: timedelta = timedelta(minutes=15), **extra_data
+    uid: str, expires_delta: timedelta = timedelta(hours=1), **extra_data
 ) -> str:
     to_encode = extra_data.copy()
     expire = datetime.utcnow() + expires_delta
@@ -51,16 +51,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 async def admin_required(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
-        uid = payload.get("uid")
-        if not uid:
-            raise credentials_exception
         admin = payload.get("admin", False)
 
     except JWTError:
         raise credentials_exception
 
     if not admin:
-        raise HTTPException(status_code=401, detail="Admin required.")
+        raise HTTPException(status_code=401, detail="需要管理员权限。")
 
     return True
 

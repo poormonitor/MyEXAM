@@ -1,10 +1,13 @@
+import codecs
+import os
 from functools import lru_cache
+from typing import Optional
 
 from pydantic import BaseSettings
-from typing import Optional
 
 
 class Settings(BaseSettings):
+    MYEXAM_SECRET_KEY: str = codecs.encode(os.urandom(32), "hex").decode()
     DB_PATH: str = "sqlite:///data.sqlite"
     S3_ENDPOINT: str = ""
     S3_SECRET_ID: str = ""
@@ -22,19 +25,11 @@ class Settings(BaseSettings):
 
 
 def get_secret_key() -> str:
-    from os import environ
-
-    secret_key = environ.get("MyEXAMSecretKey", None)
-    if not secret_key:
-        from base64 import b64encode
-        from secrets import token_bytes
-
-        secret_key = b64encode(token_bytes(32)).decode()
-    return secret_key
+    return get_config("MYEXAM_SECRET_KEY")
 
 
 @lru_cache()
-def get_config(item: Optional[str] = None) -> BaseSettings:
+def get_config(item: Optional[str] = None):
     if item:
         return Settings()[item]
     return Settings()

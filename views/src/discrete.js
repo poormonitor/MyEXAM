@@ -3,7 +3,7 @@ import { useRouter } from "vue-router";
 
 const { message } = createDiscreteApi(["message"]);
 
-const paramsError = () => {
+const paramsError = async () => {
     const router = useRouter();
     const dialog = useDialog();
     dialog.error({
@@ -14,6 +14,7 @@ const paramsError = () => {
             router.push({ name: "home" });
         },
     });
+    return new Promise(() => {});
 };
 
 export { message, paramsError };

@@ -86,7 +86,11 @@ const types = [
                                     ref={comp}
                                 />
                             ),
-                            fallback: () => <n-spin>加载中</n-spin>,
+                            fallback: () => (
+                                <n-spin>
+                                    {{ description: () => "加载中" }}
+                                </n-spin>
+                            ),
                         }}
                     </Suspense>
                 ),
@@ -209,6 +213,8 @@ watch(() => props.id, fetchData);
                 </div>
             </div>
         </n-form>
-        <n-spin v-else>加载中</n-spin>
+        <n-spin v-else>
+            <template #description> 加载中 </template>
+        </n-spin>
     </n-modal>
 </template>

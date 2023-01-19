@@ -26,7 +26,7 @@ const getOptions = (items) =>
 const gotoExam = (eid) => {
     router.push({
         name: "exam",
-        query: {
+        params: {
             eid: eid,
         },
     });
@@ -114,7 +114,9 @@ watch(
             </n-empty>
         </div>
         <div class="flex place-content-center mt-4" v-else>
-            <n-spin> 加载中 </n-spin>
+            <n-spin>
+                <template #description> 加载中 </template>
+            </n-spin>
         </div>
     </div>
 </template>

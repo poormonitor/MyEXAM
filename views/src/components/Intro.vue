@@ -9,13 +9,13 @@ import Card from "./Card.vue";
         <Card title="一站式">
             <template #content>
                 MyEXAM
-                是一个一站式试卷分享平台。所有的试卷都可以在我们的网站上找到。
+                是一个一站式试卷分享平台。用户上传所有的试卷都可以在我们的网站上找到。
             </template>
         </Card>
         <Card title="免登录">
             <template #content>
                 和其他的竞品不同，MyEXAM
-                不需要登陆即可上传和下载，让用户无障碍使用。
+                不需要注册和登录即可上传和下载，让用户无障碍使用。
             </template>
         </Card>
         <Card title="共享化">

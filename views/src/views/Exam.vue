@@ -1,6 +1,5 @@
 <script setup lang="jsx">
 import { useRoute } from "vue-router";
-import { paramsError } from "../discrete";
 import { courses, grades, office_ext } from "../const";
 import { GetYearMonth } from "../func";
 import { CloudDownloadOutline, Easel, AttachOutline } from "@vicons/ionicons5";
@@ -16,10 +15,6 @@ const preview = reactive({
     ext: "",
     title: "文件预览",
 });
-
-if (!route.query.eid) {
-    paramsError();
-}
 
 const previewFile = (fid, ext, name) => {
     axios
@@ -43,7 +38,7 @@ const previewFile = (fid, ext, name) => {
 const fetchExam = async () => {
     return new Promise((resolve) => {
         axios
-            .get("/list/exam", { params: { eid: route.query.eid } })
+            .get("/list/exam", { params: { eid: route.params.eid } })
             .then((response) => {
                 if (response.data.exam) {
                     showData.value = response.data.exam;
@@ -149,7 +144,7 @@ await fetchExam();
                     class="router-link"
                     :to="{
                         name: 'union',
-                        query: { nid: showData.union.nid },
+                        params: { nid: showData.union.nid },
                     }"
                 >
                     {{ showData.union.name }}
@@ -160,7 +155,7 @@ await fetchExam();
                     class="router-link"
                     :to="{
                         name: 'examgroup',
-                        query: { egid: showData.examgroup.egid },
+                        params: { egid: showData.examgroup.egid },
                     }"
                 >
                     <span class="whitespace-nowrap mr-2">

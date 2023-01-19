@@ -38,7 +38,8 @@ const getOptions = (items) =>
 
 const goQuery = () => {
     loading.value = true;
-    if (searchInfo.s) router.push({ query: { s: searchInfo.s } });
+    if (searchInfo.s)
+        router.push({ query: { s: searchInfo.s, ...route.query } });
     axios
         .post("/search/file", {
             s: searchInfo.s,
@@ -62,7 +63,7 @@ const goQuery = () => {
 };
 
 const gotoExam = (eid) => {
-    router.push({ name: "exam", query: { eid: eid } });
+    router.push({ name: "exam", params: { eid: eid } });
 };
 
 const tableColumns = [
@@ -101,7 +102,7 @@ const tableColumns = [
         render: (row) => (
             <router-link
                 class="text-sky-800 hover:text-sky-900 transition"
-                to={{ name: "union", query: { nid: row.union.nid } }}
+                to={{ name: "union", params: { nid: row.union.nid } }}
             >
                 {row.union.name}
             </router-link>
@@ -113,7 +114,7 @@ const tableColumns = [
         render: (row) => (
             <router-link
                 class="text-sky-800 hover:text-sky-900 transition"
-                to={{ name: "examgroup", query: { egid: row.examgroup.egid } }}
+                to={{ name: "examgroup", params: { egid: row.examgroup.egid } }}
             >
                 {GetYearMonth(row.examgroup.date) + " " + row.examgroup.name}
             </router-link>

@@ -1,6 +1,5 @@
 <script setup lang="jsx">
 import { useRoute, useRouter } from "vue-router";
-import { paramsError } from "../discrete";
 import { GetYearMonth } from "../func";
 import { courses, grades } from "../const";
 import { ArrowForwardOutline } from "@vicons/ionicons5";
@@ -9,12 +8,8 @@ const axios = inject("axios");
 const route = useRoute();
 const router = useRouter();
 
-if (!route.query.nid) {
-    paramsError();
-}
-
 const gotoExamGroup = (egid) => {
-    router.push({ name: "examgroup", query: { egid: egid } });
+    router.push({ name: "examgroup", params: { egid: egid } });
 };
 
 const tableColumns = [
@@ -72,7 +67,7 @@ const tableColumns = [
 const data = await axios
     .get("/list/union", {
         params: {
-            nid: route.query.nid,
+            nid: route.params.nid,
         },
     })
     .then((response) => {

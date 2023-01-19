@@ -1,4 +1,4 @@
-<script setup lang="jsx">
+<script lang="jsx" setup>
 import { Archive } from "@vicons/ionicons5";
 import { courses, grades, file_types, paper_types } from "../const";
 import { GetYearMonth } from "../func";
@@ -40,16 +40,17 @@ const getOptions = (items) =>
 
 const TypeHint = computed(() => {
     if (!uploadInfo.comment) return getOptions(paper_types);
-    let current = uploadInfo.comment.split(" ");
-    return getOptions(
-        paper_types
-            .filter((item) => !uploadInfo.comment.includes(item))
-            .map((item) =>
-                item.startsWith(current.pop())
-                    ? current.concat([item]).join(" ")
-                    : `${uploadInfo.comment} ${item}`
-            )
-    );
+    let text = uploadInfo.comment.split(" ");
+    let current = text.pop();
+    let options = paper_types
+        .filter((item) => !uploadInfo.comment.includes(item))
+        .map((item) =>
+            item.startsWith(current)
+                ? text.concat([item]).join(" ")
+                : `${uploadInfo.comment} ${item}`
+        );
+    options.sort((a, b) => a.length - b.length);
+    return getOptions(options);
 });
 
 const fetchUnions = () => {
