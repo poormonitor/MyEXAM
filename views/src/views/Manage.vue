@@ -2,6 +2,7 @@
 import { grades, courses } from "../const";
 import { GetYearMonth } from "../func";
 import { message } from "../discrete";
+import { provide } from "vue";
 
 const axios = inject("axios");
 const data = ref([]);
@@ -22,10 +23,13 @@ const pagination = reactive({
 });
 
 const ModifyAction = reactive({
+    current: null,
     show: false,
     type: null,
     id: null,
 });
+
+provide("ModifyData", toRef(ModifyAction, "current"));
 
 const fetchData = () => {
     loading.value = true;
@@ -75,6 +79,7 @@ const tableColumns = [
                 tag="a"
                 type="info"
                 on-click={() => {
+                    ModifyAction.current = row;
                     ModifyAction.id = row.union.nid;
                     ModifyAction.type = "union";
                     ModifyAction.show = true;
@@ -93,6 +98,7 @@ const tableColumns = [
                 tag="a"
                 type="info"
                 on-click={() => {
+                    ModifyAction.current = row;
                     ModifyAction.id = row.examgroup.egid;
                     ModifyAction.type = "examgroup";
                     ModifyAction.show = true;
@@ -132,10 +138,11 @@ const tableColumns = [
             <div class="flex flex-row gap-y-2">
                 {row.papers.map((item) => (
                     <n-button
-                        type="info"
+                        type={item.status === 2 ? "info" : "warning"}
                         size="small"
                         secondary
                         on-click={() => {
+                            ModifyAction.current = row;
                             ModifyAction.id = item.pid;
                             ModifyAction.type = "paper";
                             ModifyAction.show = true;
@@ -155,6 +162,7 @@ const tableColumns = [
                 type="info"
                 size="small"
                 on-click={() => {
+                    ModifyAction.current = row;
                     ModifyAction.id = row.eid;
                     ModifyAction.type = "exam";
                     ModifyAction.show = true;

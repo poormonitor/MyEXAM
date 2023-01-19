@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -17,6 +17,6 @@ class Paper(Base):
     uploader_ip = Column(String(128))
     user_token = Column(String(36))
     views = Column(Integer, default=0)
-    receipt = Column(Boolean, default=False)
+    status = Column(Integer, default=False)
 
     files = relationship("File")

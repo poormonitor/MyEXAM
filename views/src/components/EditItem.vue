@@ -77,7 +77,15 @@ const types = [
                 component: (pid) => (
                     <Suspense>
                         {{
-                            default: () => <EditFile pid={pid} ref={comp} />,
+                            default: () => (
+                                <EditFile
+                                    onClose={() => {
+                                        visible.value = false;
+                                    }}
+                                    pid={pid}
+                                    ref={comp}
+                                />
+                            ),
                             fallback: () => <n-spin>加载中</n-spin>,
                         }}
                     </Suspense>

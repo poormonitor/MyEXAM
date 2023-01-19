@@ -1,21 +1,49 @@
 <script setup lang="jsx">
-import { file_types } from "../const";
+import { courses, file_types, grades, office_ext } from "../const";
 import { message } from "../discrete";
 import { ArrowUp, Checkmark, Close } from "@vicons/ionicons5";
+import { GetYearMonth } from "../func";
 
 const axios = inject("axios");
 const props = defineProps(["pid"]);
+const emits = defineEmits(["close"]);
 const data = ref([]);
+const showPDF = ref(false);
 const Modify = reactive({
     delete: [],
     modify: [],
     new: [],
 });
 
+const ModifyData = inject("ModifyData");
+
+const ExamFinalName = computed(() => {
+    let data = ModifyData.value;
+    let date = GetYearMonth(data.examgroup.date);
+    let grade = grades[data.grade];
+    let course = courses[data.course];
+    return `${data.union.name} ${date} ${data.examgroup.name} ${grade} ${course}`;
+});
+
+const CurrentPaper = computed(() =>
+    ModifyData.value.papers.find((item) => item.pid == props.pid)
+);
+
 const UploadFile = reactive({
     url: null,
     key: null,
 });
+
+const ApprovePaper = () => {
+    axios.post("/manage/approve/paper", { pid: props.pid }).then((response) => {
+        if (response.data.result === "success") {
+            ModifyData.value.papers.find(
+                (item) => item.pid == props.pid
+            ).status = 2;
+            emits("close");
+        }
+    });
+};
 
 const fetchFiles = async () => {
     await axios
@@ -55,16 +83,42 @@ const ReOCR = (fid) => {
     });
 };
 
-const submit = async () => {
+const PreviewData = ref({
+    show: false,
+    src: null,
+    ext: "",
+    title: "文件预览",
+});
+
+const PreviewFile = (fid, ext, name) => {
+    axios
+        .get("/list/url", {
+            params: { fid: fid, download: false },
+        })
+        .then((response) => {
+            if (response.data.url) {
+                let file_url = response.data.url;
+                PreviewData.value.src = office_ext.includes(ext)
+                    ? "http://view.officeapps.live.com/op/view.aspx?src=" +
+                      encodeURI(file_url)
+                    : file_url;
+                PreviewData.value.ext = ext;
+                PreviewData.value.title = name;
+                PreviewData.value.show = true;
+            }
+        });
+};
+
+const submit = () => {
     for (let item of Modify.delete) {
-        await axios.post("/manage/delete/file", { fid: item });
+        axios.post("/manage/delete/file", { fid: item });
     }
     for (let item of Modify.modify) {
-        await axios.post("/manage/edit/file", item);
+        axios.post("/manage/edit/file", item);
     }
     for (let item of Modify.new) {
-        await axios.post("/manage/edit/file", item);
-        await axios.post("/manage/ocr/file", { fid: item.fid });
+        axios.post("/manage/edit/file", item);
+        axios.post("/manage/ocr/file", { fid: item.fid });
     }
 };
 defineExpose({ submit });
@@ -116,6 +170,23 @@ const tableColumns = [
         },
     },
     {
+        title: "预览",
+        key: "preview",
+        render: (row) => {
+            return (
+                <n-button
+                    size="small"
+                    strong
+                    secondary
+                    round
+                    on-click={() => PreviewFile(row.fid, row.ext, row.name)}
+                >
+                    预览
+                </n-button>
+            );
+        },
+    },
+    {
         title: "OCR",
         key: "ocr",
         render: (row) => {
@@ -157,6 +228,52 @@ const tableColumns = [
     },
 ];
 
+const handlePDFUpload = async (file, name) => {
+    axios
+        .post("/new/file", {
+            name: name,
+            pid: props.pid,
+        })
+        .then((response) => {
+            if (response.data.result == "success") {
+                data.value.push({
+                    fid: response.data.fid,
+                    name: name,
+                    type: 0,
+                    key: response.data.key,
+                    url: response.data.url,
+                    status: 0,
+                });
+                postToS3(
+                    file,
+                    response.data.url,
+                    response.data.key,
+                    response.data.fid
+                );
+                showPDF.value = false;
+            }
+        });
+};
+
+const postToS3 = (file, url, key, fid) => {
+    let formData = new FormData();
+    formData.append("key", key);
+    formData.append("acl", "private");
+    formData.append("file", file);
+    axios({
+        baseURL: "",
+        url: url,
+        method: "post",
+        data: formData,
+    })
+        .catch((error) => {
+            uploadInfo.files.find((item) => item.fid == fid).status = 1;
+        })
+        .then((response) => {
+            uploadInfo.files.find((item) => item.fid == fid).status = 2;
+        });
+};
+
 const setUploadURL = async (options) => {
     return new Promise((resolve, reject) => {
         axios
@@ -174,7 +291,6 @@ const setUploadURL = async (options) => {
                         type: 0,
                         key: response.data.key,
                         url: response.data.url,
-                        obj: options.file,
                         status: 0,
                     });
                     UploadFile.url = response.data.url;
@@ -204,8 +320,20 @@ await fetchFiles();
 </script>
 
 <template>
+    <Preview
+        :src="PreviewData.src"
+        :ext="PreviewData.ext"
+        v-model:show="PreviewData.show"
+        :title="PreviewData.title"
+    />
+    <PicPdf
+        v-model:show="showPDF"
+        :hint="ExamFinalName"
+        :key="ExamFinalName"
+        @confirm="handlePDFUpload"
+    />
     <n-data-table :columns="tableColumns" :data="data" :bordered="false" />
-    <div class="flex justify-center my-3">
+    <div class="flex justify-center gap-x-2 my-3">
         <n-upload
             multiple
             directory-dnd
@@ -217,7 +345,15 @@ await fetchFiles();
             :on-error="setFailedUpload"
             class="!w-fit"
         >
-            <n-button type="primary">上传文件</n-button>
+            <n-button>上传文件</n-button>
         </n-upload>
+        <n-button @click="showPDF = true" type="info"> 图片生成PDF </n-button>
+        <n-button
+            type="primary"
+            v-if="CurrentPaper.status === 1"
+            @click="ApprovePaper"
+        >
+            审核通过
+        </n-button>
     </div>
 </template>

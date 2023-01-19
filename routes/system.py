@@ -19,7 +19,7 @@ router = APIRouter()
 def clean_paper(db: Session = Depends(get_db)):
     (
         db.query(Paper)
-        .filter(Paper.receipt == False)
+        .filter(Paper.status == 0)
         .filter(Paper.created_at <= datetime.now() - timedelta(hours=1))
         .delete()
     )

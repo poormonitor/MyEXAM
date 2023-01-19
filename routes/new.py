@@ -144,7 +144,7 @@ def confirm_paper(
     paper.uploader_ip = request.client.host
     paper.user_token = request.headers.get("X-MyExam-Token")
     paper.eid = data.eid
-    paper.receipt = True
+    paper.status = 1
 
     files = db.query(File).filter_by(pid=data.pid).all()
     target = {i.fid: i.type for i in data.files}

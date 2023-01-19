@@ -282,7 +282,6 @@ const setUploadURL = async (options) => {
                         type: 0,
                         key: response.data.key,
                         url: response.data.url,
-                        obj: options.file,
                         status: 0,
                     });
                     uploadFile.url = response.data.url;
@@ -317,25 +316,36 @@ const handlePDFUpload = async (file, name) => {
                     type: 0,
                     key: response.data.key,
                     url: response.data.url,
-                    obj: null,
+                    status: 0,
                 });
-                postToS3(file, response.data.url, response.data.key);
+                postToS3(
+                    file,
+                    response.data.url,
+                    response.data.key,
+                    response.data.fid
+                );
                 showPDF.value = false;
             }
         });
 };
 
-const postToS3 = (file, url, key) => {
+const postToS3 = (file, url, key, fid) => {
     let formData = new FormData();
     formData.append("key", key);
     formData.append("acl", "private");
     formData.append("file", file);
-    return axios({
+    axios({
         baseURL: "",
         url: url,
         method: "post",
         data: formData,
-    });
+    })
+        .catch((error) => {
+            uploadInfo.files.find((item) => item.fid == fid).status = 1;
+        })
+        .then((response) => {
+            uploadInfo.files.find((item) => item.fid == fid).status = 2;
+        });
 };
 
 const removeFile = (fid) => {
@@ -605,9 +615,14 @@ fetchUnions();
                 <p class="text-sky-800">您即将上传</p>
                 <p class="text-lg">{{ ExamFinalName }}</p>
             </div>
-            <n-button size="small" secondary @click="showPDF = true" type="info"
-                >图片生成PDF</n-button
+            <n-button
+                size="small"
+                secondary
+                @click="showPDF = true"
+                type="info"
             >
+                图片生成PDF
+            </n-button>
         </div>
         <n-upload
             multiple

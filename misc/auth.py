@@ -65,6 +65,17 @@ async def admin_required(token: str = Depends(oauth2_scheme)):
     return True
 
 
+async def is_admin(request: Request):
+    try:
+        token: str = await oauth2_scheme(request)
+        payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
+        admin = payload.get("admin", False)
+    except:
+        return False
+
+    return admin
+
+
 def hash_passwd(passwd: str) -> str:
     return pwd_context.hash(passwd)
 

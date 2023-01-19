@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
+from misc.auth import is_admin
 from misc.model import get_courses
 from misc.s3 import get_presigned_get_url
 from models import get_db
@@ -143,14 +144,14 @@ def get_union(egid: str, db: Session = Depends(get_db)):
 
 
 @router.get("/exam")
-def get_exam(eid: str, db: Session = Depends(get_db)):
+def get_exam(eid: str, admin: bool = Depends(is_admin), db: Session = Depends(get_db)):
     query = (
         db.query(Exam, Union, ExamGroup)
         .outerjoin(Paper, Exam.eid == Paper.eid)
         .outerjoin(ExamGroup, ExamGroup.egid == Exam.egid)
         .outerjoin(Union, Union.nid == ExamGroup.nid)
         .filter(Exam.eid == eid)
-        .filter(Paper.receipt == True)
+        .filter(Paper.status >= (1 if admin else 2))
         .group_by(Exam.eid)
     )
     result = query.first()

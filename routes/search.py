@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session
 
+from misc.auth import is_admin
 from models import get_db
 from models.exam import Exam
 from models.examgroup import ExamGroup
@@ -53,6 +54,7 @@ class OnePaper(BaseModel):
     comment: str
     views: int
     created_at: datetime
+    status: int
 
 
 class OneExam(BaseModel):
@@ -104,7 +106,9 @@ def GetHighlight(text: str, keyword: str):
 
 
 @router.post("/exam")
-def search_exam(info: SearchExam, db: Session = Depends(get_db)):
+def search_exam(
+    info: SearchExam, admin: bool = Depends(is_admin), db: Session = Depends(get_db)
+):
     k = info.name.split(" ")
     query = (
         db.query(Exam, Union, ExamGroup, Paper)
@@ -124,7 +128,7 @@ def search_exam(info: SearchExam, db: Session = Depends(get_db)):
         )
         .filter(Exam.date >= info.start)
         .filter(Exam.date <= info.end)
-        .filter(Paper.receipt == True)
+        .filter(Paper.status >= (1 if admin else 2))
     )
 
     if info.courses:
@@ -149,7 +153,9 @@ def search_exam(info: SearchExam, db: Session = Depends(get_db)):
 
 
 @router.post("/file")
-def search_file(info: SearchFile, db: Session = Depends(get_db)):
+def search_file(
+    info: SearchFile, admin: bool = Depends(is_admin), db: Session = Depends(get_db)
+):
     k = info.s.split(" ")
     query = (
         db.query(File, Union, ExamGroup, Exam, Paper)
@@ -160,7 +166,7 @@ def search_file(info: SearchFile, db: Session = Depends(get_db)):
         .filter(and_(File.ocr.contains(i) for i in k))
         .filter(Exam.date >= info.start)
         .filter(Exam.date <= info.end)
-        .filter(Paper.receipt == True)
+        .filter(Paper.status >= (1 if admin else 2))
     )
 
     if info.courses:

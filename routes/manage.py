@@ -45,6 +45,23 @@ def perform_ocr(data: ReOCR, db: Session = Depends(get_db)):
     return {"result": "success"}
 
 
+class ApprovePaper(BaseModel):
+    pid: str
+
+
+@router.post("/approve/paper")
+def edit_paper(data: ApprovePaper, db: Session = Depends(get_db)):
+    paper = db.query(Paper).filter_by(pid=data.pid).first()
+
+    if not paper:
+        raise HTTPException(status_code=404, detail="项目未找到。")
+
+    paper.status = 2
+
+    db.commit()
+    return {"result": "success"}
+
+
 class EditUnion(BaseModel):
     nid: str
     name: str
@@ -140,7 +157,6 @@ def edit_file(data: EditFile, db: Session = Depends(get_db)):
 
     file.name = data.name
     file.type = data.type
-    file.receipt = True
 
     db.commit()
     return {"result": "success"}

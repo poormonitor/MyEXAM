@@ -51,7 +51,7 @@ def search(data: Optional[SearchInfo] = None, db: Session = Depends(get_db)):
         .outerjoin(Paper, Paper.eid == Exam.eid)
         .group_by(Exam.eid)
         .order_by(Exam.views.desc())
-        .filter(Paper.receipt == True)
+        .filter(Paper.status == 2)
     )
 
     if data.course is not None:

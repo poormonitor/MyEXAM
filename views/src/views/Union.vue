@@ -55,7 +55,7 @@ const tableColumns = [
         title: "科目",
         key: "course",
         render: (row) => (
-            <div>
+            <div class="flex gap-2">
                 {row.courses.map((item) => (
                     <n-tag type="primary">{courses[item]}</n-tag>
                 ))}
@@ -98,8 +98,8 @@ data.examgroups.forEach((examgroup) => {
     </p>
     <div class="mb-8">
         <n-tag type="info" v-for="item in data.member.split('\n')">
-            {{ item }}</n-tag
-        >
+            {{ item }}
+        </n-tag>
     </div>
     <n-divider title-placement="left">
         <span class="text-xl font-bold"> 考试列表 </span>
