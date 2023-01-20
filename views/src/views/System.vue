@@ -1,6 +1,7 @@
 <script setup>
 import { message } from "../discrete";
 const axios = inject("axios");
+const version = __MYEXAM_VIEW_VERSION__;
 
 const CleanAction = () => {
     axios.post("/system/clean").then((response) => {
@@ -51,7 +52,8 @@ const UpgradeAction = () => {
             </template>
         </n-card>
         <n-card title="更新系统">
-            更新MyExam程序文件，并重新构建前端应用。后端需要手动重启。
+            <p>更新MyExam程序文件，并重新构建前端应用。后端需要手动重启。</p>
+            <p>当前构建版本：{{ version }}</p>
             <template #action>
                 <div class="flex justify-end">
                     <n-button type="primary" @click="UpgradeAction">

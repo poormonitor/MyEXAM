@@ -45,7 +45,7 @@ const tableColumns = [
                 secondary
                 on-click={() => {
                     ShowModify.value = true;
-                    CurrentUID = row.uid;
+                    CurrentUID.value = row.uid;
                 }}
             >
                 修改密码

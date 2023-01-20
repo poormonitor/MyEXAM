@@ -7,6 +7,7 @@ import vueJsx from "@vitejs/plugin-vue-jsx";
 import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import { NaiveUiResolver } from "unplugin-vue-components/resolvers";
+import { vitePluginVersionMark } from "vite-plugin-version-mark";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -28,6 +29,12 @@ export default defineConfig({
         }),
         Components({
             resolvers: [NaiveUiResolver()],
+        }),
+        vitePluginVersionMark({
+            ifGitSHA: true,
+            ifMeta: true,
+            ifLog: true,
+            ifGlobal: true,
         }),
     ],
     resolve: {
