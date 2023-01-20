@@ -83,7 +83,7 @@ class Files(BaseModel):
     type: int
     views: int
     upload_time: datetime
-    text: str
+    text: List[str]
     union: OneUnion
     examgroup: OneExamGroup
     exam: OneExam
@@ -102,7 +102,7 @@ def GetHighlight(text: str, keyword: str):
     for i in rs:
         f.append(i[0] + "*s*" + i[1] + "*e*" + i[2])
 
-    return "\n".join(f[:5])
+    return f[:4]
 
 
 @router.post("/exam")

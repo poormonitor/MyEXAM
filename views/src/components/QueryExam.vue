@@ -54,7 +54,7 @@ const goQuery = () => {
                 queryResult.list = response.data.list;
                 queryResult.cnt = response.data.count;
                 pagination.pageCount = Math.ceil(
-                    queryResult.cnt / pagination.pageCount
+                    queryResult.cnt / pagination.pageSize
                 );
                 loading.value = false;
                 cntRef.value?.play();
@@ -212,12 +212,8 @@ if (route.query.s) {
     <div class="px-8 w-full md:mx-auto md:w-[80vw]">
         <div class="mb-4">
             <n-statistic label="共计找到了" tabular-nums>
-                <n-number-animation
-                    ref="cntRef"
-                    :from="0"
-                    :to="queryResult.cnt"
-                />
-                <template #suffix> 张试卷 </template>
+                {{ queryResult.cnt }}
+                <template #suffix> 份文件 </template>
             </n-statistic>
         </div>
         <div v-if="queryResult.cnt">

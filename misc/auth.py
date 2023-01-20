@@ -4,8 +4,11 @@ from fastapi import Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+from sqlalchemy.orm import Session
 
 from config import get_secret_key
+from models import get_db
+from models.user import User
 
 SECRET_KEY = get_secret_key()
 ALGORITHM = "HS256"
@@ -71,6 +74,21 @@ async def is_admin(request: Request):
         return False
 
     return admin
+
+
+async def get_user_token(request: Request, db: Session = Depends(get_db)):
+    try:
+        token: str = await oauth2_scheme(request)
+        payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
+        uid = payload.get("uid")
+        assert uid is not None
+    except:
+        uid = request.headers.get("X-MyExam-Token")
+        user_cnt = db.query(User).filter_by(uid=uid).count()
+        if user_cnt:
+            raise HTTPException(status_code=401, detail="签名无效。")
+
+    return uid
 
 
 def hash_passwd(passwd: str) -> str:

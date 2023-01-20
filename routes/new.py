@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
 from misc.s3 import delete_object_from_s3, get_presigned_post_url
+from misc.auth import get_user_token
 from models import get_db
 from models.exam import Exam
 from models.examgroup import ExamGroup
@@ -133,6 +134,7 @@ def confirm_paper(
     data: NewConfirm,
     request: Request,
     db: Session = Depends(get_db),
+    token: str = Depends(get_user_token)
 ):
     paper = db.query(Paper).filter_by(pid=data.pid).first()
 
@@ -142,7 +144,7 @@ def confirm_paper(
     paper.comment = data.comment
     paper.created_at = func.now()
     paper.uploader_ip = request.client.host
-    paper.user_token = request.headers.get("X-MyExam-Token")
+    paper.user_token = token
     paper.eid = data.eid
     paper.status = 1
 

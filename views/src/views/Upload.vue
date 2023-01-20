@@ -267,6 +267,7 @@ const newExamGroupDialog = () => {
 
 const setUploadURL = async (options) => {
     if (!uploadInfo.pid) await createNewPaper();
+    if (options.file.file.size > 20 * 1024 * 1024) return false;
     return new Promise((resolve, reject) => {
         axios
             .post("/new/file", {

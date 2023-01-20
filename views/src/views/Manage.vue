@@ -47,7 +47,7 @@ const fetchData = () => {
                 data.value = response.data.list;
                 cnt.value = response.data.cnt;
                 pagination.pageCount = Math.ceil(
-                    cnt.value / pagination.pageCount
+                    cnt.value / pagination.pageSize
                 );
                 loading.value = false;
             }

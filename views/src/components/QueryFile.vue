@@ -54,7 +54,7 @@ const goQuery = () => {
                 queryResult.list = response.data.list;
                 queryResult.cnt = response.data.count;
                 pagination.pageCount = Math.ceil(
-                    queryResult.cnt / pagination.pageCount
+                    queryResult.cnt / pagination.pageSize
                 );
                 loading.value = false;
                 cntRef.value?.play();
@@ -69,11 +69,23 @@ const gotoExam = (eid) => {
 const tableColumns = [
     {
         type: "expand",
+        expandable: () => true,
         renderExpand: (row) => {
-            let text = row.text
-                .replaceAll("*s*", `<span class="font-bold text-indigo-600">`)
-                .replaceAll("*e*", "</span>");
-            return <div class="whitespace-pre" innerHTML={text}></div>;
+            let text = row.text.map((item) =>
+                item
+                    .replaceAll(
+                        "*s*",
+                        `<span class="font-bold text-indigo-600">`
+                    )
+                    .replaceAll("*e*", "</span>")
+            );
+            return (
+                <div class="flex flex-wrap gap-x-8 gap-y-0.5">
+                    {text.map((item) => (
+                        <span class="whitespace-nowrap" innerHTML={item}></span>
+                    ))}
+                </div>
+            );
         },
     },
     {
@@ -219,11 +231,7 @@ if (route.query.s) {
     <div class="px-8 w-full md:mx-auto md:w-[80vw]">
         <div class="mb-4">
             <n-statistic label="共计找到了" tabular-nums>
-                <n-number-animation
-                    ref="cntRef"
-                    :from="0"
-                    :to="queryResult.cnt"
-                />
+                {{ queryResult.cnt }}
                 <template #suffix> 份文件 </template>
             </n-statistic>
         </div>
@@ -235,7 +243,7 @@ if (route.query.s) {
                 :pagination="pagination"
                 class="whitespace-nowrap md:whitespace-normal"
                 @update:page="goQuery"
-                default-expand-all
+                :default-expand-all="true"
             />
         </div>
     </div>

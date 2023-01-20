@@ -99,7 +99,7 @@ const tableColumns = [
                         </Suspense>
                     </n-collapse-item>
                 </n-collapse>
-                <div class="text-blue-600 my-2">共计 {row.fcnt} 个文件</div>
+                <div class="text-green-600 my-2">共计 {row.fcnt} 个文件</div>
             </div>
         ),
     },
