@@ -61,7 +61,7 @@ def clean_isolate(db: Session = Depends(get_db)):
 def upgrade_server():
     current = os.path.dirname(__file__)
     print(os.path.join(current, ".."))
-    subprocess.Popen(["git", "pull"], cwd=os.path.join(current, ".."))
-    subprocess.Popen(["yarn", "build"], cwd=os.path.join(current, "..", "views"))
+    subprocess.Popen(["git", "pull"], cwd=os.path.join(current, ".."), shell=True)
+    subprocess.Popen(["yarn", "build"], cwd=os.path.join(current, "..", "views"), shell=True)
 
     return {"result": "success"}
