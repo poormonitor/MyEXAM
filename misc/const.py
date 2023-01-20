@@ -17,3 +17,24 @@ COURSES = [
     "法语",
     "西班牙语",
 ]
+
+PIC_EXT = [
+    "xbm",
+    "tif",
+    "pjp",
+    "svgz",
+    "jpg",
+    "jpeg",
+    "ico",
+    "tiff",
+    "gif",
+    "svg",
+    "jfif",
+    "webp",
+    "png",
+    "bmp",
+    "pjpeg",
+    "avif",
+]
+
+WORD_EXT = ["doc", "docx"]

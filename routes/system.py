@@ -1,9 +1,10 @@
+import os
+import subprocess
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from misc.auth import admin_required
 from misc.s3 import delete_objects_from_s3
 from models import get_db
 from models.exam import Exam
@@ -52,5 +53,15 @@ def clean_isolate(db: Session = Depends(get_db)):
     files.delete(synchronize_session="fetch")
 
     db.commit()
+
+    return {"result": "success"}
+
+
+@router.post("/upgrade")
+def upgrade_server():
+    current = os.path.dirname(__file__)
+    print(os.path.join(current, ".."))
+    subprocess.Popen(["git", "pull"], cwd=os.path.join(current, ".."))
+    subprocess.Popen(["yarn", "build"], cwd=os.path.join(current, "..", "views"))
 
     return {"result": "success"}

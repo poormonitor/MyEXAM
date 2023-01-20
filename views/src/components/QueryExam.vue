@@ -105,7 +105,7 @@ const tableColumns = [
         render: (row) => (
             <router-link
                 class="text-sky-800 hover:text-sky-900 transition"
-                to={{ name: "examgroup", query: { egid: row.examgroup.egid } }}
+                to={{ name: "examgroup", params: { egid: row.examgroup.egid } }}
             >
                 {GetYearMonth(row.examgroup.date) + " " + row.examgroup.name}
             </router-link>

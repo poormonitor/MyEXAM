@@ -59,7 +59,7 @@ watch(
 </script>
 
 <template>
-    <div class="mx-8 w-auto lg:mx-auto lg:w-[60vw] mt-8 overflow-y-hidden">
+    <div class="mx-8 w-auto lg:mx-auto lg:w-[60vw] my-8 overflow-y-hidden">
         <p class="text-3xl font-bold mb-4">找试卷</p>
         <div class="md:w-3/4 lg:2/3 mx-auto mb-4">
             <n-form inline>

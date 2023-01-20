@@ -17,17 +17,19 @@ export default {
                 const userStore = useUserStore();
 
                 let access_token = userStore.access_token;
-
-                if (access_token) {
-                    config.headers.Authorization = "Bearer " + access_token;
-                    tokenStore.token = userStore.uid;
-                }
+                let token;
 
                 if (!tokenStore.token) {
                     tokenStore.createToken();
+                    token = tokenStore.token;
                 }
 
-                config.headers["X-MyExam-Token"] = tokenStore.token;
+                if (access_token) {
+                    config.headers.Authorization = "Bearer " + access_token;
+                    token = userStore.uid;
+                }
+
+                config.headers["X-MyExam-Token"] = token;
 
                 return config;
             },

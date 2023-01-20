@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from models import SessionLocal
 from models.file import File
+from misc.const import PIC_EXT, WORD_EXT
 
 
 def get_text_pdf(file_path: str) -> str:
@@ -67,7 +68,7 @@ def get_text_image(file_path: str) -> str:
         res = result[idx]
         for line in res:
             fulltext.append(line[1][0])
-            
+
     return "\n".join(fulltext)
 
 
@@ -84,10 +85,12 @@ def get_text_docx(file_path: str) -> str:
 def get_text(file_path: str, ext: str) -> str:
     if ext == "pdf":
         text = get_text_pdf(file_path)
-    elif ext in ["doc", "docx"]:
+    elif ext in WORD_EXT:
         text = get_text_docx(file_path)
-    else:
+    elif ext in PIC_EXT:
         text = get_text_image(file_path)
+    else:
+        text = ""
 
     text = re.sub("([^\u4e00-\u9fa5\u0041-\u005a\u0061-\u007a\u0030-\u0039])", "", text)
 
