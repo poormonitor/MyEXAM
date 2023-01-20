@@ -75,8 +75,16 @@ const ModifyFile = (fid, type, name) => {
     }
 };
 
-const ReOCR = (fid) => {
+const ReOCRFile = (fid) => {
     axios.post("/manage/ocr/file", { fid: fid }).then((response) => {
+        if (response.data.result === "success") {
+            message.success("正在识别。");
+        }
+    });
+};
+
+const ReOCRPaper = () => {
+    axios.post("/manage/ocr/paper", { pid: props.pid }).then((response) => {
         if (response.data.result === "success") {
             message.success("正在识别。");
         }
@@ -197,7 +205,7 @@ const tableColumns = [
                     secondary
                     round
                     type="info"
-                    on-click={() => ReOCR(row.fid)}
+                    on-click={() => ReOCRFile(row.fid)}
                 >
                     重新识别
                 </n-button>
@@ -348,6 +356,7 @@ await fetchFiles();
             <n-button>上传文件</n-button>
         </n-upload>
         <n-button @click="showPDF = true" type="info"> 图片生成PDF </n-button>
+        <n-button type="info" secondary @click="ReOCRPaper"> 重新OCR </n-button>
         <n-button
             type="primary"
             v-if="CurrentPaper.status === 1"

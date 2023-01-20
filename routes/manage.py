@@ -18,12 +18,12 @@ from models.union import Union
 router = APIRouter()
 
 
-class ReOCR(BaseModel):
+class ReOCRFile(BaseModel):
     fid: str
 
 
 @router.post("/ocr/file")
-def perform_ocr(data: ReOCR, db: Session = Depends(get_db)):
+def perform_ocr_file(data: ReOCRFile, db: Session = Depends(get_db)):
     file = db.query(File).filter_by(fid=data.fid).first()
 
     if not file:
@@ -40,6 +40,33 @@ def perform_ocr(data: ReOCR, db: Session = Depends(get_db)):
             ),
             file.fid,
         ],
+    )
+
+    return {"result": "success"}
+
+
+class ReOCRPaper(BaseModel):
+    pid: str
+
+
+@router.post("/ocr/paper")
+def perform_ocr_paper(data: ReOCRPaper, db: Session = Depends(get_db)):
+    paper = db.query(Paper).filter_by(pid=data.pid).first()
+
+    if not paper:
+        raise HTTPException(status_code=404, detail="项目未找到。")
+
+    subprocess.Popen(
+        [
+            sys.executable,
+            os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                "..",
+                "misc",
+                "ocr.py",
+            ),
+        ]
+        + [i.fid for i in paper.files],
     )
 
     return {"result": "success"}
