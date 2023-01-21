@@ -17,12 +17,12 @@ minioClient = Minio(
 )
 
 
-def get_presigned_post_url(ext: str, id: str) -> str:
+def get_presigned_put_url(ext: str, id: str) -> str:
     key = config["S3_PREFIX"] + "/" + id + "." + ext
     key = key.strip("/")
 
     url = minioClient.get_presigned_url(
-        "POST", config["S3_BUCKET"], key, expires=timedelta(hours=1)
+        "PUT", config["S3_BUCKET"], key, expires=timedelta(hours=1)
     )
 
     return url, key
