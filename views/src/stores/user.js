@@ -29,7 +29,7 @@ export const useUserStore = defineStore(
             nick.value = null;
             admin.value = false;
             access_token.value = null;
-            expires = new Date().getTime();
+            expires.value = new Date().getTime();
         }
 
         return { uid, access_token, admin, nick, expires, login, logout };
