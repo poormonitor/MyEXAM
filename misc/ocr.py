@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from models import SessionLocal
 from models.file import File
+from models.task import Task
 from misc.const import PIC_EXT, WORD_EXT
 
 
@@ -36,6 +37,7 @@ def get_text_pdf(file_path: str) -> str:
 
     ocr = PaddleOCR(use_angle_cls=True, lang="ch")
     for pg in range(document.page_count):
+        UpdateStatus(pg / document.page_count)
         page = document[pg]
 
         mat = fitz.Matrix(2, 2)
@@ -97,7 +99,9 @@ def get_text(file_path: str, ext: str) -> str:
     return text
 
 
-def WriteOCR(fid: str, db: Session):
+def WriteOCR(fid: str):
+    global db
+
     file = db.query(File).filter_by(fid=fid).first()
 
     file_path = get_file_local(file.ext, file.fid)
@@ -109,10 +113,19 @@ def WriteOCR(fid: str, db: Session):
     db.commit()
 
 
+def UpdateStatus(status: float):
+    global task, db
+
+    task.status = status
+    db.commit()
+
+
 if __name__ == "__main__":
     db: Session = SessionLocal()
 
-    fids = sys.argv[1:]
-
-    for fid in fids:
-        WriteOCR(fid, db)
+    task = db.query(Task).filter_by(type="ocr").order_by(Task.created.asc()).first()
+    while task:
+        WriteOCR(task.data)
+        db.delete(task)
+        db.commit()
+        task = db.query(Task).filter_by(type="ocr").order_by(Task.created.asc()).first()

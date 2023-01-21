@@ -13,6 +13,7 @@ from models.exam import Exam
 from models.examgroup import ExamGroup
 from models.file import File
 from models.paper import Paper
+from models.task import Task
 from models.union import Union
 
 router = APIRouter()
@@ -29,18 +30,17 @@ def perform_ocr_file(data: ReOCRFile, db: Session = Depends(get_db)):
     if not file:
         raise HTTPException(status_code=404, detail="项目未找到。")
 
-    subprocess.Popen(
-        [
-            sys.executable,
-            os.path.join(
-                os.path.dirname(os.path.abspath(__file__)),
-                "..",
-                "misc",
-                "ocr.py",
-            ),
-            file.fid,
-        ],
-    )
+    processing = db.query(Task).count()
+
+    task = Task(type="ocr", data=file.fid)
+    db.add(task)
+
+    db.commit()
+
+    if not processing:
+        current = os.path.dirname(os.path.abspath(__file__))
+        path = os.path.join(current, "..", "misc", "ocr.py")
+        subprocess.Popen([sys.executable, path])
 
     return {"result": "success"}
 
@@ -56,18 +56,18 @@ def perform_ocr_paper(data: ReOCRPaper, db: Session = Depends(get_db)):
     if not paper:
         raise HTTPException(status_code=404, detail="项目未找到。")
 
-    subprocess.Popen(
-        [
-            sys.executable,
-            os.path.join(
-                os.path.dirname(os.path.abspath(__file__)),
-                "..",
-                "misc",
-                "ocr.py",
-            ),
-        ]
-        + [i.fid for i in paper.files],
-    )
+    processing = db.query(Task).count()
+
+    for i in paper.files:
+        task = Task(type="ocr", data=i.fid)
+        db.add(task)
+
+    db.commit()
+
+    if not processing:
+        current = os.path.dirname(os.path.abspath(__file__))
+        path = os.path.join(current, "..", "misc", "ocr.py")
+        subprocess.Popen([sys.executable, path])
 
     return {"result": "success"}
 

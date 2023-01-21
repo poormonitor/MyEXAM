@@ -25,8 +25,12 @@ export default {
                 }
 
                 if (access_token) {
-                    config.headers.Authorization = "Bearer " + access_token;
-                    token = userStore.uid;
+                    if (userStore.expires <= new Date().getTime()) {
+                        userStore.logout();
+                    } else {
+                        config.headers.Authorization = "Bearer " + access_token;
+                        token = userStore.uid;
+                    }
                 }
 
                 config.headers["X-MyExam-Token"] = token;

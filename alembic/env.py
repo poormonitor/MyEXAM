@@ -29,6 +29,7 @@ from models.file import File
 from models.paper import Paper
 from models.union import Union
 from models.user import User
+from models.task import Task
 
 target_metadata = Base.metadata
 

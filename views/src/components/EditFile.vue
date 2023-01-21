@@ -341,7 +341,7 @@ await fetchFiles();
         @confirm="handlePDFUpload"
     />
     <n-data-table :columns="tableColumns" :data="data" :bordered="false" />
-    <div class="flex justify-center gap-x-2 my-3">
+    <div class="flex flex-wrap justify-center gap-x-2 my-3">
         <n-upload
             multiple
             directory-dnd

@@ -1,7 +1,10 @@
 <script setup>
 import { message } from "../discrete";
+import pkg from "../../package.json";
+
 const axios = inject("axios");
 const version = __MYEXAM_VIEW_VERSION__;
+const showVersion = ref(false);
 
 const CleanAction = () => {
     axios.post("/system/clean").then((response) => {
@@ -51,9 +54,45 @@ const UpgradeAction = () => {
                 </div>
             </template>
         </n-card>
+        <n-modal v-model:show="showVersion">
+            <n-card
+                class="!mx-8 sm:!w-[30rem] sm:!mx-auto"
+                title="依赖版本"
+                :bordered="false"
+                size="huge"
+                role="dialog"
+                aria-modal="true"
+            >
+                <ul>
+                    <li
+                        class="flex flex-wrap"
+                        v-for="k in Object.keys(pkg.dependencies)"
+                    >
+                        <span>{{ k }}</span>
+                        <span class="ml-auto">{{ pkg.dependencies[k] }}</span>
+                    </li>
+                </ul>
+                <ul>
+                    <li
+                        class="flex flex-wrap"
+                        v-for="k in Object.keys(pkg.devDependencies)"
+                    >
+                        <span>{{ k }}</span>
+                        <span class="ml-auto">
+                            {{ pkg.devDependencies[k] }}
+                        </span>
+                    </li>
+                </ul>
+            </n-card>
+        </n-modal>
         <n-card title="更新系统">
-            <p>更新MyExam程序文件，并重新构建前端应用。后端需要手动重启。</p>
+            <p>
+                更新MyExam程序文件，并重新构建前端应用。后端可能需要手动重启。
+            </p>
             <p>当前构建版本：{{ version }}</p>
+            <n-button text @click="showVersion = true" type="success">
+                依赖信息
+            </n-button>
             <template #action>
                 <div class="flex justify-end">
                     <n-button type="primary" @click="UpgradeAction">

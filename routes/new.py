@@ -9,13 +9,14 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
-from misc.s3 import delete_object_from_s3, get_presigned_post_url
 from misc.auth import get_user_token
+from misc.s3 import delete_object_from_s3, get_presigned_post_url
 from models import get_db
 from models.exam import Exam
 from models.examgroup import ExamGroup
 from models.file import File
 from models.paper import Paper
+from models.task import Task
 from models.union import Union
 
 router = APIRouter()
@@ -134,7 +135,7 @@ def confirm_paper(
     data: NewConfirm,
     request: Request,
     db: Session = Depends(get_db),
-    token: str = Depends(get_user_token)
+    token: str = Depends(get_user_token),
 ):
     paper = db.query(Paper).filter_by(pid=data.pid).first()
 
@@ -158,18 +159,18 @@ def confirm_paper(
             delete_object_from_s3(i.ext, i.fid)
             db.delete(i)
 
-    subprocess.Popen(
-        [
-            sys.executable,
-            os.path.join(
-                os.path.dirname(os.path.abspath(__file__)),
-                "..",
-                "misc",
-                "ocr.py",
-            ),
-        ]
-        + list(target.keys()),
-    )
+    processing = db.query(Task).count()
+
+    for fid in target.keys():
+        task = Task(type="ocr", data=fid)
+        db.add(task)
+
+    db.commit()
+
+    if not processing:
+        current = os.path.dirname(os.path.abspath(__file__))
+        path = os.path.join(current, "..", "misc", "ocr.py")
+        subprocess.Popen([sys.executable, path])
 
     db.commit()
     return {"result": "success"}

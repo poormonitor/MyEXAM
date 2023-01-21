@@ -20,15 +20,17 @@ const submitLogin = () => {
             email: loginForm.email,
             password: sha256(loginForm.passwd).toString(),
         })
-        .then((response) => {
+        .then(async (response) => {
             if (response.data.access_token) {
+                let token = response.data.access_token;
+                let payload = JSON.parse(atob(token.split(".")[1]));
                 userStore.login(
-                    response.data.uid,
-                    response.data.nick,
-                    response.data.access_token,
-                    response.data.admin
+                    token,
+                    payload.uid,
+                    payload.nick,
+                    payload.admin,
+                    payload.expires
                 );
-                tokenStore.token = response.data.uid;
                 router.push({ name: "home" });
             }
         });

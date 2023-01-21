@@ -6,6 +6,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from misc.auth import admin_required
+from config import get_version
 
 
 def init_app_routes(app: FastAPI):
@@ -58,11 +59,12 @@ def init_app_routes(app: FastAPI):
     app.mount("/", static_app, name="static")
 
     @app.middleware("http")
-    async def add_process_time_header(request: Request, call_next):
+    async def add_header(request: Request, call_next):
         start_time = time.time()
         response = await call_next(request)
         process_time = time.time() - start_time
         response.headers["X-Process-Time"] = str(round(process_time * 1000, 4))
+        response.headers["X-MyExam-Version"] = get_version()
         return response
 
     @app.middleware("http")

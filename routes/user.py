@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from hashlib import sha256
 from typing import Optional
 
@@ -18,19 +18,11 @@ router = APIRouter()
 class UserLogin(BaseModel):
     email: str
     password: str
-    expires: Optional[int] = Field(gt=0, le=2592000, default=3600)
 
 
 class UserToken(BaseModel):
     access_token: str
     token_type: str = "bearer"
-
-
-class UserLoginResult(BaseModel):
-    access_token: str
-    nick: str
-    admin: bool
-    uid: str
 
 
 class UserRegister(BaseModel):
@@ -44,7 +36,7 @@ class UserPasswd(BaseModel):
     new: str
 
 
-@router.post("/login", response_model=UserLoginResult, tags=["user"])
+@router.post("/login", response_model=UserToken, tags=["user"])
 def login(data: UserLogin, db: Session = Depends(get_db)):
     user = db.query(User).filter_by(email=data.email).first()
 
@@ -55,12 +47,10 @@ def login(data: UserLogin, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="密码错误。")
 
     token = create_access_token(
-        user.uid, timedelta(seconds=data.expires), admin=user.admin, nick=user.nick
+        user.uid, timedelta(hours=2), admin=user.admin, nick=user.nick
     )
 
-    return UserLoginResult(
-        access_token=token, admin=user.admin, uid=user.uid, nick=user.nick
-    )
+    return UserToken(access_token=token)
 
 
 @router.post("/token", response_model=UserToken, tags=["user"])
@@ -74,7 +64,7 @@ def token(data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get
         raise HTTPException(status_code=400, detail="密码错误。")
 
     token = create_access_token(
-        user.uid, timedelta(seconds=3600), admin=user.admin, nick=user.nick
+        user.uid, timedelta(hours=2), admin=user.admin, nick=user.nick
     )
 
     return UserToken(access_token=token)

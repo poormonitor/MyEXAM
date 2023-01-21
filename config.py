@@ -1,6 +1,7 @@
 import codecs
+import subprocess
 import os
-from functools import lru_cache
+from functools import lru_cache, cache
 from typing import Optional
 
 from pydantic import BaseSettings
@@ -33,3 +34,10 @@ def get_config(item: Optional[str] = None):
     if item:
         return Settings()[item]
     return Settings()
+
+
+@cache
+def get_version() -> str:
+    cmd = "git rev-parse --short HEAD"
+    proc = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE)
+    return proc.stdout.decode().strip()

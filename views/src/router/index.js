@@ -132,7 +132,11 @@ const router = createRouter({
                 },
             ],
         },
-        { path: "/:pathMatch(.*)*", name: "lost", component: () => import("../views/NotFound.vue") },
+        {
+            path: "/:pathMatch(.*)*",
+            name: "lost",
+            component: () => import("../views/NotFound.vue"),
+        },
     ],
 });
 
@@ -142,6 +146,14 @@ router.beforeEach((to, from) => {
     }
     const userStore = useUserStore();
 
+    if (
+        to.meta.requiresAuth &&
+        userStore.uid &&
+        userStore.expires <= new Date().getTime()
+    ) {
+        userStore.logout();
+        return { name: "login" };
+    }
     if (to.meta.requiresAuth && !userStore.uid) return { name: "login" };
     if (to.meta.requiresAdmin && !userStore.admin) return { name: "home" };
     if (userStore.uid && ["login", "reg"].includes(to.name))

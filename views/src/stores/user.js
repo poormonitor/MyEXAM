@@ -8,12 +8,20 @@ export const useUserStore = defineStore(
         const nick = ref(null);
         const access_token = ref(null);
         const admin = ref(false);
+        const expires = ref(new Date().getTime());
 
-        function login(user_uid, user_nick, user_access_token, user_admin) {
+        function login(
+            user_access_token,
+            user_uid,
+            user_nick,
+            user_admin,
+            user_expires
+        ) {
+            access_token.value = user_access_token;
             uid.value = user_uid;
             nick.value = user_nick;
-            access_token.value = user_access_token;
             admin.value = user_admin;
+            expires.value = user_expires;
         }
 
         function logout() {
@@ -21,9 +29,10 @@ export const useUserStore = defineStore(
             nick.value = null;
             admin.value = false;
             access_token.value = null;
+            expires = new Date().getTime();
         }
 
-        return { uid, access_token, admin, nick, login, logout };
+        return { uid, access_token, admin, nick, expires, login, logout };
     },
     {
         persist: {

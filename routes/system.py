@@ -1,5 +1,6 @@
 import os
 import subprocess
+import sys
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends
@@ -59,9 +60,12 @@ def clean_isolate(db: Session = Depends(get_db)):
 
 @router.post("/upgrade")
 def upgrade_server():
-    current = os.path.dirname(__file__)
-    print(os.path.join(current, ".."))
-    subprocess.Popen(["git", "pull"], cwd=os.path.join(current, ".."), shell=True)
-    subprocess.Popen(["yarn", "build"], cwd=os.path.join(current, "..", "views"), shell=True)
+    path = os.path.join(os.path.dirname(__file__), "..")
+    cmd = "git pull && alembic upgrade head && cd views && yarn build"
+
+    if sys.platform == "linux":
+        cmd += " && systemctl restart myexam"
+
+    subprocess.Popen(cmd, cwd=path, shell=True)
 
     return {"result": "success"}
