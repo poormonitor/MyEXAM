@@ -16,7 +16,7 @@ const title = computed(() => (props.title ? props.title : "文件预览"));
             :src="props.src"
             v-if="pdf"
         />
-        <img :src="props.src" style="width: 100%" v-else-if="pic" />
+        <img :src="props.src" class="!w-full" v-else-if="pic" />
         <iframe class="w-full h-[80vh]" :src="props.src" v-else></iframe>
     </n-modal>
 </template>

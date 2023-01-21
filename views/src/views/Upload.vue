@@ -631,7 +631,6 @@ fetchUnions();
             directory-dnd
             class="mt-8 mb-4"
             :show-file-list="false"
-            method="put"
             :action="uploadFile.url"
             :data="{ key: uploadFile.key, acl: 'private' }"
             :on-before-upload="setUploadURL"

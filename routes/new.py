@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
 from misc.auth import get_user_token
-from misc.s3 import delete_object_from_s3, get_presigned_put_url
+from misc.s3 import delete_object_from_s3, get_presigned_post_url
 from models import get_db
 from models.exam import Exam
 from models.examgroup import ExamGroup
@@ -113,7 +113,7 @@ def new_file(data: NewFile, db: Session = Depends(get_db)):
     db.add(new_file)
     db.commit()
     db.refresh(new_file)
-    upload_url, key = get_presigned_put_url(ext, new_file.fid)
+    upload_url, key = get_presigned_post_url(ext, new_file.fid)
     return {"result": "success", "fid": new_file.fid, "url": upload_url, "key": key}
 
 
