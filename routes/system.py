@@ -6,13 +6,16 @@ from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from misc.s3 import delete_objects_from_s3
+from config import get_version, get_dependencies
+from misc.s3 import delete_objects_from_s3, list_object_fids
 from models import get_db
 from models.exam import Exam
 from models.examgroup import ExamGroup
 from models.file import File
 from models.paper import Paper
+from models.task import Task
 from models.union import Union
+from models.user import User
 
 router = APIRouter()
 
@@ -56,6 +59,44 @@ def clean_isolate(db: Session = Depends(get_db)):
     db.commit()
 
     return {"result": "success"}
+
+
+@router.post("/miss")
+def clean_miss(db: Session = Depends(get_db)):
+    fids = list_object_fids()
+
+    db.query(File).filter(~File.pid.in_(fids)).delete(synchronize_session="fetch")
+    db.commit()
+
+    return {"result": "success"}
+
+
+@router.get("/statistic")
+def clean_miss(db: Session = Depends(get_db)):
+    union = db.query(Union).count()
+    examgroup = db.query(ExamGroup).count()
+    exam = db.query(Exam).count()
+    paper = db.query(Paper).count()
+    file = db.query(File).count()
+    user = db.query(User).count()
+    task = db.query(Task).count()
+
+    latest_task = db.query(Task).order_by(Task.created.asc()).first()
+
+    return {
+        "cnt": {
+            "union": union,
+            "examgroup": examgroup,
+            "exam": exam,
+            "paper": paper,
+            "file": file,
+            "user": user,
+            "task": task,
+        },
+        "version": get_version(),
+        "deps": get_dependencies(),
+        "task": latest_task,
+    }
 
 
 @router.post("/upgrade")

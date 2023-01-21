@@ -76,3 +76,8 @@ def get_file_local(ext: str, fid: str):
     minioClient.fget_object(config["S3_BUCKET"], key, new_file.name)
 
     return new_file.name
+
+
+def list_object_fids() -> List[str]:
+    objects = minioClient.list_objects(config["S3_BUCKET"], config["S3_PREFIX"])
+    return [obj.object_name.split(".")[0] for obj in objects]

@@ -29,7 +29,7 @@ const submitLogin = () => {
                     payload.uid,
                     payload.nick,
                     payload.admin,
-                    payload.expires
+                    payload.exp * 1000
                 );
                 router.push({ name: "home" });
             }
