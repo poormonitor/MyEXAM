@@ -341,7 +341,7 @@ await fetchFiles();
         @confirm="handlePDFUpload"
     />
     <n-data-table :columns="tableColumns" :data="data" :bordered="false" />
-    <div class="flex flex-wrap justify-center gap-x-2 my-3">
+    <div class="flex flex-wrap justify-center gap-x-2 gap-y-1 my-3">
         <n-upload
             multiple
             directory-dnd
@@ -354,14 +354,19 @@ await fetchFiles();
             :on-error="setFailedUpload"
             class="!w-fit"
         >
-            <n-button>上传文件</n-button>
+            <n-button size="small">上传文件</n-button>
         </n-upload>
-        <n-button @click="showPDF = true" type="info"> 图片生成PDF </n-button>
-        <n-button type="info" secondary @click="ReOCRPaper"> 重新OCR </n-button>
+        <n-button @click="showPDF = true" type="info" size="small">
+            图片生成PDF
+        </n-button>
+        <n-button type="info" secondary @click="ReOCRPaper" size="small">
+            重新OCR
+        </n-button>
         <n-button
             type="primary"
             v-if="CurrentPaper.status === 1"
             @click="ApprovePaper"
+            size="small"
         >
             审核通过
         </n-button>

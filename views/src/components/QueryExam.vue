@@ -122,7 +122,9 @@ const tableColumns = [
         render: (row) => (
             <div>
                 {row.papers.map((item) => (
-                    <n-tag type="info">{item.comment}</n-tag>
+                    <n-tag type="info">
+                        {item.comment} ({item.fcnt})
+                    </n-tag>
                 ))}
             </div>
         ),

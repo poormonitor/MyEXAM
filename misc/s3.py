@@ -1,3 +1,4 @@
+import os
 from datetime import timedelta
 from tempfile import NamedTemporaryFile
 from typing import List, Tuple
@@ -79,5 +80,6 @@ def get_file_local(ext: str, fid: str):
 
 
 def list_object_fids() -> List[str]:
-    objects = minioClient.list_objects(config["S3_BUCKET"], config["S3_PREFIX"])
-    return [obj.object_name.split(".")[0] for obj in objects]
+    objects = minioClient.list_objects(config["S3_BUCKET"], recursive=True)
+    sp = lambda x: os.path.splitext(os.path.split(x)[1])[0]
+    return [sp(obj.object_name) for obj in objects]

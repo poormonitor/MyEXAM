@@ -60,15 +60,6 @@ const getOptions = (items) =>
         value: index,
     }));
 
-const DeleteExam = (eid) => {
-    axios.post("/manage/delete/exam", { eid: eid }).then((response) => {
-        if (response.data.result === "success") {
-            message.success("删除成功");
-            data.value = data.value.filter((item) => item.eid != eid);
-        }
-    });
-};
-
 const tableColumns = [
     {
         title: "联盟",
@@ -148,7 +139,7 @@ const tableColumns = [
                             ModifyAction.show = true;
                         }}
                     >
-                        {item.comment}
+                        {item.comment} ({item.fcnt})
                     </n-button>
                 ))}
             </div>
@@ -170,22 +161,6 @@ const tableColumns = [
             >
                 修改
             </n-button>
-        ),
-    },
-    {
-        title: "删除",
-        key: "delete",
-        render: (row) => (
-            <n-popconfirm on-positive-click={() => DeleteExam(row.eid)}>
-                {{
-                    trigger: () => (
-                        <n-button type="error" size="small">
-                            删除
-                        </n-button>
-                    ),
-                    default: () => "你确认要删除吗？",
-                }}
-            </n-popconfirm>
         ),
     },
 ];

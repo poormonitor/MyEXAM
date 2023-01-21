@@ -2,6 +2,7 @@
 import { Suspense } from "vue";
 import { courses, grades } from "../const";
 import { message } from "../discrete";
+import { GetYearMonth } from "../func";
 import EditFile from "./EditFile.vue";
 
 const axios = inject("axios");
@@ -10,6 +11,7 @@ const emits = defineEmits(["update:show", "update:modify"]);
 const tpe = ref(null);
 const data = ref(null);
 const comp = ref(null);
+const ModifyData = inject("ModifyData");
 const visible = computed({
     get() {
         return props.show;
@@ -19,13 +21,15 @@ const visible = computed({
     },
 });
 
+const AllowDelete = ["union", "examgroup", "exam", "paper"];
+
 const getOptions = (items) =>
     items.map((item, index) => ({
         label: item,
         value: index,
     }));
 
-const types = [
+const RenderTypes = [
     {
         key: "union",
         name: "联盟",
@@ -34,6 +38,7 @@ const types = [
             { key: "name", value: "联盟名称", type: "input" },
             { key: "member", value: "联盟成员", type: "textarea" },
         ],
+        show: [],
     },
     {
         key: "examgroup",
@@ -43,6 +48,7 @@ const types = [
             { key: "name", value: "联考名称", type: "input" },
             { key: "date", value: "联考年月", type: "month" },
         ],
+        show: ["union"],
     },
     {
         key: "exam",
@@ -63,6 +69,7 @@ const types = [
             },
             { key: "date", value: "考试日期", type: "date" },
         ],
+        show: ["union", "examgroup"],
     },
     {
         key: "paper",
@@ -96,11 +103,37 @@ const types = [
                 ),
             },
         ],
+        show: ["union", "examgroup", "exam"],
     },
 ];
 
+const RenderData = {
+    union: {
+        title: "联盟",
+        render: () => {
+            return ModifyData.value.union.name;
+        },
+    },
+    examgroup: {
+        title: "联考",
+        render: () => {
+            let date = GetYearMonth(ModifyData.value.examgroup.date);
+            let examgroup = ModifyData.value.examgroup.name;
+            return `${date} ${examgroup}`;
+        },
+    },
+    exam: {
+        title: "考试",
+        render: () => {
+            let grade = grades[ModifyData.value.grade];
+            let course = courses[ModifyData.value.course];
+            return `${grade} ${course}`;
+        },
+    },
+};
+
 const fetchData = async () => {
-    tpe.value = types.find((item) => item.key == props.type);
+    tpe.value = RenderTypes.find((item) => item.key == props.type);
     let q = {};
     q[tpe.value.id] = props.id;
     await axios
@@ -162,8 +195,16 @@ watch(() => props.id, fetchData);
             width: tpe.key === 'paper' ? '70%' : null,
         }"
     >
-        <n-form v-if="data">
-            <div class="mx-8 mb-6 mt-10">
+        <div class="mx-8 mb-6 mt-10">
+            <div
+                class="flex gap-x-4 lg:gap-x-12 flex-wrap mb-6"
+                v-if="tpe.show.length"
+            >
+                <n-statistic :label="RenderData[i].title" v-for="i in tpe.show">
+                    {{ RenderData[i].render() }}
+                </n-statistic>
+            </div>
+            <n-form v-if="data">
                 <div v-for="item in tpe.options">
                     <n-form-item
                         :label="item.value"
@@ -201,7 +242,10 @@ watch(() => props.id, fetchData);
                         <component :is="item.component(props.id)" />
                     </div>
                 </div>
-                <div class="flex justify-center" v-if="tpe.key === 'file'">
+                <div
+                    class="flex justify-center"
+                    v-if="AllowDelete.includes(tpe.key)"
+                >
                     <n-popconfirm @positive-click="DeleteSelf">
                         <template #trigger>
                             <n-button type="error" size="small" secondary>
@@ -211,10 +255,10 @@ watch(() => props.id, fetchData);
                         您确认要删除吗？
                     </n-popconfirm>
                 </div>
-            </div>
-        </n-form>
-        <n-spin v-else>
-            <template #description> 加载中 </template>
-        </n-spin>
+            </n-form>
+            <n-spin v-else>
+                <template #description> 加载中 </template>
+            </n-spin>
+        </div>
     </n-modal>
 </template>

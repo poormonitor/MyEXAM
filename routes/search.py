@@ -55,6 +55,7 @@ class OnePaper(BaseModel):
     views: int
     created_at: datetime
     status: int
+    fcnt: int
 
 
 class OneExam(BaseModel):
@@ -144,7 +145,7 @@ def search_exam(
             **vars(item[0]),
             union=OneUnion(**vars(item[1])),
             examgroup=OneExamGroup(**vars(item[2])),
-            papers=[OnePaper(**vars(i)) for i in item[0].papers],
+            papers=[OnePaper(**vars(i), fcnt=len(i.files)) for i in item[0].papers],
         )
         for item in result
     ]
@@ -183,7 +184,7 @@ def search_file(
             union=OneUnion(**vars(item[1])),
             examgroup=OneExamGroup(**vars(item[2])),
             exam=OneExam(**vars(item[3])),
-            paper=OnePaper(**vars(item[4])),
+            paper=OnePaper(**vars(item[4], fcnt=len(item[4]))),
             text=GetHighlight(item[0].ocr, info.s),
         )
         for item in result
