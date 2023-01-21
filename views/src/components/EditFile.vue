@@ -346,6 +346,7 @@ await fetchFiles();
             multiple
             directory-dnd
             :show-file-list="false"
+            method="put"
             :action="UploadFile.url"
             :data="{ key: UploadFile.key, acl: 'private' }"
             :on-before-upload="setUploadURL"
