@@ -184,7 +184,7 @@ def search_file(
             union=OneUnion(**vars(item[1])),
             examgroup=OneExamGroup(**vars(item[2])),
             exam=OneExam(**vars(item[3])),
-            paper=OnePaper(**vars(item[4], fcnt=len(item[4].files))),
+            paper=OnePaper(**vars(item[4]), fcnt=len(item[4].files)),
             text=GetHighlight(item[0].ocr, info.s),
         )
         for item in result
