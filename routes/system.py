@@ -101,8 +101,6 @@ def upgrade_server():
     subprocess.Popen(cmd, cwd=path)
 
     cmd = "yarn build"
-    if sys.platform == "linux":
-        cmd = "source /etc/profile && " + cmd
     subprocess.Popen(cmd, cwd=os.path.join(path, "views"), shell=True)
 
     return {"result": "success"}
