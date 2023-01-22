@@ -94,13 +94,15 @@ def clean_miss(db: Session = Depends(get_db)):
 def upgrade_server():
     path = os.path.join(os.path.dirname(__file__), "..")
 
-    cmd = ["git", "pull"]
-    subprocess.run(cmd, cwd=path)
+    cmd = "git pull"
+    subprocess.run(cmd, cwd=path, shell=True)
 
     cmd = [sys.executable, "-m", "alembic", "upgrade", "head"]
     subprocess.Popen(cmd, cwd=path)
 
-    cmd = ["yarn", "build"]
-    subprocess.Popen(cmd, cwd=os.path.join(path, "views"))
+    cmd = "yarn build"
+    if sys.platform == "linux":
+        cmd = "source /etc/profile && " + cmd
+    subprocess.Popen(cmd, cwd=os.path.join(path, "views"), shell=True)
 
     return {"result": "success"}
