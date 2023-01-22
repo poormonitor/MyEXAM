@@ -95,12 +95,12 @@ def upgrade_server():
     path = os.path.join(os.path.dirname(__file__), "..")
 
     cmd = ["git", "pull"]
-    subprocess.run(cmd, cwd=path, shell=True)
+    subprocess.run(cmd, cwd=path)
 
     cmd = [sys.executable, "-m", "alembic", "upgrade", "head"]
-    subprocess.Popen(cmd, cwd=path, shell=True)
+    subprocess.Popen(cmd, cwd=path)
 
     cmd = ["yarn", "build"]
-    subprocess.Popen(cmd, cwd=os.path.join(path, "views"), shell=True)
+    subprocess.Popen(cmd, cwd=os.path.join(path, "views"))
 
     return {"result": "success"}
