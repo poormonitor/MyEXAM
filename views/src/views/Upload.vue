@@ -263,6 +263,12 @@ const newExamGroupDialog = () => {
 const CustomUpload = async (options) => {
     if (!uploadInfo.pid) await createNewPaper();
     if (options.file.file.size > 20 * 1024 * 1024) return false;
+    uploadInfo.files.push({
+        id: options.file.id,
+        name: options.file.name,
+        type: 0,
+        status: 0,
+    });
     axios
         .post("/new/file", {
             name: options.file.name,
@@ -271,13 +277,8 @@ const CustomUpload = async (options) => {
         })
         .catch(options.onError)
         .then((response) => {
-            uploadInfo.files.push({
-                id: options.file.id,
-                fid: response.data.fid,
-                name: options.file.name,
-                type: 0,
-                status: 0,
-            });
+            uploadInfo.files.find((item) => item.id == options.file.id).fid =
+                response.data.fid;
             if (response.data.result == "success") {
                 UploadToS3(
                     options,
