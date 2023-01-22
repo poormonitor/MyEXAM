@@ -1,3 +1,5 @@
+import md5 from "crypto-js/md5";
+
 const GetYearMonth = (timestamp) => {
     let date = new Date(timestamp);
     let year = date.getFullYear();
@@ -10,4 +12,15 @@ const GetFullTime = (timestamp) => {
     return date.toISOString().substring(0, 19).replace("T", " ");
 };
 
-export { GetYearMonth, GetFullTime };
+const blobToHash = async (blob) => {
+    return new Promise((resolve) => {
+        let reader = new FileReader();
+        reader.readAsBinaryString(blob);
+        reader.onloadend = () => {
+            let hash = md5(reader.result).toString();
+            resolve(hash);
+        };
+    });
+};
+
+export { GetYearMonth, GetFullTime, blobToHash };

@@ -225,7 +225,7 @@ def get_url(fid: str, download: Optional[bool] = True, db: Session = Depends(get
     if not file:
         raise HTTPException(status_code=404, detail="项目未找到。")
 
-    url = get_presigned_get_url(file.ext, file.fid, file.name, download)
+    url = get_presigned_get_url(file.ext, file.md5, file.name, download)
 
     file.views += 1
     db.commit()

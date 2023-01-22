@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from config import get_version, get_dependencies
-from misc.s3 import delete_objects_from_s3, list_object_fids
+from misc.s3 import delete_objects_from_s3, list_object_hash
 from models import get_db
 from models.exam import Exam
 from models.examgroup import ExamGroup
@@ -30,9 +30,8 @@ def clean_paper(db: Session = Depends(get_db)):
     )
 
     files = db.query(File).filter(~File.pid.in_(db.query(Paper.pid)))
-    delete_objects_from_s3([(i.fid, i.ext) for i in files.all()])
+    delete_objects_from_s3([(i.md5, i.ext) for i in files.all()])
     files.delete(synchronize_session="fetch")
-
     db.commit()
 
     return {"result": "success"}
@@ -40,22 +39,14 @@ def clean_paper(db: Session = Depends(get_db)):
 
 @router.post("/isolate")
 def clean_isolate(db: Session = Depends(get_db)):
-    db.query(ExamGroup).filter(~ExamGroup.nid.in_(db.query(Union.nid))).delete(
-        synchronize_session="fetch"
-    )
-
-    db.query(Exam).filter(~Exam.egid.in_(db.query(ExamGroup.egid))).delete(
-        synchronize_session="fetch"
-    )
-
-    db.query(Paper).filter(~Paper.eid.in_(db.query(Exam.eid))).delete(
-        synchronize_session="fetch"
-    )
+    db.query(ExamGroup).filter(~ExamGroup.nid.in_(db.query(Union.nid))).delete()
+    db.query(Exam).filter(~Exam.egid.in_(db.query(ExamGroup.egid))).delete()
+    db.query(Paper).filter(~Paper.eid.in_(db.query(Exam.eid))).delete()
+    db.commit()
 
     files = db.query(File).filter(~File.pid.in_(db.query(Paper.pid)))
-    delete_objects_from_s3([(i.fid, i.ext) for i in files.all()])
+    delete_objects_from_s3([(i.md5, i.ext) for i in files.all()])
     files.delete(synchronize_session="fetch")
-
     db.commit()
 
     return {"result": "success"}
@@ -63,9 +54,9 @@ def clean_isolate(db: Session = Depends(get_db)):
 
 @router.post("/miss")
 def clean_miss(db: Session = Depends(get_db)):
-    fids = list_object_fids()
+    hash = list_object_hash()
 
-    db.query(File).filter(~File.pid.in_(fids)).delete(synchronize_session="fetch")
+    db.query(File).filter(~File.md5.in_(hash)).delete()
     db.commit()
 
     return {"result": "success"}

@@ -41,6 +41,7 @@ class NewExam(BaseModel):
 
 
 class NewFile(BaseModel):
+    md5: str
     name: str
     pid: str
 
@@ -109,12 +110,19 @@ def new_paper(db: Session = Depends(get_db)):
 @router.post("/file")
 def new_file(data: NewFile, db: Session = Depends(get_db)):
     ext = os.path.splitext(data.name)[1].replace(".", "")
+
+    file = db.query(File).filter_by(ext=ext).filter_by(md5=data.md5).first()
+
     new_file = File(**vars(data), ext=ext)
     db.add(new_file)
     db.commit()
     db.refresh(new_file)
-    upload_url, key = get_presigned_post_url(ext, new_file.fid)
-    return {"result": "success", "fid": new_file.fid, "url": upload_url, "key": key}
+
+    if file:
+        return {"result": "exists", "fid": new_file.fid}
+    else:
+        upload_url, key = get_presigned_post_url(ext, data.md5)
+        return {"result": "success", "fid": new_file.fid, "url": upload_url, "key": key}
 
 
 @router.post("/delete_file")
@@ -124,7 +132,7 @@ def delete_file(data: DeleteFile, db: Session = Depends(get_db)):
     if not file:
         raise HTTPException(status_code=404, detail="项目未找到。")
 
-    delete_object_from_s3(file.ext, file.fid)
+    delete_object_from_s3(file.ext, file.md5)
     db.delete(file)
     db.commit()
     return {"result": "success"}
@@ -156,7 +164,7 @@ def confirm_paper(
             i.type = target[i.fid]
             i.upload_time = func.now()
         else:
-            delete_object_from_s3(i.ext, i.fid)
+            delete_object_from_s3(i.ext, i.md5)
             db.delete(i)
 
     processing = db.query(Task).count()
