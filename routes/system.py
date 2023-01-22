@@ -65,7 +65,7 @@ def clean_isolate(db: Session = Depends(get_db)):
 def clean_miss(db: Session = Depends(get_db)):
     fids = list_object_fids()
 
-    db.query(File).filter(~File.pid.in_(fids)).delete(synchronize_session="fetch")
+    db.query(File).filter(~File.fid.in_(fids)).delete(synchronize_session="fetch")
     db.commit()
 
     return {"result": "success"}

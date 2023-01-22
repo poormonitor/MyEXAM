@@ -126,7 +126,7 @@ const tableColumns = [
         title: "版本",
         key: "version",
         render: (row) => (
-            <div class="flex flex-row gap-y-2">
+            <div class="flex flex-col gap-y-1">
                 {row.papers.map((item) => (
                     <n-button
                         type={item.status === 2 ? "info" : "warning"}
