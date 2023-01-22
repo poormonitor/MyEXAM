@@ -1,18 +1,10 @@
 <script setup lang="jsx">
-import { useRoute, useRouter } from "vue-router";
-import { watch } from "vue";
+import { useRoute } from "vue-router";
 
 const route = useRoute();
-const router = useRouter();
 
 const currentTab = ref("exam");
-
-if (route.query.type && ["exam", "file"].includes(route.query.type))
-    currentTab.value = route.query.type;
-
-watch(currentTab, (val) => {
-    router.push({ query: { type: val, ...route.query } });
-});
+if (["exam", "file"].includes(route.query.t)) currentTab.value = route.query.t;
 </script>
 
 <template>

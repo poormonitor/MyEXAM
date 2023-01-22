@@ -38,8 +38,7 @@ const getOptions = (items) =>
 
 const goQuery = () => {
     loading.value = true;
-    if (searchInfo.s)
-        router.push({ query: { s: searchInfo.s, ...route.query } });
+    if (searchInfo.s) router.push({ query: { s: searchInfo.s, t: "exam" } });
     axios
         .post("/search/exam", {
             name: searchInfo.s,
@@ -112,6 +111,16 @@ const tableColumns = [
         ),
     },
     {
+        title: "年级",
+        key: "grade",
+        render: (row) => <span>{grades[row.grade]}</span>,
+    },
+    {
+        title: "科目",
+        key: "course",
+        render: (row) => <span>{courses[row.course]}</span>,
+    },
+    {
         title: "日期",
         key: "date",
         render: (row) => <span>{row.date}</span>,
@@ -128,16 +137,6 @@ const tableColumns = [
                 ))}
             </div>
         ),
-    },
-    {
-        title: "科目",
-        key: "course",
-        render: (row) => <span>{courses[row.course]}</span>,
-    },
-    {
-        title: "年级",
-        key: "grade",
-        render: (row) => <span>{grades[row.grade]}</span>,
     },
     {
         title: "浏览量",

@@ -1,7 +1,7 @@
 <script setup lang="jsx">
 import { useRoute, useRouter } from "vue-router";
 import { GetYearMonth } from "../func";
-import { courses, grades } from "../const";
+import { courses, file_types, grades } from "../const";
 import { Search, ArrowForwardOutline } from "@vicons/ionicons5";
 
 const axios = inject("axios");
@@ -38,8 +38,7 @@ const getOptions = (items) =>
 
 const goQuery = () => {
     loading.value = true;
-    if (searchInfo.s)
-        router.push({ query: { s: searchInfo.s, ...route.query } });
+    if (searchInfo.s) router.push({ query: { s: searchInfo.s, t: "file" } });
     axios
         .post("/search/file", {
             s: searchInfo.s,
@@ -133,9 +132,14 @@ const tableColumns = [
         ),
     },
     {
-        title: "日期",
-        key: "date",
-        render: (row) => <span>{row.exam.date}</span>,
+        title: "年级",
+        key: "grade",
+        render: (row) => <span>{grades[row.exam.grade]}</span>,
+    },
+    {
+        title: "科目",
+        key: "course",
+        render: (row) => <span>{courses[row.exam.course]}</span>,
     },
     {
         title: "版本",
@@ -147,14 +151,18 @@ const tableColumns = [
         ),
     },
     {
-        title: "科目",
-        key: "course",
-        render: (row) => <span>{courses[row.exam.course]}</span>,
+        title: "文件名",
+        key: "name",
     },
     {
-        title: "年级",
-        key: "grade",
-        render: (row) => <span>{grades[row.exam.grade]}</span>,
+        title: "类型",
+        key: "type",
+        render: (row) => file_types[row.type],
+    },
+    {
+        title: "日期",
+        key: "date",
+        render: (row) => <span>{row.exam.date}</span>,
     },
     {
         title: "浏览量",
@@ -187,7 +195,7 @@ if (route.query.s) {
             检索
         </n-button>
     </div>
-    <div class="mx-auto mt-4 w-full self-start px-8 md:w-[80vw] lg:w-[60vw]">
+    <div class="mx-auto my-4 w-full self-start px-8 md:w-[80vw] lg:w-[60vw]">
         <n-collapse display-directive="show">
             <n-collapse-item title="筛选">
                 <n-form

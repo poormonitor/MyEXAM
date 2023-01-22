@@ -81,13 +81,15 @@ const tableColumns = [
                         <Suspense>
                             {{
                                 fallback: () => (
-                                    <n-spin>
-                                        {{
-                                            description: () => (
-                                                <span>加载中</span>
-                                            ),
-                                        }}
-                                    </n-spin>
+                                    <div class="flex justify-center">
+                                        <n-spin>
+                                            {{
+                                                description: () => (
+                                                    <span>加载中</span>
+                                                ),
+                                            }}
+                                        </n-spin>
+                                    </div>
                                 ),
                                 default: () => (
                                     <FileList

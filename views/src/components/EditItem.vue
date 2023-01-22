@@ -94,9 +94,11 @@ const RenderTypes = [
                                 />
                             ),
                             fallback: () => (
-                                <n-spin>
-                                    {{ description: () => "加载中" }}
-                                </n-spin>
+                                <div class="flex justify-center">
+                                    <n-spin>
+                                        {{ description: () => "加载中" }}
+                                    </n-spin>
+                                </div>
                             ),
                         }}
                     </Suspense>
@@ -256,9 +258,11 @@ watch(() => props.id, fetchData);
                     </n-popconfirm>
                 </div>
             </n-form>
-            <n-spin v-else>
-                <template #description> 加载中 </template>
-            </n-spin>
+            <div class="flex justify-center" v-else>
+                <n-spin>
+                    <template #description> 加载中 </template>
+                </n-spin>
+            </div>
         </div>
     </n-modal>
 </template>

@@ -275,7 +275,7 @@ const CustomUpload = async (options) => {
             pid: uploadInfo.pid,
             md5: await blobToHash(options.file.file),
         })
-        .catch(options.onError)
+        .catch(() => SetFailedUpload(options))
         .then((response) => {
             uploadInfo.files.find((item) => item.id == options.file.id).fid =
                 response.data.fid;
