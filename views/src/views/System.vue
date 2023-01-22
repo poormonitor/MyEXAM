@@ -54,7 +54,7 @@ const CleanMissAction = () => {
 const UpgradeAction = () => {
     axios.post("/system/upgrade").then((response) => {
         if (response.data.result === "success") {
-            message.success("更新请求成功。");
+            message.success("拉取成功，正在更新。");
         }
     });
 };

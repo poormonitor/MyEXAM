@@ -93,11 +93,17 @@ def clean_miss(db: Session = Depends(get_db)):
 @router.post("/upgrade")
 def upgrade_server():
     path = os.path.join(os.path.dirname(__file__), "..")
-    cmd = "git pull && cd views && yarn build"
+
+    cmd = ["git", "pull"]
+    subprocess.run(cmd, cwd=path, shell=True)
+
+    cmd = [sys.executable, "-m", "alembic", "upgrade", "head"]
+    subprocess.Popen(cmd, cwd=path, shell=True)
+    cmd = ["yarn", "build"]
+    subprocess.Popen(cmd, cwd=os.path.join(path, "views"), shell=True)
 
     if sys.platform == "linux":
-        cmd += " && systemctl restart myexam"
-
-    subprocess.Popen(cmd, cwd=path, shell=True)
+        cmd = ["systemctl", "restart", "myexam"]
+        subprocess.Popen(cmd, cwd=path, shell=True)
 
     return {"result": "success"}
