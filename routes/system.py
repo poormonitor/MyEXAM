@@ -93,7 +93,7 @@ def clean_miss(db: Session = Depends(get_db)):
 @router.post("/upgrade")
 def upgrade_server():
     path = os.path.join(os.path.dirname(__file__), "..")
-    cmd = "git pull && alembic upgrade head && cd views && yarn build"
+    cmd = "git pull && cd views && yarn build"
 
     if sys.platform == "linux":
         cmd += " && systemctl restart myexam"

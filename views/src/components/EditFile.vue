@@ -329,8 +329,6 @@ await fetchFiles();
             directory-dnd
             :show-file-list="false"
             :custom-request="CustomUpload"
-            :on-finish="SetFinishUpload"
-            :on-error="SetFailedUpload"
             class="!w-fit"
         >
             <n-button size="small">上传文件</n-button>
