@@ -39,9 +39,15 @@ def clean_paper(db: Session = Depends(get_db)):
 
 @router.post("/isolate")
 def clean_isolate(db: Session = Depends(get_db)):
-    db.query(ExamGroup).filter(~ExamGroup.nid.in_(db.query(Union.nid))).delete()
-    db.query(Exam).filter(~Exam.egid.in_(db.query(ExamGroup.egid))).delete()
-    db.query(Paper).filter(~Paper.eid.in_(db.query(Exam.eid))).delete()
+    db.query(ExamGroup).filter(~ExamGroup.nid.in_(db.query(Union.nid))).delete(
+        synchronize_session="fetch"
+    )
+    db.query(Exam).filter(~Exam.egid.in_(db.query(ExamGroup.egid))).delete(
+        synchronize_session="fetch"
+    )
+    db.query(Paper).filter(~Paper.eid.in_(db.query(Exam.eid))).delete(
+        synchronize_session="fetch"
+    )
     db.commit()
 
     files = db.query(File).filter(~File.pid.in_(db.query(Paper.pid)))
@@ -56,7 +62,7 @@ def clean_isolate(db: Session = Depends(get_db)):
 def clean_miss(db: Session = Depends(get_db)):
     hash = list_object_hash()
 
-    db.query(File).filter(~File.md5.in_(hash)).delete()
+    db.query(File).filter(~File.md5.in_(hash)).delete(synchronize_session="fetch")
     db.commit()
 
     return {"result": "success"}
@@ -101,8 +107,6 @@ def upgrade_server():
     subprocess.Popen(cmd, cwd=path)
 
     cmd = "yarn build"
-    if sys.platform == "linux":
-        cmd = "source /etc/profile && " + cmd
     subprocess.Popen(cmd, cwd=os.path.join(path, "views"), shell=True)
 
     return {"result": "success"}
