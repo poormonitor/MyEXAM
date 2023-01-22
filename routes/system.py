@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from config import get_version, get_dependencies
+from config import get_dependencies, get_version
 from misc.s3 import delete_objects_from_s3, list_object_hash
 from models import get_db
 from models.exam import Exam
@@ -99,11 +99,8 @@ def upgrade_server():
 
     cmd = [sys.executable, "-m", "alembic", "upgrade", "head"]
     subprocess.Popen(cmd, cwd=path, shell=True)
+
     cmd = ["yarn", "build"]
     subprocess.Popen(cmd, cwd=os.path.join(path, "views"), shell=True)
-
-    if sys.platform == "linux":
-        cmd = ["systemctl", "restart", "myexam"]
-        subprocess.Popen(cmd, cwd=path, shell=True)
 
     return {"result": "success"}
