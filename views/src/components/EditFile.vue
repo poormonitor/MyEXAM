@@ -261,6 +261,13 @@ const UploadToS3 = (options, url, key, suc, err) => {
 };
 
 const CustomUpload = async (options) => {
+    data.value.push({
+                id: options.file.id,
+                fid: response.data.fid,
+                name: options.file.name,
+                type: 0,
+                status: 0,
+            });
     axios
         .post("/new/file", {
             name: options.file.name,
@@ -269,13 +276,7 @@ const CustomUpload = async (options) => {
         })
         .catch(options.onError)
         .then((response) => {
-            data.value.push({
-                id: options.file.id,
-                fid: response.data.fid,
-                name: options.file.name,
-                type: 0,
-                status: 0,
-            });
+
             if (response.data.result == "success") {
                 UploadToS3(
                     options,
