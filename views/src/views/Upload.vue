@@ -436,7 +436,7 @@ const tableColumns = [
         key: "name",
         render: (row) => {
             return (
-                <span class="whitespace-nowrap md:whitespace-normal">
+                <span class="whitespace-nowrap">
                     {row.name}
                 </span>
             );

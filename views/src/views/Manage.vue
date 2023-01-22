@@ -219,7 +219,7 @@ fetchData();
             :columns="tableColumns"
             :loading="loading"
             :pagination="pagination"
-            class="whitespace-nowrap md:whitespace-normal"
+            class="whitespace-nowrap"
             @update:page="fetchData"
         />
     </div>

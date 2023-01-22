@@ -223,7 +223,7 @@ if (route.query.s) {
                 :data="queryResult.list"
                 :loading="loading"
                 :pagination="pagination"
-                class="whitespace-nowrap md:whitespace-normal"
+                class="whitespace-nowrap"
                 @update:page="goQuery"
             />
         </div>

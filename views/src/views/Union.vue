@@ -91,7 +91,7 @@ data.examgroups.forEach((examgroup) => {
     <p class="text-4xl font-bold mb-4">
         {{ data.name }}
     </p>
-    <div class="mb-8">
+    <div class="mb-8" v-if="data.member">
         <n-tag type="info" v-for="item in data.member.split('\n')">
             {{ item }}
         </n-tag>

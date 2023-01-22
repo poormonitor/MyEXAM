@@ -249,9 +249,9 @@ if (route.query.s) {
                 :data="queryResult.list"
                 :loading="loading"
                 :pagination="pagination"
-                class="whitespace-nowrap md:whitespace-normal"
+                class="whitespace-nowrap"
                 @update:page="goQuery"
-                :default-expand-all="true"
+                default-expand-all
             />
         </div>
     </div>
