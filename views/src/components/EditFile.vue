@@ -2,7 +2,7 @@
 import { courses, file_types, grades, office_ext } from "../const";
 import { message } from "../discrete";
 import { ArrowUp, Checkmark, Close } from "@vicons/ionicons5";
-import { GetYearMonth } from "../func";
+import { GetYearMonth, blobToHash } from "../func";
 
 const axios = inject("axios");
 const props = defineProps(["pid"]);
@@ -28,11 +28,6 @@ const ExamFinalName = computed(() => {
 const CurrentPaper = computed(() =>
     ModifyData.value.papers.find((item) => item.pid == props.pid)
 );
-
-const UploadFile = reactive({
-    url: null,
-    key: null,
-});
 
 const ApprovePaper = () => {
     axios.post("/manage/approve/paper", { pid: props.pid }).then((response) => {
@@ -236,81 +231,66 @@ const tableColumns = [
     },
 ];
 
-const handlePDFUpload = async (file, name) => {
-    axios
-        .post("/new/file", {
+const HandlePDFUpload = async (file, name) => {
+    CustomUpload({
+        file: {
+            id: Math.random().toString(16).substring(2, 10),
             name: name,
-            pid: props.pid,
-        })
-        .then((response) => {
-            if (response.data.result == "success") {
-                data.value.push({
-                    fid: response.data.fid,
-                    name: name,
-                    type: 0,
-                    key: response.data.key,
-                    url: response.data.url,
-                    status: 0,
-                });
-                postToS3(
-                    file,
-                    response.data.url,
-                    response.data.key,
-                    response.data.fid
-                );
-                showPDF.value = false;
-            }
-        });
+            file: new File([file], name, { type: "application/pdf" }),
+        },
+        onFinish: () => {},
+        onError: () => {},
+    }).then(() => {
+        showPDF.value = false;
+    });
 };
 
-const postToS3 = (file, url, key, fid) => {
+const UploadToS3 = (options, url, key, suc, err) => {
     let formData = new FormData();
     formData.append("key", key);
     formData.append("acl", "private");
-    formData.append("file", file);
+    formData.append("file", options.file.file);
     axios({
         baseURL: "",
         url: url,
         method: "post",
         data: formData,
     })
-        .catch((error) => {
-            uploadInfo.files.find((item) => item.fid == fid).status = 1;
+        .catch(() => err(options))
+        .then(() => suc(options));
+};
+
+const CustomUpload = async (options) => {
+    axios
+        .post("/new/file", {
+            name: options.file.name,
+            pid: props.pid,
+            md5: await blobToHash(options.file.file),
         })
+        .catch(options.onError)
         .then((response) => {
-            uploadInfo.files.find((item) => item.fid == fid).status = 2;
+            data.value.push({
+                id: options.file.id,
+                fid: response.data.fid,
+                name: options.file.name,
+                type: 0,
+                status: 0,
+            });
+            if (response.data.result == "success") {
+                UploadToS3(
+                    options,
+                    response.data.url,
+                    response.data.key,
+                    SetFinishUpload,
+                    SetFailedUpload
+                );
+            } else if (response.data.result == "exists") {
+                SetFinishUpload(options);
+            }
         });
 };
 
-const setUploadURL = async (options) => {
-    return new Promise((resolve, reject) => {
-        axios
-            .post("/new/file", {
-                name: options.file.name,
-                pid: props.pid,
-            })
-            .catch(reject)
-            .then((response) => {
-                if (response.data.result == "success") {
-                    data.value.push({
-                        id: options.file.id,
-                        fid: response.data.fid,
-                        name: options.file.name,
-                        type: 0,
-                        key: response.data.key,
-                        url: response.data.url,
-                        status: 0,
-                    });
-                    UploadFile.url = response.data.url;
-                    UploadFile.key = response.data.key;
-                    resolve();
-                }
-                reject();
-            });
-    });
-};
-
-const setFinishUpload = (options) => {
+const SetFinishUpload = (options) => {
     let object = data.value.find((item) => item.id == options.file.id);
     object.status = 2;
     Modify.new.push({
@@ -318,10 +298,12 @@ const setFinishUpload = (options) => {
         name: object.name,
         type: object.type,
     });
+    options.onFinish();
 };
 
-const setFailedUpload = (options) => {
+const SetFailedUpload = (options) => {
     data.value.find((item) => item.id == options.file.id).status = 1;
+    options.onError();
 };
 
 await fetchFiles();
@@ -338,7 +320,7 @@ await fetchFiles();
         v-model:show="showPDF"
         :hint="ExamFinalName"
         :key="ExamFinalName"
-        @confirm="handlePDFUpload"
+        @confirm="HandlePDFUpload"
     />
     <n-data-table :columns="tableColumns" :data="data" :bordered="false" />
     <div class="flex flex-wrap justify-center gap-x-2 gap-y-1 my-3">
@@ -346,11 +328,9 @@ await fetchFiles();
             multiple
             directory-dnd
             :show-file-list="false"
-            :action="UploadFile.url"
-            :data="{ key: UploadFile.key, acl: 'private' }"
-            :on-before-upload="setUploadURL"
-            :on-finish="setFinishUpload"
-            :on-error="setFailedUpload"
+            :custom-request="CustomUpload"
+            :on-finish="SetFinishUpload"
+            :on-error="SetFailedUpload"
             class="!w-fit"
         >
             <n-button size="small">上传文件</n-button>

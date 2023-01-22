@@ -1,7 +1,7 @@
 <script lang="jsx" setup>
 import { Archive } from "@vicons/ionicons5";
 import { courses, grades, file_types, paper_types } from "../const";
-import { GetYearMonth } from "../func";
+import { GetYearMonth, blobToHash } from "../func";
 import { AddCircleOutline } from "@vicons/ionicons5";
 import { useDialog } from "naive-ui";
 import { message } from "../discrete";
@@ -14,11 +14,6 @@ const unionList = ref([]);
 const examGroupList = ref([]);
 const newUnionForm = reactive({ name: "", member: "" });
 const newExamGroupForm = reactive({ name: "", date: Date.now() });
-
-const uploadFile = reactive({
-    url: null,
-    key: null,
-});
 
 const uploadInfo = reactive({
     nid: null,
@@ -265,97 +260,83 @@ const newExamGroupDialog = () => {
     });
 };
 
-const setUploadURL = async (options) => {
+const CustomUpload = async (options) => {
     if (!uploadInfo.pid) await createNewPaper();
     if (options.file.file.size > 20 * 1024 * 1024) return false;
-    return new Promise((resolve, reject) => {
-        axios
-            .post("/new/file", {
-                name: options.file.name,
-                pid: uploadInfo.pid,
-            })
-            .catch(reject)
-            .then((response) => {
-                if (response.data.result == "success") {
-                    uploadInfo.files.push({
-                        id: options.file.id,
-                        fid: response.data.fid,
-                        name: options.file.name,
-                        type: 0,
-                        key: response.data.key,
-                        url: response.data.url,
-                        status: 0,
-                    });
-                    uploadFile.url = response.data.url;
-                    uploadFile.key = response.data.key;
-                    resolve();
-                }
-                reject();
-            });
-    });
-};
-
-const setFinishUpload = (options) => {
-    uploadInfo.files.find((item) => item.id == options.file.id).status = 2;
-};
-
-const setFailedUpload = (options) => {
-    uploadInfo.files.find((item) => item.id == options.file.id).status = 1;
-};
-
-const handlePDFUpload = async (file, name) => {
-    if (!uploadInfo.pid) await createNewPaper();
     axios
         .post("/new/file", {
-            name: name,
+            name: options.file.name,
             pid: uploadInfo.pid,
+            md5: await blobToHash(options.file.file),
         })
+        .catch(options.onError)
         .then((response) => {
+            uploadInfo.files.push({
+                id: options.file.id,
+                fid: response.data.fid,
+                name: options.file.name,
+                type: 0,
+                status: 0,
+            });
             if (response.data.result == "success") {
-                uploadInfo.files.push({
-                    fid: response.data.fid,
-                    name: name,
-                    type: 0,
-                    key: response.data.key,
-                    url: response.data.url,
-                    status: 0,
-                });
-                postToS3(
-                    file,
+                UploadToS3(
+                    options,
                     response.data.url,
                     response.data.key,
-                    response.data.fid
+                    SetFinishUpload,
+                    SetFailedUpload
                 );
-                showPDF.value = false;
+            } else if (response.data.result == "exists") {
+                SetFinishUpload(options);
             }
         });
 };
 
-const postToS3 = (file, url, key, fid) => {
+const SetFinishUpload = (options) => {
+    uploadInfo.files.find((item) => item.id == options.file.id).status = 2;
+    options.onFinish();
+};
+
+const SetFailedUpload = (options) => {
+    uploadInfo.files.find((item) => item.id == options.file.id).status = 1;
+    options.onError();
+};
+
+const HandlePDFUpload = async (file, name) => {
+    if (!uploadInfo.pid) await createNewPaper();
+    CustomUpload({
+        file: {
+            id: Math.random().toString(16).substring(2, 10),
+            file: new File([file], name, { type: "application/pdf" }),
+            name: name,
+        },
+        onFinish: () => {},
+        onError: () => {},
+    }).then(() => {
+        showPDF.value = false;
+    });
+};
+
+const UploadToS3 = (options, url, key, suc, err) => {
     let formData = new FormData();
     formData.append("key", key);
     formData.append("acl", "private");
-    formData.append("file", file);
+    formData.append("file", options.file.file);
     axios({
         baseURL: "",
         url: url,
         method: "post",
         data: formData,
     })
-        .catch((error) => {
-            uploadInfo.files.find((item) => item.fid == fid).status = 1;
-        })
-        .then((response) => {
-            uploadInfo.files.find((item) => item.fid == fid).status = 2;
-        });
+        .catch(() => err(options))
+        .then(() => suc(options));
 };
 
-const removeFile = (fid) => {
+const RemoveFile = (fid) => {
     if (uploadInfo.files.find((item) => item.fid == fid).status === 1) {
         uploadInfo.files = uploadInfo.files.filter((item) => item.fid != fid);
         return;
     }
-
     axios
         .post("/new/delete_file", {
             fid: fid,
@@ -366,6 +347,41 @@ const removeFile = (fid) => {
                 uploadInfo.files = uploadInfo.files.filter(
                     (item) => item.fid != fid
                 );
+            }
+        });
+};
+
+const ConfirmUpload = async () => {
+    confirming.value = true;
+    if (uploadInfo.nid === "create") await createNewUnion();
+    if (uploadInfo.egid === "create") await createNewExamGroup();
+    await createNewExam();
+    axios
+        .post("/new/confirm", {
+            eid: uploadInfo.eid,
+            pid: uploadInfo.pid,
+            comment: uploadInfo.comment,
+            files: uploadInfo.files
+                .filter((item) => item.status === 2)
+                .map((item) => ({
+                    fid: item.fid,
+                    type: item.type,
+                })),
+        })
+        .then((response) => {
+            if (response.data.result == "success") {
+                confirming.value = false;
+                fetchUnions();
+                fetchExamGroups();
+                dialog.success({
+                    title: "成功",
+                    content: "试卷添加成功！",
+                    positiveText: "好的",
+                    onPositiveClick: () => {
+                        uploadInfo.files = [];
+                        createNewPaper();
+                    },
+                });
             }
         });
 };
@@ -481,7 +497,7 @@ const tableColumns = [
                 round
                 type="error"
                 disabled={row.status === 0}
-                on-click={() => removeFile(row.fid)}
+                on-click={() => RemoveFile(row.fid)}
             >
                 删除
             </n-button>
@@ -498,41 +514,6 @@ const tableData = computed(() => {
     }));
 });
 
-const confirmUpload = async () => {
-    confirming.value = true;
-    if (uploadInfo.nid === "create") await createNewUnion();
-    if (uploadInfo.egid === "create") await createNewExamGroup();
-    await createNewExam();
-    axios
-        .post("/new/confirm", {
-            eid: uploadInfo.eid,
-            pid: uploadInfo.pid,
-            comment: uploadInfo.comment,
-            files: uploadInfo.files
-                .filter((item) => item.status === 2)
-                .map((item) => ({
-                    fid: item.fid,
-                    type: item.type,
-                })),
-        })
-        .then((response) => {
-            if (response.data.result == "success") {
-                confirming.value = false;
-                fetchUnions();
-                fetchExamGroups();
-                dialog.success({
-                    title: "成功",
-                    content: "试卷添加成功！",
-                    positiveText: "好的",
-                    onPositiveClick: () => {
-                        uploadInfo.files = [];
-                        createNewPaper();
-                    },
-                });
-            }
-        });
-};
-
 fetchUnions();
 </script>
 
@@ -541,7 +522,7 @@ fetchUnions();
         v-model:show="showPDF"
         :hint="ExamFinalName"
         :key="ExamFinalName"
-        @confirm="handlePDFUpload"
+        @confirm="HandlePDFUpload"
     />
     <div class="mx-8 w-auto lg:mx-auto lg:w-[60vw] mt-8">
         <p class="text-3xl font-bold mb-8">上传试卷</p>
@@ -631,11 +612,7 @@ fetchUnions();
             directory-dnd
             class="mt-8 mb-4"
             :show-file-list="false"
-            :action="uploadFile.url"
-            :data="{ key: uploadFile.key, acl: 'private' }"
-            :on-before-upload="setUploadURL"
-            :on-finish="setFinishUpload"
-            :on-error="setFailedUpload"
+            :custom-request="CustomUpload"
             v-if="ExamFinalName"
         >
             <n-upload-dragger>
@@ -662,7 +639,7 @@ fetchUnions();
             class="mt-4 mb-8 flex justify-center"
             v-if="ExamFinalName && uploadInfo.files.length"
         >
-            <n-button :on-click="confirmUpload" type="primary"
+            <n-button :on-click="ConfirmUpload" type="primary"
                 >确认上传</n-button
             >
         </div>

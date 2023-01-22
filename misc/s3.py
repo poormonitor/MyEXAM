@@ -49,8 +49,8 @@ def get_presigned_get_url(
     return url
 
 
-def delete_object_from_s3(ext: str, fid: str):
-    key = config["S3_PREFIX"] + "/" + fid + "." + ext
+def delete_object_from_s3(ext: str, id: str):
+    key = config["S3_PREFIX"] + "/" + id + "." + ext
     key = key.strip("/")
 
     minioClient.remove_object(config["S3_BUCKET"], key)
@@ -67,11 +67,11 @@ def delete_objects_from_s3(lst: List[Tuple[str, str]]):
     minioClient.remove_objects(config["S3_BUCKET"], keys)
 
 
-def get_file_local(ext: str, fid: str):
+def get_file_local(ext: str, id: str):
     new_file = NamedTemporaryFile("w", delete=False, suffix="." + ext)
     new_file.close()
 
-    key = config["S3_PREFIX"] + "/" + fid + "." + ext
+    key = config["S3_PREFIX"] + "/" + id + "." + ext
     key = key.strip("/")
 
     minioClient.fget_object(config["S3_BUCKET"], key, new_file.name)
@@ -79,7 +79,7 @@ def get_file_local(ext: str, fid: str):
     return new_file.name
 
 
-def list_object_fids() -> List[str]:
+def list_object_hash() -> List[str]:
     objects = minioClient.list_objects(config["S3_BUCKET"], recursive=True)
     sp = lambda x: os.path.splitext(os.path.split(x)[1])[0]
     return [sp(obj.object_name) for obj in objects]

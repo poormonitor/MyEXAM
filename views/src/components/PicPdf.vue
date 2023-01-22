@@ -58,10 +58,10 @@ const createPDF = async () => {
 };
 
 const handleConfirm = () => {
+    emits("confirm", PdfFile, fileName.value + ".pdf");
     PdfFile = null;
     fileName.value = props.hint ? props.hint.replaceAll(" ", "_") : "";
     picList.value = [];
-    emits("confirm", PdfFile, fileName.value + ".pdf");
 };
 </script>
 
