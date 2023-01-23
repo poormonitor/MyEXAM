@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -30,7 +30,7 @@ class OneExamGroup(BaseModel):
     name: str
     date: date
     views: int
-    courses: Dict[int, List[int]]
+    courses: Dict[int, List[Tuple[int, str]]]
 
 
 class Unions(BaseModel):
@@ -94,7 +94,7 @@ def get_unions(db: Session = Depends(get_db)):
 @router.get("/union")
 def get_union(nid: str, db: Session = Depends(get_db)):
     union = db.query(Union).filter_by(nid=nid).first()
-    
+
     if not union:
         raise HTTPException(status_code=404, detail="项目未找到。")
 
@@ -206,10 +206,10 @@ def get_files(pid: str, db: Session = Depends(get_db)):
 @router.get("/file")
 def get_url(fid: str, db: Session = Depends(get_db)):
     file = db.query(File).filter(File.fid == fid).first()
-    
+
     if not file:
         raise HTTPException(status_code=404, detail="项目未找到。")
-        
+
     data = OneFile(**vars(file))
 
     file.views += 1

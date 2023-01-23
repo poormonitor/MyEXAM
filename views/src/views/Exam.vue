@@ -67,7 +67,7 @@ const tableColumns = [
                 .map((item) => <n-tag type="success">{item}</n-tag>),
     },
     {
-        title: renderTitle("下载量", CloudDownloadOutline),
+        title: renderTitle("访问量", CloudDownloadOutline),
         key: "views",
     },
     {
@@ -75,9 +75,9 @@ const tableColumns = [
         key: "files",
         className: "w-full",
         render: (row) => (
-            <div>
-                <n-collapse>
-                    <n-collapse-item title="单击展开" name="1">
+            <div id={row.pid}>
+                <n-collapse default-expanded-names={route.hash}>
+                    <n-collapse-item title="单击展开" name={"#" + row.pid}>
                         <Suspense>
                             {{
                                 fallback: () => (
@@ -106,6 +106,12 @@ const tableColumns = [
         ),
     },
 ];
+
+onMounted(() => {
+    if (route.hash) {
+        document.getElementById(route.hash.substring(1))?.scrollIntoView();
+    }
+});
 
 await fetchExam();
 </script>

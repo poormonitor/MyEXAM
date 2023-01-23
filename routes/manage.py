@@ -274,8 +274,12 @@ def delete_file(data: DeleteFile, db: Session = Depends(get_db)):
 
     if not file:
         raise HTTPException(status_code=404, detail="项目未找到。")
+        
+    try:
+        delete_object_from_s3(file.ext, file.md5)
+    except:
+        pass
 
-    delete_object_from_s3(file.ext, file.md5)
     db.delete(file)
     db.commit()
     return {"result": "success"}

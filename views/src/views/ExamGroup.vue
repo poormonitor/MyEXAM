@@ -2,7 +2,6 @@
 import { useRoute, useRouter } from "vue-router";
 import { GetYearMonth } from "../func";
 import { courses, grades } from "../const";
-import { ArrowForwardOutline } from "@vicons/ionicons5";
 
 const axios = inject("axios");
 const route = useRoute();
@@ -12,44 +11,35 @@ const gotoExam = (eid) => {
     router.push({ name: "exam", params: { eid: eid } });
 };
 
+const cellProps = (row) => {
+    return {
+        class: "cursor-pointer",
+        onClick: () => gotoExam(row.eid),
+    };
+};
+
 const tableColumns = [
-    {
-        title: "查看",
-        key: "go",
-        render: (row) => (
-            <n-button
-                size="small"
-                type="info"
-                quaternary
-                on-click={() => gotoExam(row.eid)}
-            >
-                {{
-                    icon: (
-                        <n-icon>
-                            <ArrowForwardOutline />
-                        </n-icon>
-                    ),
-                }}
-            </n-button>
-        ),
-    },
     {
         title: "年级",
         key: "grade",
         render: (row) => <span>{grades[row.grade]}</span>,
+        cellProps: cellProps,
     },
     {
         title: "科目",
         key: "course",
         render: (row) => <span>{courses[row.course]}</span>,
+        cellProps: cellProps,
     },
     {
         title: "时间",
         key: "date",
+        cellProps: cellProps,
     },
     {
         title: "浏览量",
         key: "views",
+        cellProps: cellProps,
     },
 ];
 

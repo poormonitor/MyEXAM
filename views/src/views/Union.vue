@@ -2,7 +2,6 @@
 import { useRoute, useRouter } from "vue-router";
 import { GetYearMonth } from "../func";
 import { courses, grades } from "../const";
-import { ArrowForwardOutline } from "@vicons/ionicons5";
 
 const axios = inject("axios");
 const route = useRoute();
@@ -12,47 +11,45 @@ const gotoExamGroup = (egid) => {
     router.push({ name: "examgroup", params: { egid: egid } });
 };
 
+const gotoExam = (eid) => {
+    router.push({ name: "exam", params: { eid: eid } });
+};
+
+const cellProps = (row) => {
+    return {
+        class: "cursor-pointer",
+        onClick: () => gotoExamGroup(row.egid),
+    };
+};
+
 const tableColumns = [
-    {
-        title: "查看",
-        key: "go",
-        render: (row) => (
-            <n-button
-                size="small"
-                type="info"
-                quaternary
-                on-click={() => gotoExamGroup(row.egid)}
-            >
-                {{
-                    icon: (
-                        <n-icon>
-                            <ArrowForwardOutline />
-                        </n-icon>
-                    ),
-                }}
-            </n-button>
-        ),
-        rowSpan: (rowData) => (rowData.e === 0 ? rowData.cnt : 1),
-    },
     {
         title: "考试名称",
         key: "name",
         render: (row) => <span>{GetYearMonth(row.date) + " " + row.name}</span>,
         rowSpan: (rowData) => (rowData.e === 0 ? rowData.cnt : 1),
+        cellProps: cellProps,
     },
     {
         title: "时间",
         key: "date",
         rowSpan: (rowData) => (rowData.e === 0 ? rowData.cnt : 1),
+        cellProps: cellProps,
     },
-    { title: "年级", key: "grade" },
+    { title: "年级", key: "grade", cellProps: cellProps },
     {
         title: "科目",
         key: "course",
         render: (row) => (
             <div class="flex gap-2">
                 {row.courses.map((item) => (
-                    <n-tag type="primary">{courses[item]}</n-tag>
+                    <n-tag
+                        type="primary"
+                        class="!cursor-pointer"
+                        onClick={() => gotoExam(item[1])}
+                    >
+                        {courses[item[0]]}
+                    </n-tag>
                 ))}
             </div>
         ),
@@ -61,6 +58,7 @@ const tableColumns = [
         title: "浏览量",
         key: "views",
         rowSpan: (rowData) => (rowData.e === 0 ? rowData.cnt : 1),
+        cellProps: cellProps,
     },
 ];
 

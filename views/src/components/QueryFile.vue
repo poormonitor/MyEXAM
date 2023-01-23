@@ -61,8 +61,15 @@ const goQuery = () => {
         });
 };
 
-const gotoExam = (eid) => {
-    router.push({ name: "exam", params: { eid: eid } });
+const gotoPaper = (eid, pid) => {
+    router.push({ name: "exam", params: { eid: eid }, hash: "#" + pid });
+};
+
+const cellProps = (row) => {
+    return {
+        class: "cursor-pointer",
+        onClick: () => gotoPaper(row.exam.eid, row.paper.pid),
+    };
 };
 
 const tableColumns = [
@@ -88,24 +95,9 @@ const tableColumns = [
         },
     },
     {
-        title: "查看",
-        key: "go",
-        render: (row) => (
-            <n-button
-                size="small"
-                type="info"
-                quaternary
-                on-click={() => gotoExam(row.exam.eid)}
-            >
-                {{
-                    icon: () => (
-                        <n-icon>
-                            <ArrowForwardOutline />
-                        </n-icon>
-                    ),
-                }}
-            </n-button>
-        ),
+        title: "文件名",
+        key: "name",
+        cellProps: cellProps,
     },
     {
         title: "联盟",
@@ -135,38 +127,40 @@ const tableColumns = [
         title: "年级",
         key: "grade",
         render: (row) => <span>{grades[row.exam.grade]}</span>,
+        cellProps: cellProps,
     },
     {
         title: "科目",
         key: "course",
         render: (row) => <span>{courses[row.exam.course]}</span>,
+        cellProps: cellProps,
     },
     {
         title: "版本",
         key: "version",
         render: (row) => (
-            <div>
-                <n-tag type="info">{row.paper.comment}</n-tag>
-            </div>
+            <n-tag class="!cursor-pointer" type="info">
+                {row.paper.comment}
+            </n-tag>
         ),
-    },
-    {
-        title: "文件名",
-        key: "name",
+        cellProps: cellProps,
     },
     {
         title: "类型",
         key: "type",
         render: (row) => file_types[row.type],
+        cellProps: cellProps,
     },
     {
         title: "日期",
         key: "date",
         render: (row) => <span>{row.exam.date}</span>,
+        cellProps: cellProps,
     },
     {
         title: "浏览量",
         key: "views",
+        cellProps: cellProps,
     },
 ];
 

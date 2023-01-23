@@ -2,7 +2,7 @@
 import { useRoute, useRouter } from "vue-router";
 import { GetYearMonth } from "../func";
 import { courses, grades } from "../const";
-import { Search, ArrowForwardOutline } from "@vicons/ionicons5";
+import { Search } from "@vicons/ionicons5";
 
 const axios = inject("axios");
 const collapsed = inject("collapsed");
@@ -65,26 +65,29 @@ const gotoExam = (eid) => {
     router.push({ name: "exam", params: { eid: eid } });
 };
 
+const gotoPaper = (eid, pid) => {
+    router.push({ name: "exam", params: { eid: eid }, hash: "#" + pid });
+};
+
+const cellProps = (row) => {
+    return {
+        class: "cursor-pointer",
+        onClick: () => gotoExam(row.eid),
+    };
+};
+
 const tableColumns = [
     {
-        title: "查看",
-        key: "go",
-        render: (row) => (
-            <n-button
-                size="small"
-                type="info"
-                quaternary
-                on-click={() => gotoExam(row.eid)}
-            >
-                {{
-                    icon: () => (
-                        <n-icon>
-                            <ArrowForwardOutline />
-                        </n-icon>
-                    ),
-                }}
-            </n-button>
-        ),
+        title: "年级",
+        key: "grade",
+        render: (row) => <span>{grades[row.grade]}</span>,
+        cellProps: cellProps,
+    },
+    {
+        title: "科目",
+        key: "course",
+        render: (row) => <span>{courses[row.course]}</span>,
+        cellProps: cellProps,
     },
     {
         title: "联盟",
@@ -111,19 +114,10 @@ const tableColumns = [
         ),
     },
     {
-        title: "年级",
-        key: "grade",
-        render: (row) => <span>{grades[row.grade]}</span>,
-    },
-    {
-        title: "科目",
-        key: "course",
-        render: (row) => <span>{courses[row.course]}</span>,
-    },
-    {
         title: "日期",
         key: "date",
         render: (row) => <span>{row.date}</span>,
+        cellProps: cellProps,
     },
     {
         title: "版本",
@@ -131,7 +125,11 @@ const tableColumns = [
         render: (row) => (
             <div>
                 {row.papers.map((item) => (
-                    <n-tag type="info">
+                    <n-tag
+                        type="info"
+                        class="!cursor-pointer"
+                        onClick={() => gotoPaper(row.eid, item.pid)}
+                    >
                         {item.comment} ({item.fcnt})
                     </n-tag>
                 ))}
@@ -141,6 +139,7 @@ const tableColumns = [
     {
         title: "浏览量",
         key: "views",
+        cellProps: cellProps,
     },
 ];
 

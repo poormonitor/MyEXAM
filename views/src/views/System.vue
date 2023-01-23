@@ -83,7 +83,7 @@ FetchApiSta();
                 v-for="column in StaColumns"
             >
                 <n-number-animation :from="0" :to="ObjectCnt[column.key]" />
-                <template #suffix> {{ column.unit + column.name }} </template>
+                <template #suffix> {{ column.unit }} </template>
             </n-statistic>
             <n-statistic label="当前任务" v-if="LatestTask">
                 <n-popover>
