@@ -17,7 +17,7 @@ const searchInfo = reactive({
 });
 
 const pagination = reactive({
-    page: 0,
+    page: 1,
     pageCount: 0,
     pageSize: 10,
 });
@@ -218,8 +218,12 @@ fetchData();
             :data="data"
             :columns="tableColumns"
             :loading="loading"
-            :pagination="pagination"
             class="whitespace-nowrap"
+        />
+        <n-pagination
+            class="justify-end mt-3"
+            v-model:page="pagination.page"
+            :page-count="pagination.pageCount"
             @update:page="fetchData"
         />
     </div>

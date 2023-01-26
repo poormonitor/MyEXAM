@@ -1,6 +1,5 @@
 <script setup>
 import { Search } from "@vicons/ionicons5";
-import { onMounted, ref, inject } from "vue";
 import { useRouter } from "vue-router";
 
 const collapsed = inject("collapsed");
@@ -23,34 +22,34 @@ const goQuery = () => {
 </script>
 
 <template>
-    <div class="select-none pt-8 text-center font-black md:pt-14">
+    <div class="select-none pt-16 text-center font-black md:pt-20">
         <div class="gradient-title from-cyan-500 via-sky-600 to-blue-800">
-            <div class="mb-2 text-4xl tracking-wider md:mb-4 md:text-6xl">
+            <div class="mb-3 text-4xl md:text-6xl tracking-wider md:mb-5">
                 世界领先的
             </div>
-            <div class="text-5xl tracking-widest md:text-7xl">试卷分享平台</div>
+            <div class="text-5xl md:text-7xl tracking-widest">试卷分享平台</div>
         </div>
     </div>
-    <div class="mt-10 flex justify-center md:mt-12">
+    <div class="mt-14 flex justify-center md:mt-16">
         <div class="mx-8 flex items-center gap-x-4 md:mx-auto md:w-[40vw]">
             <span class="whitespace-nowrap md:text-lg">试卷</span>
             <n-input
                 ref="inputRef"
                 @keyup.enter="goQuery"
                 v-model:value="searchContent"
-                :size="collapsed ? 'medium' : 'large'"
+                size="large"
                 placeholder="搜索"
             >
                 <template #prefix>
                     <n-icon :component="Search" />
                 </template>
             </n-input>
-            <n-button :size="collapsed ? 'medium' : 'large'" @click="goQuery"
-                >检索</n-button
-            >
+            <n-button :size="collapsed ? 'medium' : 'large'" @click="goQuery">
+                检索
+            </n-button>
         </div>
     </div>
-    <div class="mx-8 my-10 md:my-16">
+    <div class="mx-10 my-16 md:my-24">
         <Intro />
     </div>
 </template>

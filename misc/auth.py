@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from typing import Tuple
 
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer
@@ -65,7 +66,7 @@ async def admin_required(token: str = Depends(oauth2_scheme)):
     return True
 
 
-async def is_admin(request: Request):
+async def is_admin(request: Request) -> bool:
     try:
         token: str = await oauth2_scheme(request)
         payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
@@ -76,19 +77,29 @@ async def is_admin(request: Request):
     return admin
 
 
-async def get_user_token(request: Request, db: Session = Depends(get_db)):
+async def get_user_token(identity: Tuple[bool, str] = Depends(get_current_user)) -> str:
+    token = identity[1]
+
+    return token
+
+
+async def get_user_identity(
+    request: Request, db: Session = Depends(get_db)
+) -> Tuple[bool, str]:
+    idn = False
     try:
         token: str = await oauth2_scheme(request)
         payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
-        uid = payload.get("uid")
+        uid: str = payload.get("uid")
         assert uid is not None
+        idn = True
     except:
-        uid = request.headers.get("X-MyExam-Token")
+        uid: str = request.headers.get("X-MyExam-Token", "")
         user_cnt = db.query(User).filter_by(uid=uid).count()
         if user_cnt:
             raise HTTPException(status_code=401, detail="签名无效。")
 
-    return uid
+    return idn, uid
 
 
 def hash_passwd(passwd: str) -> str:

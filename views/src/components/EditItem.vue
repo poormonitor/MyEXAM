@@ -193,17 +193,24 @@ watch(() => props.id, fetchData);
         positive-text="确认"
         negative-text="取消"
         @positive-click="SubmitModify"
-        :style="{
-            width: tpe.key === 'paper' ? '70%' : null,
+        :class="{
+            'md:!w-2/3': tpe.key === 'paper',
         }"
     >
         <div class="mx-8 mb-6 mt-10">
             <div
-                class="flex gap-x-4 lg:gap-x-12 flex-wrap mb-6"
+                class="flex gap-x-4 lg:gap-x-12 gap-y-2 flex-wrap mb-6"
                 v-if="tpe.show.length"
             >
-                <n-statistic :label="RenderData[i].title" v-for="i in tpe.show">
-                    {{ RenderData[i].render() }}
+            
+                <n-statistic
+                    class="text-sm md:text-base"
+                    :label="RenderData[i].title"
+                    v-for="i in tpe.show"
+                >
+                    <span class="text-base md:text-xl">
+                        {{ RenderData[i].render() }}
+                    </span>
                 </n-statistic>
             </div>
             <n-form v-if="data">

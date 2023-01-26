@@ -75,6 +75,21 @@ class OneFile(BaseModel):
     upload_time: datetime
 
 
+class QueryPapers(BaseModel):
+    pids: List[str]
+
+
+class Papers(BaseModel):
+    union: OneUnion
+    examgroup: OneExamGroup
+    exam: OneExam
+    pid: str
+    comment: str
+    views: int
+    files: List[OneFile]
+    created_at: datetime
+
+
 class Exams(BaseModel):
     grade: int
     course: int
@@ -178,6 +193,35 @@ def get_exam(eid: str, admin: bool = Depends(is_admin), db: Session = Depends(ge
     db.commit()
 
     return {"exam": examdata}
+
+
+@router.post("/papers")
+def get_file_list(data: QueryPapers, db: Session = Depends(get_db)):
+    query = (
+        db.query(Paper, Union, ExamGroup, Exam)
+        .outerjoin(Exam, Exam.eid == Paper.eid)
+        .outerjoin(ExamGroup, ExamGroup.egid == Exam.egid)
+        .outerjoin(Union, Union.nid == ExamGroup.nid)
+        .filter(Paper.pid.in_(data.pids))
+        .group_by(Exam.eid)
+    )
+    result = query.limit(5).all()
+
+    if not result:
+        raise HTTPException(status_code=404, detail="项目未找到。")
+
+    papers = [
+        Papers(
+            **vars(i[0]),
+            union=OneUnion(**vars(i[1])),
+            examgroup=OneExamGroup(**vars(i[2]), courses=get_courses(i[2].exams)),
+            exam=OneExam(**vars(i[3])),
+            files=[OneFile(**vars(j)) for j in i[0].files],
+        )
+        for i in result
+    ]
+
+    return {"list": papers}
 
 
 @router.get("/paper")

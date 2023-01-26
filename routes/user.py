@@ -1,10 +1,11 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
+from typing import List
 from hashlib import sha256
-from typing import Optional
+import json
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from config import Settings, get_config
@@ -105,6 +106,35 @@ def passwd(
         raise HTTPException(status_code=400, detail="原密码错误。")
 
     user.passwd = hash_passwd(data.new)
+    db.commit()
+
+    return {"result": "success"}
+
+
+@router.get("/cart", tags=["user"])
+def get_cart(db: Session = Depends(get_db), uid: str = Depends(get_current_user)):
+    user = db.query(User).filter_by(uid=uid).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="用户不存在。")
+
+    cart = json.loads(user.cart)
+    return {"list": cart}
+
+
+class CartList(BaseModel):
+    cart: List[str]
+
+
+@router.post("/cart")
+def set_cart(
+    data: CartList, db: Session = Depends(get_db), uid: str = Depends(get_current_user)
+):
+    user = db.query(User).filter_by(uid=uid).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="用户不存在。")
+
+    cart = json.dumps(data.cart)
+    user.cart = cart
     db.commit()
 
     return {"result": "success"}

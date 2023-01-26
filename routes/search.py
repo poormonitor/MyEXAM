@@ -138,7 +138,7 @@ def search_exam(
         query = query.filter(Exam.grade == info.grade)
 
     cnt = query.count()
-    result = query.limit(10).offset(info.page * 10).all()
+    result = query.limit(10).offset((info.page - 1) * 10).all()
 
     lst = [
         Exams(
@@ -176,7 +176,7 @@ def search_file(
         query = query.filter(Exam.grade == info.grade)
 
     cnt = query.count()
-    result = query.limit(10).offset(info.page * 10).all()
+    result = query.limit(10).offset((info.page - 1) * 10).all()
 
     lst = [
         Files(

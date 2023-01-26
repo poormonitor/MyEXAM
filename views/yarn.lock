@@ -1689,6 +1689,11 @@ utrie@^1.0.2:
   dependencies:
     base64-arraybuffer "^1.0.2"
 
+uuid@^9.0.0:
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-9.0.0.tgz#592f550650024a38ceb0c562f2f6aa435761efb5"
+  integrity sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg==
+
 vdirs@^0.1.4, vdirs@^0.1.8:
   version "0.1.8"
   resolved "https://registry.yarnpkg.com/vdirs/-/vdirs-0.1.8.tgz#a103bc43baca738f8dea912a7e9737154a19dbc2"

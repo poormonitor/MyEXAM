@@ -1,12 +1,12 @@
-import { createApp } from "vue";
 import { createPinia } from "pinia";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
-import axios from "./axios";
+import { createApp } from "vue";
 import WebFont from "webfontloader";
+import { AxiosPlugin } from "./axios";
 
 import App from "./App.vue";
-import router from "./router";
 import "./assets/index.css";
+import router from "./router";
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -14,7 +14,7 @@ const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
 
 app.use(pinia);
-app.use(axios);
+app.use(AxiosPlugin);
 app.use(router);
 
 const meta = document.createElement("meta");

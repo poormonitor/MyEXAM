@@ -1,13 +1,16 @@
 <script setup lang="jsx">
+import { HeartOutline, HeartDislikeOutline } from "@vicons/ionicons5";
+import { Suspense } from "vue";
 import { useRoute } from "vue-router";
 import { courses, grades, office_ext } from "../const";
+import { message } from "../discrete";
 import { GetYearMonth } from "../func";
-import { CloudDownloadOutline, Easel, AttachOutline } from "@vicons/ionicons5";
-import { Suspense } from "vue";
+import { useCartStore } from "../stores/cart";
 
 const axios = inject("axios");
 const route = useRoute();
 const showData = ref(null);
+const cartStore = useCartStore();
 
 const preview = reactive({
     show: false,
@@ -48,18 +51,19 @@ const fetchExam = async () => {
     });
 };
 
-const renderTitle = (title, icon) => {
-    return () => (
-        <div class="mx-2 flex gap-x-1 items-center whitespace-nowrap">
-            <n-icon size="1rem" component={icon}></n-icon>
-            {title}
-        </div>
-    );
+const delCart = (pid) => {
+    cartStore.del(pid);
+    message.success("删除成功。");
+};
+
+const addCart = (pid) => {
+    cartStore.add(pid);
+    message.success("添加成功。");
 };
 
 const tableColumns = [
     {
-        title: renderTitle("标签", Easel),
+        title: "标签",
         key: "comment",
         render: (row) =>
             row.comment
@@ -67,16 +71,12 @@ const tableColumns = [
                 .map((item) => <n-tag type="success">{item}</n-tag>),
     },
     {
-        title: renderTitle("访问量", CloudDownloadOutline),
-        key: "views",
-    },
-    {
-        title: renderTitle("文件列表", AttachOutline),
+        title: "文件列表",
         key: "files",
         className: "w-full",
         render: (row) => (
             <div id={row.pid}>
-                <n-collapse default-expanded-names={route.hash}>
+                <n-collapse default-expanded-names={defaultExpanded}>
                     <n-collapse-item title="单击展开" name={"#" + row.pid}>
                         <Suspense>
                             {{
@@ -105,6 +105,39 @@ const tableColumns = [
             </div>
         ),
     },
+    {
+        title: "访问量",
+        key: "views",
+    },
+    {
+        title: "收藏",
+        key: "views",
+        render: (row) => (
+            <n-button
+                circle
+                secondary
+                type={cartStore.has(row.pid) ? "error" : "success"}
+                onClick={
+                    cartStore.has(row.pid)
+                        ? () => delCart(row.pid)
+                        : () => addCart(row.pid)
+                }
+            >
+                {{
+                    icon: () => (
+                        <n-icon
+                            size="1.2rem"
+                            component={
+                                cartStore.has(row.pid)
+                                    ? HeartDislikeOutline
+                                    : HeartOutline
+                            }
+                        ></n-icon>
+                    ),
+                }}
+            </n-button>
+        ),
+    },
 ];
 
 onMounted(() => {
@@ -114,6 +147,10 @@ onMounted(() => {
 });
 
 await fetchExam();
+
+const defaultExpanded = route.hash
+    ? route.hash
+    : "#" + (showData.value.papers.length ? showData.value.papers[0].pid : "");
 </script>
 
 <template>
@@ -135,7 +172,7 @@ await fetchExam();
                 {{ showData.examgroup.name }}
             </span>
         </p>
-        <p class="text-xl text-zinc-700">
+        <p class="text-xl text-zinc-700 dark:text-zinc-400">
             {{ grades[showData.grade] }}
             {{ courses[showData.course] }}
         </p>
@@ -144,10 +181,8 @@ await fetchExam();
         <n-divider title-placement="left">
             <span class="text-xl font-bold"> 考试信息 </span>
         </n-divider>
-        <div
-            class="grid grid-cols-2 sm:grid-cols-6 lg:grid-cols-12 gap-y-4 mb-8 mx-2"
-        >
-            <InfoTag class="col-span-3" label="联盟">
+        <div class="flex flex-wrap gap-x-8 sm:gap-x-24 gap-y-4 mb-8 mx-2">
+            <InfoTag label="联盟">
                 <RouterLink
                     class="router-link"
                     :to="{
@@ -158,7 +193,7 @@ await fetchExam();
                     {{ showData.union.name }}
                 </RouterLink>
             </InfoTag>
-            <InfoTag class="col-span-3" label="考试名称">
+            <InfoTag label="考试名称">
                 <RouterLink
                     class="router-link"
                     :to="{
@@ -174,13 +209,13 @@ await fetchExam();
                     </span>
                 </RouterLink>
             </InfoTag>
-            <InfoTag class="col-span-2" label="考试日期">
+            <InfoTag label="考试日期">
                 {{ showData.date }}
             </InfoTag>
-            <InfoTag class="col-span-2" label="年级">
+            <InfoTag label="年级">
                 {{ grades[showData.grade] }}
             </InfoTag>
-            <InfoTag class="col-span-2" label="科目">
+            <InfoTag label="科目">
                 {{ courses[showData.course] }}
             </InfoTag>
         </div>
@@ -189,6 +224,7 @@ await fetchExam();
         </n-divider>
         <div class="flex flex-row divide-y">
             <n-data-table
+                class="whitespace-nowrap"
                 :data="showData.papers"
                 :columns="tableColumns"
             ></n-data-table>

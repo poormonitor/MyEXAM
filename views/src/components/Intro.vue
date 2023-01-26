@@ -4,7 +4,7 @@ import Card from "./Card.vue";
 
 <template>
     <div
-        class="md:mx-auto md:w-[90vw] lg:w-[80vw] grid grid-cols-1 md:grid-cols-3 gap-x-2 gap-y-4"
+        class="md:mx-auto md:w-[90vw] xl:w-[70vw] grid grid-cols-1 md:grid-cols-3 gap-x-2 gap-y-4"
     >
         <Card title="一站式">
             <template #content>

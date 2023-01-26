@@ -2,14 +2,12 @@
 import { useRoute, useRouter } from "vue-router";
 import { GetYearMonth } from "../func";
 import { courses, file_types, grades } from "../const";
-import { Search, ArrowForwardOutline } from "@vicons/ionicons5";
+import { Search } from "@vicons/ionicons5";
 
 const axios = inject("axios");
 const collapsed = inject("collapsed");
 const route = useRoute();
 const router = useRouter();
-
-const cntRef = ref(null);
 const loading = ref(false);
 
 const searchInfo = reactive({
@@ -25,7 +23,7 @@ const queryResult = reactive({
 });
 
 const pagination = reactive({
-    page: 0,
+    page: 1,
     pageCount: 0,
     pageSize: 10,
 });
@@ -56,7 +54,6 @@ const goQuery = () => {
                     queryResult.cnt / pagination.pageSize
                 );
                 loading.value = false;
-                cntRef.value?.play();
             }
         });
 };
@@ -242,10 +239,14 @@ if (route.query.s) {
                 :columns="tableColumns"
                 :data="queryResult.list"
                 :loading="loading"
-                :pagination="pagination"
                 class="whitespace-nowrap"
-                @update:page="goQuery"
                 default-expand-all
+            />
+            <n-pagination
+                class="justify-end mt-3"
+                v-model:page="pagination.page"
+                :page-count="pagination.pageCount"
+                @update:page="goQuery"
             />
         </div>
     </div>

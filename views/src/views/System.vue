@@ -140,7 +140,7 @@ FetchApiSta();
         </n-card>
         <n-modal v-model:show="showVersion">
             <n-card
-                class="!mx-8 sm:!w-[30rem] sm:!mx-auto"
+                class="!my-4 !mx-8 sm:!w-[30rem] sm:!mx-auto"
                 title="依赖版本"
                 :bordered="false"
                 size="huge"

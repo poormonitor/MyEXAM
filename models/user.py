@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, String
+from sqlalchemy import Boolean, Column, String, Text
 
 from misc.func import gen_id
 
@@ -13,3 +13,4 @@ class User(Base):
     passwd = Column(String(64))
     email = Column(String(64))
     admin = Column(Boolean, default=False)
+    cart = Column(Text)

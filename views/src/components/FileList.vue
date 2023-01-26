@@ -1,8 +1,9 @@
 <script setup lang="jsx">
 import { GetFullTime } from "../func";
 import { file_types } from "../const";
+import { OpenOutline, CloudDownloadOutline } from "@vicons/ionicons5";
 
-const props = defineProps(["pid"]);
+const props = defineProps(["pid", "data"]);
 const emits = defineEmits(["preview"]);
 const axios = inject("axios");
 
@@ -29,7 +30,11 @@ const columns = [
                 secondary
                 on-click={() => downloadFile(row.fid)}
             >
-                下载
+                {{
+                    icon: () => (
+                        <n-icon component={CloudDownloadOutline}></n-icon>
+                    ),
+                }}
             </n-button>
         ),
     },
@@ -43,11 +48,17 @@ const columns = [
                 secondary
                 on-click={() => emits("preview", row.fid, row.ext, row.name)}
             >
-                预览
+                {{
+                    icon: () => <n-icon component={OpenOutline}></n-icon>,
+                }}
             </n-button>
         ),
     },
-    { title: "文件名", key: "name" },
+    {
+        title: "文件名",
+        key: "name",
+        render: (row) => <span class="lg:whitespace-normal">{row.name}</span>,
+    },
     {
         title: "上传时间",
         key: "upload_time",
@@ -64,11 +75,13 @@ const columns = [
     },
 ];
 
-const data = await axios
-    .get("/list/files", { params: { pid: props.pid } })
-    .then((response) => {
-        if (response.data.list) return response.data.list;
-    });
+const data = props.data
+    ? props.data
+    : await axios
+          .get("/list/files", { params: { pid: props.pid } })
+          .then((response) => {
+              if (response.data.list) return response.data.list;
+          });
 </script>
 
 <template>

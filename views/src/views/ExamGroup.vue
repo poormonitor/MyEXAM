@@ -72,9 +72,9 @@ const data = await axios
         <span class="text-xl font-bold"> 考试信息 </span>
     </n-divider>
     <div
-        class="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-9 gap-y-4 mb-8 mx-2"
+        class="flex flex-wrap gap-x-8 sm:gap-x-24 gap-y-4 mb-8 mx-2"
     >
-        <InfoTag class="col-span-3" label="联盟">
+        <InfoTag label="联盟">
             <RouterLink
                 class="router-link"
                 :to="{
@@ -85,7 +85,7 @@ const data = await axios
                 {{ data.union.name }}
             </RouterLink>
         </InfoTag>
-        <InfoTag class="col-span-3" label="考试名称">
+        <InfoTag label="考试名称">
             <span class="whitespace-nowrap mr-2">
                 {{ GetYearMonth(data.date) }}
             </span>
@@ -93,7 +93,7 @@ const data = await axios
                 {{ data.name }}
             </span>
         </InfoTag>
-        <InfoTag class="col-span-3" label="考试年月">
+        <InfoTag label="考试年月">
             {{ GetYearMonth(data.date) }}
         </InfoTag>
     </div>

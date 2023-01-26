@@ -1,11 +1,11 @@
 <script setup>
 import sha256 from "crypto-js/sha256";
 import { useRouter } from "vue-router";
-import { useTokenStore } from "../stores/token";
+import { useCartStore } from "../stores/cart";
 import { useUserStore } from "../stores/user";
 
 const userStore = useUserStore();
-const tokenStore = useTokenStore();
+const cartStore = useCartStore();
 const router = useRouter();
 const axios = inject("axios");
 
@@ -31,6 +31,7 @@ const submitLogin = () => {
                     payload.admin,
                     payload.exp * 1000
                 );
+                cartStore.fetch();
                 router.push({ name: "home" });
             }
         });

@@ -9,7 +9,7 @@ const title = computed(() => (props.title ? props.title : "文件预览"));
 </script>
 
 <template>
-    <n-modal preset="card" class="preview-modal !my-8" :title="title">
+    <n-modal preset="card" class="!my-8 !mx-4 md:!mx-auto md:!w-2/3" :title="title">
         <embed
             class="w-full h-[80vh]"
             type="application/pdf"
@@ -20,9 +20,3 @@ const title = computed(() => (props.title ? props.title : "文件预览"));
         <iframe class="w-full h-[80vh]" :src="props.src" v-else></iframe>
     </n-modal>
 </template>
-
-<style>
-.preview-modal {
-    width: max(300px, 60%) !important;
-}
-</style>

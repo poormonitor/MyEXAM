@@ -304,7 +304,6 @@ const SetFailedUpload = (options) => {
 };
 
 const HandlePDFUpload = async (file, name) => {
-    if (!uploadInfo.pid) await createNewPaper();
     CustomUpload({
         file: {
             id: Math.random().toString(16).substring(2, 10),
@@ -380,7 +379,7 @@ const ConfirmUpload = async () => {
                     positiveText: "好的",
                     onPositiveClick: () => {
                         uploadInfo.files = [];
-                        createNewPaper();
+                        uploadInfo.pid = null;
                     },
                 });
             }
@@ -435,11 +434,7 @@ const tableColumns = [
         title: "文件名",
         key: "name",
         render: (row) => {
-            return (
-                <span class="whitespace-nowrap">
-                    {row.name}
-                </span>
-            );
+            return <span class="whitespace-nowrap">{row.name}</span>;
         },
     },
     {

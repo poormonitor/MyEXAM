@@ -8,8 +8,6 @@ const axios = inject("axios");
 const collapsed = inject("collapsed");
 const route = useRoute();
 const router = useRouter();
-
-const cntRef = ref(null);
 const loading = ref(false);
 
 const searchInfo = reactive({
@@ -25,7 +23,7 @@ const queryResult = reactive({
 });
 
 const pagination = reactive({
-    page: 0,
+    page: 1,
     pageCount: 0,
     pageSize: 10,
 });
@@ -56,7 +54,6 @@ const goQuery = () => {
                     queryResult.cnt / pagination.pageSize
                 );
                 loading.value = false;
-                cntRef.value?.play();
             }
         });
 };
@@ -213,7 +210,7 @@ if (route.query.s) {
         <div class="mb-4">
             <n-statistic label="共计找到了" tabular-nums>
                 {{ queryResult.cnt }}
-                <template #suffix> 份文件 </template>
+                <template #suffix> 场考试 </template>
             </n-statistic>
         </div>
         <div v-if="queryResult.cnt">
@@ -221,8 +218,13 @@ if (route.query.s) {
                 :columns="tableColumns"
                 :data="queryResult.list"
                 :loading="loading"
-                :pagination="pagination"
                 class="whitespace-nowrap"
+                @update:page="goQuery"
+            />
+            <n-pagination
+                class="justify-end mt-3"
+                v-model:page="pagination.page"
+                :page-count="pagination.pageCount"
                 @update:page="goQuery"
             />
         </div>
