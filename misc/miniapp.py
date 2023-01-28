@@ -1,9 +1,10 @@
-import requests
+from datetime import datetime, timedelta
 from functools import cache
 from typing import Tuple
-from datetime import datetime, timedelta
+
+import requests
+
 from config import get_config
-import base64
 
 
 @cache
@@ -23,18 +24,17 @@ def fetch_access_token() -> Tuple[str, int]:
     return access_token, expires
 
 
-def get_access_token() -> str:
+def get_access_token(refresh: bool = False) -> str:
     token, expires = fetch_access_token()
 
-    if expires <= datetime.now():
+    if refresh or expires <= datetime.now():
         fetch_access_token.cache_clear()
         token, expires = fetch_access_token()
 
     return token
 
 
-def get_miniapp_code(id) -> str:
-    token = get_access_token()
+def request_code(id, token):
     data = {
         "page": "pages/jump/jump",
         "scene": "id=" + str(id),
@@ -43,8 +43,23 @@ def get_miniapp_code(id) -> str:
     }
 
     response = requests.post(
-        "https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=" + token,
-        json=data,
+            "https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=" + token,
+            json=data,
     )
 
-    return base64.b64encode(response.content)
+    return response
+
+def get_miniapp_code(id) -> bytes:
+    token = get_access_token()
+    response = request_code(id, token)
+    
+    try:
+        err = response.json()
+        if err["errcode"] == 40001:
+            token = get_access_token(True)
+            response = request_code(id, token)
+    except:
+        pass
+
+
+    return response.content
