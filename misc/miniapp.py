@@ -1,8 +1,10 @@
+import io
 from datetime import datetime, timedelta
 from functools import cache
 from typing import Tuple
 
 import requests
+from PIL import Image
 
 from config import get_config
 
@@ -43,16 +45,17 @@ def request_code(id, token):
     }
 
     response = requests.post(
-            "https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=" + token,
-            json=data,
+        "https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=" + token,
+        json=data,
     )
 
     return response
 
+
 def get_miniapp_code(id) -> bytes:
     token = get_access_token()
     response = request_code(id, token)
-    
+
     try:
         err = response.json()
         if err["errcode"] == 40001:
@@ -61,5 +64,10 @@ def get_miniapp_code(id) -> bytes:
     except:
         pass
 
+    im = Image.open(io.BytesIO(response.content))
+    x, y = im.size
+    im = im.resize((128, round(128 * y / x)))
+    out = io.BytesIO()
+    im.save(out, quality=60, format='jpeg')
 
-    return response.content
+    return out.getvalue()
