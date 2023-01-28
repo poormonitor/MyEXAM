@@ -3,7 +3,7 @@ import CartList from "./CartList.vue";
 </script>
 
 <template>
-    <n-modal class="!m-4 md:!mx-auto md:!w-[80vw]">
+    <n-modal class="!m-4 md:!mx-auto md:!w-[80vw] overflow-x-hidden">
         <n-card
             title="收藏夹"
             :bordered="false"

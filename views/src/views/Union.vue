@@ -86,18 +86,29 @@ data.examgroups.forEach((examgroup) => {
 </script>
 
 <template>
-    <p class="text-4xl font-bold mb-4">
-        {{ data.name }}
-    </p>
-    <div class="mb-8" v-if="data.member">
-        <n-tag type="info" v-for="item in data.member.split('\n')">
-            {{ item }}
-        </n-tag>
+    <div class="flex justify-between">
+        <div>
+            <p class="text-4xl font-bold mb-4">
+                {{ data.name }}
+            </p>
+            <div class="mb-4" v-if="data.member">
+                <n-tag type="info" v-for="item in data.member.split('\n')">
+                    {{ item }}
+                </n-tag>
+            </div>
+        </div>
+        <div class="flex items-center mb-8">
+            <Share type="union" :id="route.params.nid" />
+        </div>
     </div>
     <n-divider title-placement="left">
         <span class="text-xl font-bold"> 考试列表 </span>
     </n-divider>
     <div>
-        <n-data-table :data="tableData" :columns="tableColumns" />
+        <n-data-table
+            class="whitespace-nowrap"
+            :data="tableData"
+            :columns="tableColumns"
+        />
     </div>
 </template>

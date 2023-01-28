@@ -30,6 +30,7 @@ from models.paper import Paper
 from models.union import Union
 from models.user import User
 from models.task import Task
+from models.jump import Jump
 
 target_metadata = Base.metadata
 

@@ -160,22 +160,27 @@ const defaultExpanded = route.hash
         v-model:show="preview.show"
         :title="preview.title"
     />
-    <div class="mb-4 lg:mb-8">
-        <p class="text-2xl mb-0.5 text-purple-800">
-            {{ showData.union.name }}
-        </p>
-        <p class="text-4xl font-bold mb-3">
-            <span class="whitespace-nowrap mr-2">
-                {{ GetYearMonth(showData.examgroup.date) }}
-            </span>
-            <span class="whitespace-nowrap">
-                {{ showData.examgroup.name }}
-            </span>
-        </p>
-        <p class="text-xl text-zinc-700 dark:text-zinc-400">
-            {{ grades[showData.grade] }}
-            {{ courses[showData.course] }}
-        </p>
+    <div class="flex justify-between mb-4 lg:mb-8">
+        <div>
+            <p class="text-2xl mb-0.5 text-purple-800">
+                {{ showData.union.name }}
+            </p>
+            <p class="text-4xl font-bold mb-3">
+                <span class="whitespace-nowrap mr-2">
+                    {{ GetYearMonth(showData.examgroup.date) }}
+                </span>
+                <span class="whitespace-nowrap">
+                    {{ showData.examgroup.name }}
+                </span>
+            </p>
+            <p class="text-xl text-zinc-700 dark:text-zinc-400">
+                {{ grades[showData.grade] }}
+                {{ courses[showData.course] }}
+            </p>
+        </div>
+        <div class="flex items-center">
+            <Share type="exam" :id="route.params.eid" />
+        </div>
     </div>
     <div>
         <n-divider title-placement="left">

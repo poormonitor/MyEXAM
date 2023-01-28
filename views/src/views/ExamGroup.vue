@@ -55,25 +55,28 @@ const data = await axios
 </script>
 
 <template>
-    <div class="mb-8">
-        <p class="text-2xl mb-0.5 text-purple-800">
-            {{ data.union.name }}
-        </p>
-        <p class="text-4xl font-bold mb-3">
-            <span class="whitespace-nowrap mr-2">
-                {{ GetYearMonth(data.date) }}
-            </span>
-            <span class="whitespace-nowrap">
-                {{ data.name }}
-            </span>
-        </p>
+    <div class="flex justify-between mb-8">
+        <div>
+            <p class="text-2xl mb-0.5 text-purple-800">
+                {{ data.union.name }}
+            </p>
+            <p class="text-4xl font-bold mb-3">
+                <span class="whitespace-nowrap mr-2">
+                    {{ GetYearMonth(data.date) }}
+                </span>
+                <span class="whitespace-nowrap">
+                    {{ data.name }}
+                </span>
+            </p>
+        </div>
+        <div class="flex items-center mb-8">
+            <Share type="union" :id="route.params.egid" />
+        </div>
     </div>
     <n-divider title-placement="left">
         <span class="text-xl font-bold"> 考试信息 </span>
     </n-divider>
-    <div
-        class="flex flex-wrap gap-x-8 sm:gap-x-24 gap-y-4 mb-8 mx-2"
-    >
+    <div class="flex flex-wrap gap-x-8 sm:gap-x-24 gap-y-4 mb-8 mx-2">
         <InfoTag label="联盟">
             <RouterLink
                 class="router-link"

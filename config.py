@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     S3_REGION: str = ""
     S3_BUCKET: str = ""
     S3_PREFIX: str = ""
+    MINIAPP_APP_ID: str = ""
+    MINIAPP_APP_SECRET: str = ""
     REGISTER: int = 1
 
     class Config:
