@@ -36,7 +36,7 @@ def list_users(s: str = "", page: int = 0, db: Session = Depends(get_db)):
     query = db.query(User).filter(or_(User.nick.contains(s), User.email.contains(s)))
 
     cnt = query.count()
-    users = query.offset(page * 10).limit(10).all()
+    users = query.offset((page - 1) * 10).limit(10).all()
 
     return {"cnt": cnt, "users": [Users(**vars(i)) for i in users]}
 
@@ -50,7 +50,7 @@ def delete_user(data: DelUser, db: Session = Depends(get_db)):
 
     db.delete(user)
     db.commit()
-    return {"result": "success"} 
+    return {"result": "success"}
 
 
 @router.post("/passwd")
