@@ -23,7 +23,7 @@ def upgrade() -> None:
     sa.Column('target', sa.String(length=32), nullable=True),
     sa.Column('type', sa.Integer(), nullable=True),
     sa.Column('created', sa.DateTime(), nullable=True),
-    sa.Column('qrcode', sa.BLOB(), nullable=True),
+    sa.Column('qrcode', sa.BINARY(), nullable=True),
     sa.PrimaryKeyConstraint('jid')
     )
     op.create_index(op.f('ix_jumps_jid'), 'jumps', ['jid'], unique=False)
