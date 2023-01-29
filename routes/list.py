@@ -309,5 +309,8 @@ def get_assign_url(aid: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="项目未找到。")
 
     url = get_presigned_get_url(assign.ext, assign.md5)
+    
+    assign.views += 1
+    db.commit()
 
     return {"url": url}
