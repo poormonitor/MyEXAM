@@ -9,6 +9,7 @@ from misc.auth import is_admin
 from misc.model import get_courses
 from misc.s3 import get_presigned_get_url
 from models import get_db
+from models.assign import Assign
 from models.exam import Exam
 from models.examgroup import ExamGroup
 from models.file import File
@@ -49,6 +50,13 @@ class OneExam(BaseModel):
     views: int
 
 
+class OneAssign(BaseModel):
+    aid: str
+    comment: str
+    views: int
+    upload_time: datetime
+
+
 class ExamGroups(BaseModel):
     egid: str
     name: str
@@ -56,6 +64,7 @@ class ExamGroups(BaseModel):
     views: int
     union: OneUnion
     exams: List[OneExam]
+    assigns: List[OneAssign]
 
 
 class OnePaper(BaseModel):
@@ -142,14 +151,18 @@ def get_union(egid: str, db: Session = Depends(get_db)):
     un = db.query(Union).filter_by(nid=eg.nid).first()
     union = OneUnion(**vars(un))
     exams = [OneExam(**vars(i)) for i in eg.exams]
+    assigns = [OneAssign(**vars(i)) for i in eg.assigns]
+    
 
     result = vars(eg)
     del result["exams"]
+    del result["assigns"]
 
     result = ExamGroups(
         **result,
         union=union,
         exams=exams,
+        assigns=assigns
     )
 
     eg.views += 1
@@ -182,12 +195,7 @@ def get_exam(eid: str, admin: bool = Depends(is_admin), db: Session = Depends(ge
     data = vars(exam)
     del data["papers"]
 
-    examdata = Exams(
-        **data,
-        union=union,
-        examgroup=examgroup,
-        papers=papers,
-    )
+    examdata = Exams(**data, union=union, examgroup=examgroup, papers=papers)
 
     exam.views += 1
     db.commit()
@@ -273,5 +281,33 @@ def get_url(fid: str, download: Optional[bool] = True, db: Session = Depends(get
 
     file.views += 1
     db.commit()
+
+    return {"url": url}
+
+
+@router.get("/assigns")
+def get_assign_url(egid: str, db: Session = Depends(get_db)):
+    assigns = db.query(Assign).filter_by(egid=egid).all()
+
+    return {"list": [OneAssign(**vars(i)) for i in assigns]}
+
+
+@router.get("/assign")
+def get_assign_url(aid: str, db: Session = Depends(get_db)):
+    assign = db.query(Assign).filter_by(aid=aid).first()
+
+    if not assign:
+        raise HTTPException(status_code=404, detail="项目未找到。")
+
+    return {"assign": OneAssign(**vars(assign))}
+
+
+@router.get("/assign_url")
+def get_assign_url(aid: str, db: Session = Depends(get_db)):
+    assign = db.query(Assign).filter_by(aid=aid).first()
+    if not assign:
+        raise HTTPException(status_code=404, detail="项目未找到。")
+
+    url = get_presigned_get_url(assign.ext, assign.md5)
 
     return {"url": url}

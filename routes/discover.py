@@ -43,7 +43,7 @@ class Exams(BaseModel):
 
 
 @router.post("/exams")
-def search(data: Optional[SearchInfo] = None, db: Session = Depends(get_db)):
+def discover_exams(data: Optional[SearchInfo] = None, db: Session = Depends(get_db)):
     query = (
         db.query(Exam, Union, ExamGroup, Paper)
         .outerjoin(ExamGroup, ExamGroup.egid == Exam.egid)

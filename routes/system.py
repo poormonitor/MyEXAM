@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from config import get_dependencies, get_version
 from misc.s3 import delete_objects_from_s3, list_object_hash
 from models import get_db
+from models.assign import Assign
 from models.exam import Exam
 from models.examgroup import ExamGroup
 from models.file import File
@@ -32,6 +33,11 @@ def clean_paper(db: Session = Depends(get_db)):
     files = db.query(File).filter(~File.pid.in_(db.query(Paper.pid)))
     delete_objects_from_s3([(i.md5, i.ext) for i in files.all()])
     files.delete(synchronize_session="fetch")
+
+    assigns = db.query(Assign).filter(~Assign.egid.in_(db.query(ExamGroup.egid)))
+    delete_objects_from_s3([(i.md5, i.ext) for i in assigns.all()])
+    assigns.delete(synchronize_session="fetch")
+
     db.commit()
 
     return {"result": "success"}
@@ -42,17 +48,23 @@ def clean_isolate(db: Session = Depends(get_db)):
     db.query(ExamGroup).filter(~ExamGroup.nid.in_(db.query(Union.nid))).delete(
         synchronize_session="fetch"
     )
+
     db.query(Exam).filter(~Exam.egid.in_(db.query(ExamGroup.egid))).delete(
         synchronize_session="fetch"
     )
+
     db.query(Paper).filter(~Paper.eid.in_(db.query(Exam.eid))).delete(
         synchronize_session="fetch"
     )
-    db.commit()
 
     files = db.query(File).filter(~File.pid.in_(db.query(Paper.pid)))
     delete_objects_from_s3([(i.md5, i.ext) for i in files.all()])
     files.delete(synchronize_session="fetch")
+
+    assigns = db.query(Assign).filter(~Assign.egid.in_(db.query(ExamGroup.egid)))
+    delete_objects_from_s3([(i.md5, i.ext) for i in assigns.all()])
+    assigns.delete(synchronize_session="fetch")
+
     db.commit()
 
     return {"result": "success"}
@@ -63,13 +75,15 @@ def clean_miss(db: Session = Depends(get_db)):
     hash = list_object_hash()
 
     db.query(File).filter(~File.md5.in_(hash)).delete(synchronize_session="fetch")
+    db.query(Assign).filter(~Assign.md5.in_(hash)).delete(synchronize_session="fetch")
+
     db.commit()
 
     return {"result": "success"}
 
 
 @router.get("/statistic")
-def clean_miss(db: Session = Depends(get_db)):
+def get_statistic(db: Session = Depends(get_db)):
     union = db.query(Union).count()
     examgroup = db.query(ExamGroup).count()
     exam = db.query(Exam).count()
@@ -77,6 +91,7 @@ def clean_miss(db: Session = Depends(get_db)):
     file = db.query(File).count()
     user = db.query(User).count()
     task = db.query(Task).count()
+    assign = db.query(Assign).count()
 
     latest_task = db.query(Task).order_by(Task.created.asc()).first()
 
@@ -86,7 +101,7 @@ def clean_miss(db: Session = Depends(get_db)):
             "examgroup": examgroup,
             "exam": exam,
             "paper": paper,
-            "file": file,
+            "file": file + assign,
             "user": user,
             "task": task,
         },

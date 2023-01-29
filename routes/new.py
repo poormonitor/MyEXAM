@@ -9,9 +9,10 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
-from misc.auth import get_user_identity
+from misc.auth import get_user_identity, admin_required
 from misc.s3 import delete_object_from_s3, get_presigned_post_url
 from models import get_db
+from models.assign import Assign
 from models.exam import Exam
 from models.examgroup import ExamGroup
 from models.file import File
@@ -61,6 +62,11 @@ class NewConfirm(BaseModel):
     comment: str
 
     files: List[ConfirmFile]
+
+
+class NewAssign(BaseModel):
+    ext: str
+    md5: str
 
 
 @router.post("/union")
@@ -182,3 +188,24 @@ def confirm_paper(
 
     db.commit()
     return {"result": "success"}
+
+
+@router.post("/assign", dependencies=[Depends(admin_required)])
+def add_assign(data: NewAssign, db: Session = Depends(get_db)):
+    assign = db.query(Assign).filter_by(ext=data.ext).filter_by(md5=data.md5).first()
+
+    new_assign = Assign(ext=data.ext, md5=data.md5)
+    db.add(new_assign)
+    db.commit()
+    db.refresh(new_assign)
+
+    if assign:
+        return {"result": "exists", "aid": new_assign.aid}
+    else:
+        upload_url, key = get_presigned_post_url(data.ext, data.md5)
+        return {
+            "result": "success",
+            "aid": new_assign.aid,
+            "url": upload_url,
+            "key": key,
+        }

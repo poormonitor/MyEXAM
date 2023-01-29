@@ -31,6 +31,7 @@ from models.union import Union
 from models.user import User
 from models.task import Task
 from models.jump import Jump
+from models.assign import Assign
 
 target_metadata = Base.metadata
 

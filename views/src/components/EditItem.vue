@@ -47,6 +47,33 @@ const RenderTypes = [
         options: [
             { key: "name", value: "联考名称", type: "input" },
             { key: "date", value: "联考年月", type: "month" },
+            {
+                key: "assign",
+                value: "赋分表",
+                type: "component",
+                component: (egid) => (
+                    <Suspense>
+                        {{
+                            default: () => (
+                                <EditAssign
+                                    onClose={() => {
+                                        visible.value = false;
+                                    }}
+                                    egid={egid}
+                                    ref={comp}
+                                />
+                            ),
+                            fallback: () => (
+                                <div class="flex justify-center">
+                                    <n-spin>
+                                        {{ description: () => "加载中" }}
+                                    </n-spin>
+                                </div>
+                            ),
+                        }}
+                    </Suspense>
+                ),
+            },
         ],
         show: ["union"],
     },

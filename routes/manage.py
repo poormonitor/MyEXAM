@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from misc.s3 import delete_object_from_s3, delete_objects_from_s3
 from models import get_db
+from models.assign import Assign
 from models.exam import Exam
 from models.examgroup import ExamGroup
 from models.file import File
@@ -189,6 +190,26 @@ def edit_file(data: EditFile, db: Session = Depends(get_db)):
     return {"result": "success"}
 
 
+class EditAssign(BaseModel):
+    aid: str
+    egid: str
+    comment: str
+
+
+@router.post("/edit/assign")
+def edit_file(data: EditAssign, db: Session = Depends(get_db)):
+    assign = db.query(Assign).filter_by(aid=data.aid).first()
+
+    if not assign:
+        raise HTTPException(status_code=404, detail="项目未找到。")
+
+    assign.comment = data.comment
+    assign.egid = data.egid
+
+    db.commit()
+    return {"result": "success"}
+
+
 class DeleteUnion(BaseModel):
     nid: str
 
@@ -274,7 +295,7 @@ def delete_file(data: DeleteFile, db: Session = Depends(get_db)):
 
     if not file:
         raise HTTPException(status_code=404, detail="项目未找到。")
-        
+
     try:
         delete_object_from_s3(file.ext, file.md5)
     except:
@@ -282,4 +303,27 @@ def delete_file(data: DeleteFile, db: Session = Depends(get_db)):
 
     db.delete(file)
     db.commit()
+
+    return {"result": "success"}
+
+
+class DeleteAssign(BaseModel):
+    aid: str
+
+
+@router.post("/delete/assign")
+def delete_assign(data: DeleteAssign, db: Session = Depends(get_db)):
+    assign = db.query(Assign).filter_by(aid=data.aid).first()
+
+    if not assign:
+        raise HTTPException(status_code=404, detail="项目未找到。")
+
+    try:
+        delete_object_from_s3(assign.ext, assign.md5)
+    except:
+        pass
+
+    db.delete(assign)
+    db.commit()
+
     return {"result": "success"}

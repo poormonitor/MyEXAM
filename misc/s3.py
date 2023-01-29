@@ -18,7 +18,7 @@ minioClient = Minio(
 )
 
 
-def get_presigned_post_url(ext: str, id: str) -> str:
+def get_presigned_post_url(ext: str, id: str) -> Tuple[str, str]:
     key = config["S3_PREFIX"] + "/" + id + "." + ext
     key = key.strip("/")
 

@@ -17,3 +17,4 @@ class ExamGroup(Base):
     views = Column(Integer, default=0)
 
     exams = relationship("Exam")
+    assigns = relationship("Assign")

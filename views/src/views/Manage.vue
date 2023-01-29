@@ -67,7 +67,6 @@ const tableColumns = [
         render: (row) => (
             <n-button
                 text
-                tag="a"
                 type="info"
                 on-click={() => {
                     ModifyAction.current = row;
@@ -86,7 +85,6 @@ const tableColumns = [
         render: (row) => (
             <n-button
                 text
-                tag="a"
                 type="info"
                 on-click={() => {
                     ModifyAction.current = row;

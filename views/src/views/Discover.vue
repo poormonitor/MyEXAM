@@ -14,7 +14,7 @@ const requestForm = reactive({
 
 const resetForm = () => {
     requestForm.course = null;
-    requestForm.grade == null;
+    requestForm.grade = null;
 };
 
 const getOptions = (items) =>
