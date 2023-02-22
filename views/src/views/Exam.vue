@@ -1,5 +1,5 @@
 <script setup lang="jsx">
-import { HeartOutline, HeartDislikeOutline } from "@vicons/ionicons5";
+import { HeartOutline, HeartDislikeOutline, Ribbon } from "@vicons/ionicons5";
 import { Suspense } from "vue";
 import { useRoute } from "vue-router";
 import { courses, grades, office_ext } from "../const";
@@ -65,10 +65,26 @@ const tableColumns = [
     {
         title: "标签",
         key: "comment",
-        render: (row) =>
-            row.comment
-                .split()
-                .map((item) => <n-tag type="success">{item}</n-tag>),
+        render: (row) => (
+            <div class="flex flex-col gap-y-1">
+                {row.owner && (
+                    <n-tooltip trigger="hover">
+                        {{
+                            trigger: () => (
+                                <span class="flex items-center gap-x-0.5 text-green-600 mb-1">
+                                    <n-icon component={Ribbon}></n-icon>
+                                    <span>{row.owner}</span>
+                                </span>
+                            ),
+                            default: () => "认证的用户",
+                        }}
+                    </n-tooltip>
+                )}
+                {row.comment.split().map((item) => (
+                    <n-tag type="info">{item}</n-tag>
+                ))}
+            </div>
+        ),
     },
     {
         title: "文件列表",
@@ -230,9 +246,17 @@ const defaultExpanded = route.hash
         <div class="flex flex-row divide-y">
             <n-data-table
                 class="whitespace-nowrap"
+                row-class-name="table-no-hover"
                 :data="showData.papers"
                 :columns="tableColumns"
             ></n-data-table>
         </div>
     </div>
 </template>
+
+<style>
+.table-no-hover:hover,
+.table-no-hover:hover > .n-data-table-td {
+    background-color: transparent !important;
+}
+</style>

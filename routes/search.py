@@ -8,6 +8,7 @@ from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session
 
 from misc.auth import is_admin
+from misc.model import get_owner
 from models import get_db
 from models.exam import Exam
 from models.examgroup import ExamGroup
@@ -56,6 +57,7 @@ class OnePaper(BaseModel):
     created_at: datetime
     status: int
     fcnt: int
+    owner: str
 
 
 class OneExam(BaseModel):
@@ -145,7 +147,12 @@ def search_exam(
             **vars(item[0]),
             union=OneUnion(**vars(item[1])),
             examgroup=OneExamGroup(**vars(item[2])),
-            papers=[OnePaper(**vars(i), fcnt=len(i.files)) for i in item[0].papers],
+            papers=[
+                OnePaper(
+                    **vars(i), fcnt=len(i.files), owner=get_owner(i.user_token, db)
+                )
+                for i in item[0].papers
+            ],
         )
         for item in result
     ]
@@ -184,7 +191,11 @@ def search_file(
             union=OneUnion(**vars(item[1])),
             examgroup=OneExamGroup(**vars(item[2])),
             exam=OneExam(**vars(item[3])),
-            paper=OnePaper(**vars(item[4]), fcnt=len(item[4].files)),
+            paper=OnePaper(
+                **vars(item[4]),
+                fcnt=len(item[4].files),
+                owner=get_owner(item[4].user_token, db),
+            ),
             text=GetHighlight(item[0].ocr, info.s),
         )
         for item in result

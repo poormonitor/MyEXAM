@@ -2,7 +2,7 @@
 import { useRoute, useRouter } from "vue-router";
 import { GetYearMonth } from "../func";
 import { courses, grades } from "../const";
-import { Search } from "@vicons/ionicons5";
+import { Search, Ribbon } from "@vicons/ionicons5";
 
 const axios = inject("axios");
 const collapsed = inject("collapsed");
@@ -127,7 +127,12 @@ const tableColumns = [
                         class="!cursor-pointer"
                         onClick={() => gotoPaper(row.eid, item.pid)}
                     >
-                        {item.comment} ({item.fcnt})
+                        <div class="flex items-center gap-x-1">
+                            {item.owner && <n-icon component={Ribbon}></n-icon>}
+                            <span>
+                                {item.comment} ({item.fcnt})
+                            </span>
+                        </div>
                     </n-tag>
                 ))}
             </div>
@@ -228,5 +233,6 @@ if (route.query.s) {
                 @update:page="goQuery"
             />
         </div>
+        <n-empty class="mt-12" description="什么也没找到" v-else></n-empty>
     </div>
 </template>

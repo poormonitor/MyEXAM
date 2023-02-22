@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from misc.auth import is_admin
-from misc.model import get_courses
+from misc.model import get_courses, get_owner
 from misc.s3 import get_presigned_get_url
 from models import get_db
 from models.assign import Assign
@@ -72,6 +72,7 @@ class OnePaper(BaseModel):
     comment: str
     views: int
     fcnt: int
+    owner: str
     created_at: datetime
 
 
@@ -95,6 +96,7 @@ class Papers(BaseModel):
     pid: str
     comment: str
     views: int
+    owner: str
     files: List[OneFile]
     created_at: datetime
 
@@ -152,18 +154,12 @@ def get_union(egid: str, db: Session = Depends(get_db)):
     union = OneUnion(**vars(un))
     exams = [OneExam(**vars(i)) for i in eg.exams]
     assigns = [OneAssign(**vars(i)) for i in eg.assigns]
-    
 
     result = vars(eg)
     del result["exams"]
     del result["assigns"]
 
-    result = ExamGroups(
-        **result,
-        union=union,
-        exams=exams,
-        assigns=assigns
-    )
+    result = ExamGroups(**result, union=union, exams=exams, assigns=assigns)
 
     eg.views += 1
     db.commit()
@@ -190,7 +186,10 @@ def get_exam(eid: str, admin: bool = Depends(is_admin), db: Session = Depends(ge
     exam = result[0]
     union = OneUnion(**vars(result[1]))
     examgroup = OneExamGroup(**vars(result[2]), courses=get_courses(result[2].exams))
-    papers = [OnePaper(**vars(i), fcnt=len(i.files)) for i in exam.papers]
+    papers = [
+        OnePaper(**vars(i), fcnt=len(i.files), owner=get_owner(i.user_token, db))
+        for i in exam.papers
+    ]
 
     data = vars(exam)
     del data["papers"]
@@ -225,6 +224,7 @@ def get_file_list(data: QueryPapers, db: Session = Depends(get_db)):
             examgroup=OneExamGroup(**vars(i[2]), courses=get_courses(i[2].exams)),
             exam=OneExam(**vars(i[3])),
             files=[OneFile(**vars(j)) for j in i[0].files],
+            owner=get_owner(i[0].user_token, db),
         )
         for i in result
     ]
@@ -239,7 +239,9 @@ def get_paper(pid: str, db: Session = Depends(get_db)):
     if not paper:
         raise HTTPException(status_code=404, detail="项目未找到。")
 
-    data = OnePaper(**vars(paper), fcnt=len(paper.files))
+    data = OnePaper(
+        **vars(paper), fcnt=len(paper.files), owner=get_owner(paper.user_token, db)
+    )
 
     paper.views += 1
     db.commit()
@@ -309,7 +311,7 @@ def get_assign_url(aid: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="项目未找到。")
 
     url = get_presigned_get_url(assign.ext, assign.md5)
-    
+
     assign.views += 1
     db.commit()
 

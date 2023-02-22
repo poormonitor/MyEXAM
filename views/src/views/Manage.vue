@@ -164,6 +164,8 @@ const tableColumns = [
 ];
 
 fetchData();
+
+watch(searchInfo, fetchData);
 </script>
 
 <template>
