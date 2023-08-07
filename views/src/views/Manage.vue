@@ -137,7 +137,7 @@ const tableColumns = [
                             ModifyAction.show = true;
                         }}
                     >
-                        {item.comment} ({item.fcnt})
+                        {item.owner} {item.comment} ({item.fcnt})
                     </n-button>
                 ))}
             </div>

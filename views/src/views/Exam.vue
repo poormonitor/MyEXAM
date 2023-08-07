@@ -66,9 +66,9 @@ const tableColumns = [
         title: "上传者",
         key: "uploader",
         render: (row) => (
-            <div class="flex flex-col gap-y-1 justify-center">
+            <div class="flex flex-col gap-y-1">
                 {row.owner && (
-                    <div>
+                    <div class="flex justify-center">
                         <n-tooltip trigger="hover">
                             {{
                                 trigger: () => (
@@ -83,14 +83,14 @@ const tableColumns = [
                     </div>
                 )}
                 {row.comment && (
-                    <div>
+                    <div class="flex justify-center">
                         {row.comment.split().map((item) => (
                             <n-tag type="success">{item}</n-tag>
                         ))}
                     </div>
                 )}
-                <div class='text-center'>{row.views} 浏览</div>
-                <div class='flex justify-center mt-2'>
+                <div class="text-center">{row.views} 浏览</div>
+                <div class="flex justify-center mt-2">
                     <n-button
                         circle
                         secondary
@@ -125,7 +125,10 @@ const tableColumns = [
         render: (row) => (
             <div id={row.pid}>
                 <n-collapse default-expanded-names={defaultExpanded}>
-                    <n-collapse-item title="文件列表" name={"#" + row.pid}>
+                    <n-collapse-item
+                        title={"共计 " + row.fcnt + " 个文件"}
+                        name={"#" + row.pid}
+                    >
                         <Suspense>
                             {{
                                 fallback: () => (
@@ -149,7 +152,6 @@ const tableColumns = [
                         </Suspense>
                     </n-collapse-item>
                 </n-collapse>
-                <div class="text-green-600 my-2">共计 {row.fcnt} 个文件</div>
             </div>
         ),
     },

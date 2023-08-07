@@ -168,16 +168,27 @@ def confirm_paper(
         if i.fid in target:
             i.type = target[i.fid]
             i.upload_time = func.now()
+
+            same = (
+                db.query(File)
+                .filter(File.md5 == i.md5)
+                .filter(File.ocr != None)
+                .filter(File.fid != i.fid)
+                .order_by(File.upload_time.desc())
+                .first()
+            )
+            if same:
+                i.ocr = same.ocr
+            else:
+                task = Task(type="ocr", data=i.fid)
+                db.add(task)
+
         else:
             db.delete(i)
+    
+    db.commit()
 
     processing = db.query(Task).count()
-
-    for fid in target.keys():
-        task = Task(type="ocr", data=fid)
-        db.add(task)
-
-    db.commit()
 
     if not processing:
         current = os.path.dirname(os.path.abspath(__file__))
