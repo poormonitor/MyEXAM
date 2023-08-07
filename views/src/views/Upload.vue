@@ -63,20 +63,18 @@ const fetchUnions = () => {
 
 const fetchExamGroups = () => {
     axios
-        .get("/list/union", {
+        .get("/list/examgroups", {
             params: {
                 nid: uploadInfo.nid,
             },
         })
         .then((response) => {
-            if (response.data.union) {
-                examGroupList.value = response.data.union.examgroups.map(
-                    (item) => ({
-                        label: GetYearMonth(item.date) + " " + item.name,
-                        value: item.egid,
-                        date: item.date,
-                    })
-                );
+            if (response.data.examgroups) {
+                examGroupList.value = response.data.examgroups.map((item) => ({
+                    label: GetYearMonth(item.date) + " " + item.name,
+                    value: item.egid,
+                    date: item.date,
+                }));
                 examGroupList.value.push({
                     label: "",
                     value: "new",
@@ -341,7 +339,6 @@ const RemoveFile = (fid) => {
         .post("/new/delete_file", {
             fid: fid,
         })
-        .catch(reject)
         .then((response) => {
             if (response.data.result == "success") {
                 uploadInfo.files = uploadInfo.files.filter(
@@ -520,124 +517,115 @@ fetchUnions();
         :key="ExamFinalName"
         @confirm="HandlePDFUpload"
     />
-    <div class="mx-8 w-auto lg:mx-auto lg:w-[60vw] mt-8">
-        <p class="text-3xl font-bold mb-8">上传试卷</p>
-        <n-form class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8">
-            <div class="col-span-1 lg:col-span-2">
-                <n-form-item label="考试联盟/学校">
-                    <n-select
-                        v-model:value="uploadInfo.nid"
-                        :options="unionList"
-                        :render-label="renderLabel"
-                        filterable
-                    >
-                    </n-select>
-                </n-form-item>
-            </div>
-            <div class="col-span-1 lg:col-span-2">
-                <n-form-item label="大考名称">
-                    <n-select
-                        v-model:value="uploadInfo.egid"
-                        :options="examGroupList"
-                        :disabled="
-                            uploadInfo.nid === 'new' || uploadInfo.nid === null
-                        "
-                        :render-label="renderLabel"
-                        filterable
-                    >
-                    </n-select>
-                </n-form-item>
-            </div>
-            <div class="col-span-1">
-                <n-form-item label="备注">
-                    <n-auto-complete
-                        class="w-full"
-                        placeholder="图片版, 详解版 ..."
-                        :options="TypeHint"
-                        v-model:value="uploadInfo.comment"
-                    />
-                </n-form-item>
-            </div>
-            <div class="col-span-1">
-                <n-form-item label="考试时间">
-                    <n-date-picker
-                        class="w-full"
-                        v-model:value="uploadInfo.date"
-                        :is-date-disabled="disablePreviousDate"
-                        type="date"
-                    />
-                </n-form-item>
-            </div>
-            <div class="col-span-1">
-                <n-form-item label="年级">
-                    <n-select
-                        class="w-full"
-                        v-model:value="uploadInfo.grade"
-                        :options="getOptions(grades)"
-                    />
-                </n-form-item>
-            </div>
-            <div class="col-span-1">
-                <n-form-item label="考试科目">
-                    <n-select
-                        v-model:value="uploadInfo.course"
-                        :options="getOptions(courses)"
-                    ></n-select>
-                </n-form-item>
-            </div>
-        </n-form>
-        <div
-            class="flex flex-col md:flex-row gap-x-6 gap-y-2 items-start md:items-end"
-            v-if="ExamFinalName"
-        >
-            <div>
-                <p class="text-sky-800">您即将上传</p>
-                <p class="text-lg">{{ ExamFinalName }}</p>
-            </div>
-            <n-button
-                size="small"
-                secondary
-                @click="showPDF = true"
-                type="info"
-            >
-                图片生成PDF
-            </n-button>
+    <p class="text-3xl font-bold pb-6 pt-2">上传试卷</p>
+    <n-form class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8">
+        <div class="col-span-1 lg:col-span-2">
+            <n-form-item label="考试联盟/学校">
+                <n-select
+                    v-model:value="uploadInfo.nid"
+                    :options="unionList"
+                    :render-label="renderLabel"
+                    filterable
+                >
+                </n-select>
+            </n-form-item>
         </div>
-        <n-upload
-            multiple
-            directory-dnd
-            class="mt-8 mb-4"
-            :show-file-list="false"
-            :custom-request="CustomUpload"
-            v-if="ExamFinalName"
-        >
-            <n-upload-dragger>
-                <div style="margin-bottom: 12px">
-                    <n-icon size="48" :depth="3">
-                        <Archive />
-                    </n-icon>
-                </div>
-                <n-text style="font-size: 16px">
-                    点击或者拖动文件到该区域来上传
-                </n-text>
-                <n-p depth="3" style="margin: 8px 0 0 0">
-                    请不要上传敏感数据，比如你的银行卡号和密码，信用卡号有效期和安全码
-                </n-p>
-            </n-upload-dragger>
-        </n-upload>
-        <n-data-table
-            :columns="tableColumns"
-            :data="tableData"
-            :bordered="false"
-            v-if="uploadInfo.files.length"
-        />
-        <div
-            class="mt-4 mb-8 flex justify-center"
-            v-if="ExamFinalName && uploadInfo.files.length"
-        >
-            <n-button :on-click="ConfirmUpload" type="primary"
-                >确认上传</n-button
-            >
+        <div class="col-span-1 lg:col-span-2">
+            <n-form-item label="大考名称">
+                <n-select
+                    v-model:value="uploadInfo.egid"
+                    :options="examGroupList"
+                    :disabled="
+                        uploadInfo.nid === 'new' || uploadInfo.nid === null
+                    "
+                    :render-label="renderLabel"
+                    filterable
+                >
+                </n-select>
+            </n-form-item>
         </div>
+        <div class="col-span-1">
+            <n-form-item label="备注">
+                <n-auto-complete
+                    class="w-full"
+                    placeholder="图片版, 详解版 ..."
+                    :options="TypeHint"
+                    v-model:value="uploadInfo.comment"
+                />
+            </n-form-item>
+        </div>
+        <div class="col-span-1">
+            <n-form-item label="考试时间">
+                <n-date-picker
+                    class="w-full"
+                    v-model:value="uploadInfo.date"
+                    :is-date-disabled="disablePreviousDate"
+                    type="date"
+                />
+            </n-form-item>
+        </div>
+        <div class="col-span-1">
+            <n-form-item label="年级">
+                <n-select
+                    class="w-full"
+                    v-model:value="uploadInfo.grade"
+                    :options="getOptions(grades)"
+                />
+            </n-form-item>
+        </div>
+        <div class="col-span-1">
+            <n-form-item label="考试科目">
+                <n-select
+                    v-model:value="uploadInfo.course"
+                    :options="getOptions(courses)"
+                ></n-select>
+            </n-form-item>
+        </div>
+    </n-form>
+    <div
+        class="flex flex-col md:flex-row gap-x-6 gap-y-2 items-start md:items-end"
+        v-if="ExamFinalName"
+    >
+        <div>
+            <p class="text-sky-800">您即将上传</p>
+            <p class="text-lg">{{ ExamFinalName }}</p>
+        </div>
+        <n-button size="small" secondary @click="showPDF = true" type="info">
+            图片生成PDF
+        </n-button>
+    </div>
+    <n-upload
+        multiple
+        directory-dnd
+        class="mt-8 mb-4"
+        :show-file-list="false"
+        :custom-request="CustomUpload"
+        v-if="ExamFinalName"
+    >
+        <n-upload-dragger>
+            <div style="margin-bottom: 12px">
+                <n-icon size="48" :depth="3">
+                    <Archive />
+                </n-icon>
+            </div>
+            <n-text style="font-size: 16px">
+                点击或者拖动文件到该区域来上传
+            </n-text>
+            <n-p depth="3" style="margin: 8px 0 0 0">
+                请不要上传敏感数据，比如你的银行卡号和密码，信用卡号有效期和安全码
+            </n-p>
+        </n-upload-dragger>
+    </n-upload>
+    <n-data-table
+        :columns="tableColumns"
+        :data="tableData"
+        :bordered="false"
+        v-if="uploadInfo.files.length"
+    />
+    <div
+        class="mt-4 mb-8 flex justify-center"
+        v-if="ExamFinalName && uploadInfo.files.length"
+    >
+        <n-button :on-click="ConfirmUpload" type="primary">确认上传</n-button>
     </div>
 </template>

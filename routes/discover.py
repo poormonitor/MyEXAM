@@ -17,6 +17,7 @@ router = APIRouter()
 class SearchInfo(BaseModel):
     course: Optional[int] = None
     grade: Optional[int] = None
+    latest: Optional[bool] = False
 
 
 class Unions(BaseModel):
@@ -50,9 +51,13 @@ def discover_exams(data: Optional[SearchInfo] = None, db: Session = Depends(get_
         .outerjoin(Union, Union.nid == ExamGroup.nid)
         .outerjoin(Paper, Paper.eid == Exam.eid)
         .group_by(Exam.eid)
-        .order_by(Exam.views.desc())
-        .filter(Paper.status == 2)
+        .filter(Paper.status == 1)
     )
+
+    if data.latest:
+        query.order_by(Exam.date.desc(), Exam.views.desc())
+    else:
+        query.order_by(Exam.views.desc())
 
     if data.course is not None:
         query = query.filter(Exam.course == data.course)

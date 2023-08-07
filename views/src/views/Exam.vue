@@ -22,7 +22,7 @@ const preview = reactive({
 const previewFile = (fid, ext, name) => {
     axios
         .get("/list/url", {
-            params: { fid: fid, download: false },
+            params: { fid: fid },
         })
         .then((response) => {
             if (response.data.url) {
@@ -63,26 +63,58 @@ const addCart = (pid) => {
 
 const tableColumns = [
     {
-        title: "标签",
-        key: "comment",
+        title: "上传者",
+        key: "uploader",
         render: (row) => (
-            <div class="flex flex-col gap-y-1">
+            <div class="flex flex-col gap-y-1 justify-center">
                 {row.owner && (
-                    <n-tooltip trigger="hover">
-                        {{
-                            trigger: () => (
-                                <span class="flex items-center gap-x-0.5 text-green-600 mb-1">
-                                    <n-icon component={Ribbon}></n-icon>
-                                    <span>{row.owner}</span>
-                                </span>
-                            ),
-                            default: () => "认证的用户",
-                        }}
-                    </n-tooltip>
+                    <div>
+                        <n-tooltip trigger="hover">
+                            {{
+                                trigger: () => (
+                                    <span class="flex items-center gap-x-0.5 text-green-600 mb-1">
+                                        <n-icon component={Ribbon}></n-icon>
+                                        <span>{row.owner}</span>
+                                    </span>
+                                ),
+                                default: () => "认证的用户",
+                            }}
+                        </n-tooltip>
+                    </div>
                 )}
-                {row.comment.split().map((item) => (
-                    <n-tag type="info">{item}</n-tag>
-                ))}
+                {row.comment && (
+                    <div>
+                        {row.comment.split().map((item) => (
+                            <n-tag type="success">{item}</n-tag>
+                        ))}
+                    </div>
+                )}
+                <div class='text-center'>{row.views} 浏览</div>
+                <div class='flex justify-center mt-2'>
+                    <n-button
+                        circle
+                        secondary
+                        type={cartStore.has(row.pid) ? "error" : "success"}
+                        onClick={
+                            cartStore.has(row.pid)
+                                ? () => delCart(row.pid)
+                                : () => addCart(row.pid)
+                        }
+                    >
+                        {{
+                            icon: () => (
+                                <n-icon
+                                    size="1.2rem"
+                                    component={
+                                        cartStore.has(row.pid)
+                                            ? HeartDislikeOutline
+                                            : HeartOutline
+                                    }
+                                ></n-icon>
+                            ),
+                        }}
+                    </n-button>
+                </div>
             </div>
         ),
     },
@@ -93,7 +125,7 @@ const tableColumns = [
         render: (row) => (
             <div id={row.pid}>
                 <n-collapse default-expanded-names={defaultExpanded}>
-                    <n-collapse-item title="单击展开" name={"#" + row.pid}>
+                    <n-collapse-item title="文件列表" name={"#" + row.pid}>
                         <Suspense>
                             {{
                                 fallback: () => (
@@ -119,39 +151,6 @@ const tableColumns = [
                 </n-collapse>
                 <div class="text-green-600 my-2">共计 {row.fcnt} 个文件</div>
             </div>
-        ),
-    },
-    {
-        title: "访问量",
-        key: "views",
-    },
-    {
-        title: "收藏",
-        key: "views",
-        render: (row) => (
-            <n-button
-                circle
-                secondary
-                type={cartStore.has(row.pid) ? "error" : "success"}
-                onClick={
-                    cartStore.has(row.pid)
-                        ? () => delCart(row.pid)
-                        : () => addCart(row.pid)
-                }
-            >
-                {{
-                    icon: () => (
-                        <n-icon
-                            size="1.2rem"
-                            component={
-                                cartStore.has(row.pid)
-                                    ? HeartDislikeOutline
-                                    : HeartOutline
-                            }
-                        ></n-icon>
-                    ),
-                }}
-            </n-button>
         ),
     },
 ];

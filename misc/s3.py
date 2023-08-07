@@ -29,22 +29,19 @@ def get_presigned_post_url(ext: str, id: str) -> Tuple[str, str]:
     return url, key
 
 
-def get_presigned_get_url(
-    ext: str, id: str, file: str = None, download: bool = False
-) -> str:
+def get_presigned_get_url(ext: str, id: str) -> str:
     key = config["S3_PREFIX"] + "/" + id + "." + ext
     key = key.strip("/")
 
-    filename = file if file else id + "." + ext
-    extra = {"response-content-disposition": "attachment; filename=%s" % filename}
-
-    url = minioClient.get_presigned_url(
-        "GET",
-        config["S3_BUCKET"],
-        key,
-        expires=timedelta(hours=1),
-        response_headers=extra if download else {},
-    )
+    if config["S3_DOMAIN"]:
+        url = config["S3_DOMAIN"] + key
+    else:
+        url = "https://%s/%s/%s/%s" % (
+            config["S3_ENDPOINT"],
+            config["S3_BUCKET"],
+            config["S3_PREFIX"],
+            key,
+        )
 
     return url
 
@@ -80,6 +77,16 @@ def get_file_local(ext: str, id: str):
 
 
 def list_object_hash() -> List[str]:
-    objects = minioClient.list_objects(config["S3_BUCKET"], recursive=True)
+    objects = minioClient.list_objects(
+        config["S3_BUCKET"], prefix=config["S3_PREFIX"] + "/", recursive=True
+    )
     sp = lambda x: os.path.splitext(os.path.split(x)[1])[0]
+    return [sp(obj.object_name) for obj in objects]
+
+
+def list_object_names() -> List[Tuple[str, str]]:
+    objects = minioClient.list_objects(
+        config["S3_BUCKET"], prefix=config["S3_PREFIX"] + "/", recursive=True
+    )
+    sp = lambda x: os.path.splitext(os.path.split(x)[1])
     return [sp(obj.object_name) for obj in objects]

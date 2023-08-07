@@ -31,19 +31,11 @@ const router = createRouter({
                     },
                 },
                 {
-                    path: "reg",
-                    name: "reg",
-                    component: () => import("../views/Reg.vue"),
-                    meta: {
-                        title: "用户注册",
-                    },
-                },
-                {
                     path: "query",
                     name: "query",
                     component: () => import("../views/Query.vue"),
                     meta: {
-                        title: "搜试卷",
+                        title: "搜索",
                     },
                 },
                 {
@@ -51,15 +43,7 @@ const router = createRouter({
                     name: "discover",
                     component: () => import("../views/Discover.vue"),
                     meta: {
-                        title: "探索",
-                    },
-                },
-                {
-                    path: "upload",
-                    name: "upload",
-                    component: () => import("../views/Upload.vue"),
-                    meta: {
-                        title: "传试卷",
+                        title: "热门",
                     },
                 },
                 {
@@ -103,9 +87,17 @@ const router = createRouter({
             component: () => import("../views/Admin.vue"),
             meta: {
                 requiresAuth: true,
-                requiresAdmin: true,
+                requiresAdmin: false,
             },
             children: [
+                {
+                    path: "upload",
+                    name: "upload",
+                    component: () => import("../views/Upload.vue"),
+                    meta: {
+                        title: "上传试卷",
+                    },
+                },
                 {
                     path: "manage",
                     name: "manage",
@@ -120,6 +112,7 @@ const router = createRouter({
                     component: () => import("../views/User.vue"),
                     meta: {
                         title: "用户管理",
+                        requiresAdmin: true,
                     },
                 },
                 {
@@ -128,6 +121,7 @@ const router = createRouter({
                     component: () => import("../views/System.vue"),
                     meta: {
                         title: "系统管理",
+                        requiresAdmin: true,
                     },
                 },
             ],

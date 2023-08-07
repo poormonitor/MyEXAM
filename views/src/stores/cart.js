@@ -10,28 +10,12 @@ export const useCartStore = defineStore(
     () => {
         const cart = ref([]);
 
-        function fetch() {
-            if (userStore.uid) {
-                axios.get("/user/cart").then((response) => {
-                    if (response.data.list) cart.value = response.data.list;
-                });
-            }
-        }
-
-        function update() {
-            if (userStore.uid) {
-                axios.post("/user/cart", { cart: cart.value });
-            }
-        }
-
         function add(pid) {
             cart.value.push(pid);
-            update();
         }
 
         function del(fid) {
             cart.value = cart.value.filter((item) => item !== fid);
-            update();
         }
 
         function has(fid) {
@@ -42,7 +26,7 @@ export const useCartStore = defineStore(
             cart.value = [];
         }
 
-        return { cart, add, del, has, reset, update, fetch };
+        return { cart, add, del, has, reset };
     },
     {
         persist: {

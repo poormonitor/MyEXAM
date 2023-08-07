@@ -7,6 +7,14 @@ const axios = inject("axios");
 const route = useRoute();
 const router = useRouter();
 
+const pagination = reactive({
+    page: 1,
+    pageCount: 0,
+    pageSize: 5,
+});
+const loading = ref(false);
+const ExamGroups = ref([]);
+
 const gotoExamGroup = (egid) => {
     router.push({ name: "examgroup", params: { egid: egid } });
 };
@@ -72,16 +80,41 @@ const data = await axios
         if (response.data.union) return response.data.union;
     });
 
-const tableData = [];
-data.examgroups.forEach((examgroup) => {
-    let eg = Object.assign(examgroup);
-    Object.keys(examgroup.courses).forEach((grade, index) => {
-        eg.e = index;
-        eg.cnt = examgroup.courses.length;
-        eg.grade = grades[grade];
-        eg.courses = examgroup.courses[grade];
-        tableData.push(eg);
+const fetchEgs = async () => {
+    loading.value = true;
+    await axios
+        .get("/list/examgroups", {
+            params: {
+                nid: route.params.nid,
+                page: pagination.page,
+            },
+        })
+        .then((response) => {
+            if (response.data.examgroups) {
+                ExamGroups.value = response.data.examgroups;
+                pagination.pageCount = Math.ceil(
+                    response.data.count / pagination.pageSize
+                );
+                loading.value = false;
+            }
+        });
+};
+
+await fetchEgs();
+
+const tableData = computed(() => {
+    let result = [];
+    ExamGroups.value.forEach((examgroup) => {
+        let eg = Object.assign(examgroup);
+        Object.keys(examgroup.courses).forEach((grade, index) => {
+            eg.e = index;
+            eg.cnt = examgroup.courses.length;
+            eg.grade = grades[grade];
+            eg.courses = examgroup.courses[grade];
+            result.push(eg);
+        });
     });
+    return result;
 });
 </script>
 
@@ -109,6 +142,12 @@ data.examgroups.forEach((examgroup) => {
             class="whitespace-nowrap"
             :data="tableData"
             :columns="tableColumns"
+        />
+        <n-pagination
+            class="justify-end mt-3"
+            v-model:page="pagination.page"
+            :page-count="pagination.pageCount"
+            @update:page="fetchEgs"
         />
     </div>
 </template>

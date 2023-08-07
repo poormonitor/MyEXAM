@@ -1,12 +1,9 @@
 <script setup>
 import { message } from "../discrete";
-import pkg from "../../package.json";
 
 const axios = inject("axios");
-const showVersion = ref(false);
 const ViewVersion = __MYEXAM_VIEW_VERSION__;
 const ApiVersion = ref("");
-const ApiDeps = ref([]);
 const ObjectCnt = ref({
     union: 0,
     examgroup: 0,
@@ -51,20 +48,11 @@ const CleanMissAction = () => {
     });
 };
 
-const UpgradeAction = () => {
-    axios.post("/system/upgrade").then((response) => {
-        if (response.data.result === "success") {
-            message.success("拉取成功，正在更新。");
-        }
-    });
-};
-
 const FetchApiSta = () => {
     axios.get("/system/statistic").then((response) => {
         if (response.data) {
             ObjectCnt.value = response.data.cnt;
             ApiVersion.value = response.data.version;
-            ApiDeps.value = response.data.deps;
             LatestTask.value = response.data.task;
         }
     });
@@ -101,10 +89,16 @@ FetchApiSta();
                                 }}
                             </span>
                         </p>
-                        <p>任务类型: <span>{{ LatestTask.type }}</span></p>
+                        <p>
+                            任务类型: <span>{{ LatestTask.type }}</span>
+                        </p>
                     </div>
                 </n-popover>
             </n-statistic>
+            <div class="flex flex-col justify-end">
+                <p>当前前端构建版本：{{ ViewVersion }}</p>
+                <p>当前后端运行版本：{{ ApiVersion }}</p>
+            </div>
         </div>
     </n-card>
     <div class="flex flex-col gap-y-8">
@@ -134,60 +128,6 @@ FetchApiSta();
                 <div class="flex justify-end">
                     <n-button type="primary" @click="CleanMissAction">
                         清理
-                    </n-button>
-                </div>
-            </template>
-        </n-card>
-        <n-modal v-model:show="showVersion">
-            <n-card
-                class="!my-4 !mx-8 sm:!w-[30rem] sm:!mx-auto"
-                title="依赖版本"
-                :bordered="false"
-                size="huge"
-                role="dialog"
-                aria-modal="true"
-            >
-                <p class="text-lg font-bold mb-2">前端</p>
-                <ul class="mb-2">
-                    <li
-                        class="flex flex-wrap"
-                        v-for="k in Object.keys(pkg.dependencies)"
-                    >
-                        <span>{{ k }}</span>
-                        <span class="ml-auto">{{ pkg.dependencies[k] }}</span>
-                    </li>
-                    <li
-                        class="flex flex-wrap"
-                        v-for="k in Object.keys(pkg.devDependencies)"
-                    >
-                        <span>{{ k }}</span>
-                        <span class="ml-auto">
-                            {{ pkg.devDependencies[k] }}
-                        </span>
-                    </li>
-                </ul>
-                <p class="text-lg font-bold mb-2">后端</p>
-                <ul class="mb-2">
-                    <li class="flex flex-wrap" v-for="item in ApiDeps">
-                        <span>{{ item.name }}</span>
-                        <span class="ml-auto">{{ item.version }}</span>
-                    </li>
-                </ul>
-            </n-card>
-        </n-modal>
-        <n-card title="更新系统">
-            <p>
-                更新MyExam程序文件，并重新构建前端应用。后端可能需要手动重启。
-            </p>
-            <p>当前前端构建版本：{{ ViewVersion }}</p>
-            <p>当前后端运行版本：{{ ApiVersion }}</p>
-            <n-button text @click="showVersion = true" type="success">
-                依赖信息
-            </n-button>
-            <template #action>
-                <div class="flex justify-end">
-                    <n-button type="primary" @click="UpgradeAction">
-                        更新
                     </n-button>
                 </div>
             </template>

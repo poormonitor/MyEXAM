@@ -10,11 +10,13 @@ const data = ref(null);
 const requestForm = reactive({
     course: null,
     grade: null,
+    latest: false,
 });
 
 const resetForm = () => {
     requestForm.course = null;
     requestForm.grade = null;
+    requestForm.latest = false;
 };
 
 const getOptions = (items) =>
@@ -22,6 +24,11 @@ const getOptions = (items) =>
         label: item,
         value: index,
     }));
+
+const latestOpitons = [
+    { label: "最新", value: true },
+    { label: "最热", value: false },
+];
 
 const gotoExam = (eid) => {
     router.push({
@@ -60,20 +67,27 @@ watch(
 
 <template>
     <div class="mx-8 w-auto lg:mx-auto lg:w-[60vw] my-8 overflow-y-hidden">
-        <p class="text-3xl font-bold mb-4">找试卷</p>
+        <p class="text-3xl font-bold mb-4">热门</p>
         <div class="md:w-3/4 lg:2/3 mx-auto mb-4">
             <n-form inline>
-                <n-form-item class="basis-1/2" label="学科">
+                <n-form-item class="basis-1/3" label="学科">
                     <n-select
                         v-model:value="requestForm.course"
                         :options="getOptions(courses)"
                         clearable
                     />
                 </n-form-item>
-                <n-form-item class="basis-1/2" label="年级">
+                <n-form-item class="basis-1/3" label="年级">
                     <n-select
                         v-model:value="requestForm.grade"
                         :options="getOptions(grades)"
+                        clearable
+                    />
+                </n-form-item>
+                <n-form-item class="basis-1/3" label="顺序">
+                    <n-select
+                        v-model:value="requestForm.latest"
+                        :options="latestOpitons"
                         clearable
                     />
                 </n-form-item>

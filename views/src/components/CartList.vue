@@ -27,7 +27,7 @@ const preview = reactive({
 const previewFile = (fid, ext, name) => {
     axios
         .get("/list/url", {
-            params: { fid: fid, download: false },
+            params: { fid: fid },
         })
         .then((response) => {
             if (response.data.url) {
@@ -93,7 +93,7 @@ const tableColumns = [
                     {courses[row.exam.course]}
                 </p>
                 <div>
-                    {row.comment.split().map((item) => (
+                    {row.comment && row.comment.split().map((item) => (
                         <n-tag type="success">{item}</n-tag>
                     ))}
                 </div>

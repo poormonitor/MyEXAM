@@ -1,6 +1,6 @@
 <script setup lang="jsx">
 import { useUserStore } from "../stores/user";
-import { useRouter, useRoute } from "vue-router";
+import { useRouter } from "vue-router";
 import {
     CaretDown,
     LockClosedOutline,
@@ -11,13 +11,12 @@ import PasswordSetter from "./PasswordSetter.vue";
 
 const userStore = useUserStore();
 const router = useRouter();
-const route = useRoute();
 
 const showPasswd = ref(false);
 
 const renderIcon = (icon) => <n-icon component={icon}></n-icon>;
 
-const optionsLogged = [
+const option = [
     {
         label: "修改密码",
         key: "pw",
@@ -35,9 +34,6 @@ const optionsLogged = [
             router.push({ name: "home" });
         },
     },
-];
-
-const optionsAdmin = [
     { type: "divider", key: "d1" },
     {
         label: "后台管理",
@@ -49,14 +45,10 @@ const optionsAdmin = [
     },
 ];
 
-const option = computed(() =>
-    userStore.admin ? optionsLogged.concat(optionsAdmin) : optionsLogged
-);
-
 const user = computed(() => (userStore.uid ? userStore.nick : "登录"));
 
 const handleSelect = (key) => {
-    option.value.find((item) => item.key == key).target();
+    option.find((item) => item.key == key).target();
 };
 </script>
 

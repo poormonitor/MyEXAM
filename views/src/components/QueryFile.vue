@@ -136,12 +136,15 @@ const tableColumns = [
         title: "版本",
         key: "version",
         render: (row) => (
-            <n-tag class="!cursor-pointer" type="info">
-                <div class="flex items-center gap-x-1">
-                    {item.owner && <n-icon component={Ribbon}></n-icon>}
-                    <span>{row.paper.comment}</span>
-                </div>
-            </n-tag>
+            <div class="flex gap-1">
+                <n-tag class="!cursor-pointer" type="info">
+                    {row.paper.owner}
+                </n-tag>
+                {row.paper.comment &&
+                    row.paper.comment
+                        .split()
+                        .map((item) => <n-tag type="info">{item}</n-tag>)}
+            </div>
         ),
         cellProps: cellProps,
     },

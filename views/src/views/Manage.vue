@@ -11,7 +11,7 @@ const loading = ref(true);
 
 const searchInfo = reactive({
     s: "",
-    range: [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()],
+    range: [Date.now() - 1000 * 60 * 60 * 24 * 365, Date.now()],
     grade: null,
     courses: [],
 });
@@ -127,7 +127,7 @@ const tableColumns = [
             <div class="flex flex-col gap-y-1">
                 {row.papers.map((item) => (
                     <n-button
-                        type={item.status === 2 ? "info" : "warning"}
+                        type={item.status === 1 ? "info" : "warning"}
                         size="small"
                         secondary
                         on-click={() => {

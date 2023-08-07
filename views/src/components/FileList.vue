@@ -14,7 +14,21 @@ const downloadFile = (fid) => {
         })
         .then((response) => {
             if (response.data.url) {
-                window.open(response.data.url);
+                axios
+                    .get(response.data.url, { responseType: "blob" })
+                    .then((res) => {
+                        const blob = new Blob([res.data], {
+                            type: res.headers["content-type"],
+                        });
+                        const url = URL.createObjectURL(blob);
+
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = response.data.filename;
+                        a.click();
+
+                        URL.revokeObjectURL(url);
+                    });
             }
         });
 };
@@ -50,9 +64,9 @@ const columns = [
         cellProps: cellProps,
     },
     {
-        title: "上传时间",
-        key: "upload_time",
-        render: (row) => <span>{GetFullTime(row.upload_time)}</span>,
+        title: "类型",
+        key: "type",
+        render: (row) => <span>{file_types[row.type]}</span>,
         cellProps: cellProps,
     },
     {
@@ -61,9 +75,9 @@ const columns = [
         cellProps: cellProps,
     },
     {
-        title: "类型",
-        key: "type",
-        render: (row) => <span>{file_types[row.type]}</span>,
+        title: "上传时间",
+        key: "upload_time",
+        render: (row) => <span>{GetFullTime(row.upload_time)}</span>,
         cellProps: cellProps,
     },
 ];

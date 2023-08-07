@@ -29,17 +29,6 @@ const CurrentPaper = computed(() =>
     ModifyData.value.papers.find((item) => item.pid == props.pid)
 );
 
-const ApprovePaper = () => {
-    axios.post("/manage/approve/paper", { pid: props.pid }).then((response) => {
-        if (response.data.result === "success") {
-            ModifyData.value.papers.find(
-                (item) => item.pid == props.pid
-            ).status = 2;
-            emits("close");
-        }
-    });
-};
-
 const fetchFiles = async () => {
     await axios
         .get("/list/files", { params: { pid: props.pid } })
@@ -96,7 +85,7 @@ const PreviewData = ref({
 const PreviewFile = (fid, ext, name) => {
     axios
         .get("/list/url", {
-            params: { fid: fid, download: false },
+            params: { fid: fid },
         })
         .then((response) => {
             if (response.data.url) {
@@ -339,14 +328,6 @@ await fetchFiles();
         </n-button>
         <n-button type="info" secondary @click="ReOCRPaper" size="small">
             重新OCR
-        </n-button>
-        <n-button
-            type="primary"
-            v-if="CurrentPaper.status === 1"
-            @click="ApprovePaper"
-            size="small"
-        >
-            审核通过
         </n-button>
     </div>
 </template>

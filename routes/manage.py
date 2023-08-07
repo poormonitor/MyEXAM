@@ -7,7 +7,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from misc.s3 import delete_object_from_s3, delete_objects_from_s3
 from models import get_db
 from models.assign import Assign
 from models.exam import Exam
@@ -70,23 +69,6 @@ def perform_ocr_paper(data: ReOCRPaper, db: Session = Depends(get_db)):
         path = os.path.join(current, "..", "misc", "ocr.py")
         subprocess.Popen([sys.executable, path])
 
-    return {"result": "success"}
-
-
-class ApprovePaper(BaseModel):
-    pid: str
-
-
-@router.post("/approve/paper")
-def edit_paper(data: ApprovePaper, db: Session = Depends(get_db)):
-    paper = db.query(Paper).filter_by(pid=data.pid).first()
-
-    if not paper:
-        raise HTTPException(status_code=404, detail="项目未找到。")
-
-    paper.status = 2
-
-    db.commit()
     return {"result": "success"}
 
 
@@ -278,7 +260,6 @@ def delete_paper(data: DeletePaper, db: Session = Depends(get_db)):
     if not paper:
         raise HTTPException(status_code=404, detail="项目未找到。")
 
-    delete_objects_from_s3([(i.fid, i.ext) for i in paper.files])
     db.query(File).filter_by(pid=paper.pid).delete()
     db.delete(paper)
     db.commit()
@@ -296,11 +277,6 @@ def delete_file(data: DeleteFile, db: Session = Depends(get_db)):
     if not file:
         raise HTTPException(status_code=404, detail="项目未找到。")
 
-    try:
-        delete_object_from_s3(file.ext, file.md5)
-    except:
-        pass
-
     db.delete(file)
     db.commit()
 
@@ -317,11 +293,6 @@ def delete_assign(data: DeleteAssign, db: Session = Depends(get_db)):
 
     if not assign:
         raise HTTPException(status_code=404, detail="项目未找到。")
-
-    try:
-        delete_object_from_s3(assign.ext, assign.md5)
-    except:
-        pass
 
     db.delete(assign)
     db.commit()

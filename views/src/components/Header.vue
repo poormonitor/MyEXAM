@@ -27,15 +27,11 @@ const renderLabel = (icon, target, label) => {
 
 const menuOptions = [
     {
-        label: renderLabel(School, "query", "搜试卷"),
+        label: renderLabel(School, "query", "搜索"),
         key: "query",
     },
     {
-        label: renderLabel(CloudUpload, "upload", "传试卷"),
-        key: "upload",
-    },
-    {
-        label: renderLabel(NavigateCircle, "discover", "探索"),
+        label: renderLabel(NavigateCircle, "discover", "热门"),
         key: "discover",
     },
 ];

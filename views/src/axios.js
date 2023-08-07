@@ -1,23 +1,16 @@
 import ax from "axios";
 import { message } from "./discrete";
-import { useTokenStore } from "./stores/token";
 import { useUserStore } from "./stores/user";
 import router from "./router/index";
 
 const instance = ax.create({
     baseURL: import.meta.env.VITE_API_URL,
-    timeout: 5000,
+    timeout: 10000,
 });
 
 instance.interceptors.request.use(
     (config) => {
-        const tokenStore = useTokenStore();
         const userStore = useUserStore();
-
-        if (!tokenStore.token) {
-            tokenStore.createToken();
-            config.headers["X-MyExam-Token"] = tokenStore.token;
-        }
 
         let access_token = userStore.access_token;
 

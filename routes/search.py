@@ -110,7 +110,7 @@ def GetHighlight(text: str, keyword: str):
 
 @router.post("/exam")
 def search_exam(
-    info: SearchExam, admin: bool = Depends(is_admin), db: Session = Depends(get_db)
+    info: SearchExam, db: Session = Depends(get_db)
 ):
     k = info.name.split(" ")
     query = (
@@ -131,7 +131,7 @@ def search_exam(
         )
         .filter(Exam.date >= info.start)
         .filter(Exam.date <= info.end)
-        .filter(Paper.status >= (1 if admin else 2))
+        .filter(Paper.status == 1)
     )
 
     if info.courses:
@@ -174,7 +174,7 @@ def search_file(
         .filter(and_(File.ocr.contains(i) for i in k))
         .filter(Exam.date >= info.start)
         .filter(Exam.date <= info.end)
-        .filter(Paper.status >= (1 if admin else 2))
+        .filter(Paper.status == 1)
     )
 
     if info.courses:

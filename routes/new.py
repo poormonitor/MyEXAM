@@ -9,8 +9,8 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
-from misc.auth import get_user_identity, admin_required
-from misc.s3 import delete_object_from_s3, get_presigned_post_url
+from misc.auth import get_current_user
+from misc.s3 import get_presigned_post_url
 from models import get_db
 from models.assign import Assign
 from models.exam import Exam
@@ -138,7 +138,6 @@ def delete_file(data: DeleteFile, db: Session = Depends(get_db)):
     if not file:
         raise HTTPException(status_code=404, detail="项目未找到。")
 
-    delete_object_from_s3(file.ext, file.md5)
     db.delete(file)
     db.commit()
     return {"result": "success"}
@@ -149,7 +148,7 @@ def confirm_paper(
     data: NewConfirm,
     request: Request,
     db: Session = Depends(get_db),
-    token: Tuple[bool, str] = Depends(get_user_identity),
+    user: str = Depends(get_current_user),
 ):
     paper = db.query(Paper).filter_by(pid=data.pid).first()
 
@@ -159,9 +158,9 @@ def confirm_paper(
     paper.comment = data.comment
     paper.created_at = func.now()
     paper.uploader_ip = request.client.host
-    paper.user_token = token[1]
+    paper.user_token = user
     paper.eid = data.eid
-    paper.status = 2 if token[0] else 1
+    paper.status = 1
 
     files = db.query(File).filter_by(pid=data.pid).all()
     target = {i.fid: i.type for i in data.files}
@@ -170,7 +169,6 @@ def confirm_paper(
             i.type = target[i.fid]
             i.upload_time = func.now()
         else:
-            delete_object_from_s3(i.ext, i.md5)
             db.delete(i)
 
     processing = db.query(Task).count()
@@ -190,7 +188,7 @@ def confirm_paper(
     return {"result": "success"}
 
 
-@router.post("/assign", dependencies=[Depends(admin_required)])
+@router.post("/assign")
 def add_assign(data: NewAssign, db: Session = Depends(get_db)):
     assign = db.query(Assign).filter_by(ext=data.ext).filter_by(md5=data.md5).first()
 

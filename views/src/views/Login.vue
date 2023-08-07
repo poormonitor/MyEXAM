@@ -7,6 +7,7 @@ import { useUserStore } from "../stores/user";
 const userStore = useUserStore();
 const cartStore = useCartStore();
 const router = useRouter();
+const loading = ref(false)
 const axios = inject("axios");
 
 const loginForm = reactive({
@@ -15,6 +16,7 @@ const loginForm = reactive({
 });
 
 const submitLogin = () => {
+    loading.value = true
     axios
         .post("/user/login", {
             email: loginForm.email,
@@ -31,7 +33,7 @@ const submitLogin = () => {
                     payload.admin,
                     payload.exp * 1000
                 );
-                cartStore.fetch();
+                loading.value = true
                 router.push({ name: "home" });
             }
         });
@@ -45,35 +47,14 @@ const submitLogin = () => {
             <p class="text-4xl font-bold">登录</p>
             <n-form size="large" class="mt-10">
                 <n-form-item label="邮箱">
-                    <n-input
-                        :input-props="{ autocomplete: 'email' }"
-                        v-model:value="loginForm.email"
-                    ></n-input>
+                    <n-input :input-props="{ autocomplete: 'email' }" v-model:value="loginForm.email"></n-input>
                 </n-form-item>
                 <n-form-item label="密码">
-                    <n-input
-                        :input-props="{ autocomplete: 'current-password' }"
-                        type="password"
-                        v-model:value="loginForm.passwd"
-                    ></n-input>
+                    <n-input :input-props="{ autocomplete: 'current-password' }" type="password"
+                        v-model:value="loginForm.passwd"></n-input>
                 </n-form-item>
-                <div class="flex justify-center">
-                    <span>
-                        没有账号？去
-                        <router-link
-                            class="text-blue-500 hover:text-blue-700"
-                            :to="{ name: 'reg' }"
-                        >
-                            注册
-                        </router-link>
-                    </span>
-                </div>
                 <div class="flex gap-x-4 justify-center mt-4">
-                    <n-button
-                        class="basis-1/2"
-                        type="primary"
-                        @click="submitLogin"
-                    >
+                    <n-button class="basis-1/2" type="primary" @click="submitLogin" :loading="loading">
                         登录
                     </n-button>
                 </div>

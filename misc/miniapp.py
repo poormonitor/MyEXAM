@@ -68,6 +68,6 @@ def get_miniapp_code(id) -> bytes:
     x, y = im.size
     im = im.resize((128, round(128 * y / x)))
     out = io.BytesIO()
-    im.save(out, quality=60, format='jpeg')
+    im.save(out, quality=70, format='jpeg')
 
     return out.getvalue()

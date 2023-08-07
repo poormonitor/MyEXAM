@@ -34,14 +34,6 @@ class OneExamGroup(BaseModel):
     courses: Dict[int, List[Tuple[int, str]]]
 
 
-class Unions(BaseModel):
-    nid: str
-    name: str
-    views: int
-    member: str
-    examgroups: List[OneExamGroup]
-
-
 class OneExam(BaseModel):
     eid: str
     grade: int
@@ -124,18 +116,7 @@ def get_union(nid: str, db: Session = Depends(get_db)):
     if not union:
         raise HTTPException(status_code=404, detail="项目未找到。")
 
-    examgroups = [
-        OneExamGroup(
-            **vars(i),
-            courses=get_courses(i.exams),
-        )
-        for i in union.examgroups
-    ]
-
-    result = vars(union)
-    del result["examgroups"]
-
-    result = Unions(**result, examgroups=examgroups)
+    result = OneUnion(**vars(union))
 
     union.views += 1
     db.commit()
@@ -143,8 +124,31 @@ def get_union(nid: str, db: Session = Depends(get_db)):
     return {"union": result}
 
 
+@router.get("/examgroups")
+def get_examgroups(nid: str, page: int = 1, db: Session = Depends(get_db)):
+    egs = db.query(ExamGroup).filter_by(nid=nid)
+    if page != 0:
+        egs = egs.limit(5).offset((page - 1) * 5)
+
+    cnt = egs.count()
+    egs = egs.all()
+
+    if not egs:
+        raise HTTPException(status_code=404, detail="项目未找到。")
+
+    examgroups = [
+        OneExamGroup(
+            **vars(i),
+            courses=get_courses(i.exams),
+        )
+        for i in egs
+    ]
+
+    return {"examgroups": examgroups, "count": cnt}
+
+
 @router.get("/examgroup")
-def get_union(egid: str, db: Session = Depends(get_db)):
+def get_examgroup(egid: str, db: Session = Depends(get_db)):
     eg = db.query(ExamGroup).filter_by(egid=egid).first()
 
     if not eg:
@@ -168,14 +172,14 @@ def get_union(egid: str, db: Session = Depends(get_db)):
 
 
 @router.get("/exam")
-def get_exam(eid: str, admin: bool = Depends(is_admin), db: Session = Depends(get_db)):
+def get_exam(eid: str, db: Session = Depends(get_db)):
     query = (
         db.query(Exam, Union, ExamGroup)
         .outerjoin(Paper, Exam.eid == Paper.eid)
         .outerjoin(ExamGroup, ExamGroup.egid == Exam.egid)
         .outerjoin(Union, Union.nid == ExamGroup.nid)
         .filter(Exam.eid == eid)
-        .filter(Paper.status >= (1 if admin else 2))
+        .filter(Paper.status == 1)
         .group_by(Exam.eid)
     )
     result = query.first()
@@ -273,18 +277,18 @@ def get_url(fid: str, db: Session = Depends(get_db)):
 
 
 @router.get("/url")
-def get_url(fid: str, download: Optional[bool] = True, db: Session = Depends(get_db)):
+def get_url(fid: str, db: Session = Depends(get_db)):
     file = db.query(File).filter(File.fid == fid).first()
 
     if not file:
         raise HTTPException(status_code=404, detail="项目未找到。")
 
-    url = get_presigned_get_url(file.ext, file.md5, file.name, download)
+    url = get_presigned_get_url(file.ext, file.md5)
 
     file.views += 1
     db.commit()
 
-    return {"url": url}
+    return {"url": url, "filename": file.name}
 
 
 @router.get("/assigns")

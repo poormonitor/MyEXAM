@@ -6,8 +6,8 @@ from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from config import get_dependencies, get_version
-from misc.s3 import delete_objects_from_s3, list_object_hash
+from config import get_version
+from misc.s3 import delete_objects_from_s3, list_object_names
 from models import get_db
 from models.assign import Assign
 from models.exam import Exam
@@ -31,11 +31,9 @@ def clean_paper(db: Session = Depends(get_db)):
     )
 
     files = db.query(File).filter(~File.pid.in_(db.query(Paper.pid)))
-    delete_objects_from_s3([(i.md5, i.ext) for i in files.all()])
     files.delete(synchronize_session="fetch")
 
     assigns = db.query(Assign).filter(~Assign.egid.in_(db.query(ExamGroup.egid)))
-    delete_objects_from_s3([(i.md5, i.ext) for i in assigns.all()])
     assigns.delete(synchronize_session="fetch")
 
     db.commit()
@@ -58,11 +56,9 @@ def clean_isolate(db: Session = Depends(get_db)):
     )
 
     files = db.query(File).filter(~File.pid.in_(db.query(Paper.pid)))
-    delete_objects_from_s3([(i.md5, i.ext) for i in files.all()])
     files.delete(synchronize_session="fetch")
 
     assigns = db.query(Assign).filter(~Assign.egid.in_(db.query(ExamGroup.egid)))
-    delete_objects_from_s3([(i.md5, i.ext) for i in assigns.all()])
     assigns.delete(synchronize_session="fetch")
 
     db.commit()
@@ -72,10 +68,23 @@ def clean_isolate(db: Session = Depends(get_db)):
 
 @router.post("/miss")
 def clean_miss(db: Session = Depends(get_db)):
-    hash = list_object_hash()
+    names = list_object_names()
 
+    hashes = list(map(lambda x: x[0], names))
     db.query(File).filter(~File.md5.in_(hash)).delete(synchronize_session="fetch")
     db.query(Assign).filter(~Assign.md5.in_(hash)).delete(synchronize_session="fetch")
+
+    files = db.query(File.md5).all()
+    assigns = db.query(Assign.md5).all()
+
+    hashes = [i[0] for i in files + assigns]
+    delete_list = []
+
+    for i in names:
+        if i[0] not in hashes:
+            delete_list.append(i)
+
+    delete_objects_from_s3(delete_list)
 
     db.commit()
 
@@ -106,22 +115,5 @@ def get_statistic(db: Session = Depends(get_db)):
             "task": task,
         },
         "version": get_version(),
-        "deps": get_dependencies(),
         "task": latest_task,
     }
-
-
-@router.post("/upgrade")
-def upgrade_server():
-    path = os.path.join(os.path.dirname(__file__), "..")
-
-    cmd = "git pull"
-    subprocess.run(cmd, cwd=path, shell=True)
-
-    cmd = [sys.executable, "-m", "alembic", "upgrade", "head"]
-    subprocess.Popen(cmd, cwd=path)
-
-    cmd = "yarn build"
-    subprocess.Popen(cmd, cwd=os.path.join(path, "views"), shell=True)
-
-    return {"result": "success"}

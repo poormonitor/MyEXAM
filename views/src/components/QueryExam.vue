@@ -128,10 +128,8 @@ const tableColumns = [
                         onClick={() => gotoPaper(row.eid, item.pid)}
                     >
                         <div class="flex items-center gap-x-1">
-                            {item.owner && <n-icon component={Ribbon}></n-icon>}
-                            <span>
-                                {item.comment} ({item.fcnt})
-                            </span>
+                            <span>{item.owner}</span>
+                            {item.comment && <span>({item.comment})</span>}
                         </div>
                     </n-tag>
                 ))}

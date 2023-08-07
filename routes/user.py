@@ -71,29 +71,6 @@ def token(data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get
     return UserToken(access_token=token)
 
 
-@router.post("/reg", tags=["user"])
-def register(
-    data: UserRegister,
-    db: Session = Depends(get_db),
-    settings: Settings = Depends(get_config),
-):
-    if not settings.REGISTER:
-        raise HTTPException(status_code=400, detail="当前不允许注册。")
-
-    current = db.query(User).filter_by(email=data.email).count()
-    if current > 0:
-        raise HTTPException(status_code=400, detail="邮箱已经注册。")
-
-    hashed = hash_passwd(data.password)
-    new_user = User(email=data.email, passwd=hashed, nick=data.nick)
-
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-
-    return {"result": "success"}
-
-
 @router.post("/passwd", tags=["user"])
 def passwd(
     data: UserPasswd,
