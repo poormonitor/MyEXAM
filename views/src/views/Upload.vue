@@ -66,6 +66,7 @@ const fetchExamGroups = () => {
         .get("/list/examgroups", {
             params: {
                 nid: uploadInfo.nid,
+                page: 0,
             },
         })
         .then((response) => {
@@ -141,6 +142,7 @@ const createNewExam = async () => {
 };
 
 const createNewPaper = async () => {
+    uploadInfo.pid = true;
     uploadInfo.pid = await axios.post("/new/paper").then((response) => {
         if (response.data.pid) return response.data.pid;
     });
@@ -261,6 +263,7 @@ const newExamGroupDialog = () => {
 const CustomUpload = async (options) => {
     if (!uploadInfo.pid) await createNewPaper();
     if (options.file.file.size > 20 * 1024 * 1024) return false;
+    console.log(options);
     uploadInfo.files.push({
         id: options.file.id,
         name: options.file.name,
