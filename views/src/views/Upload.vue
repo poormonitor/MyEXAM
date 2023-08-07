@@ -141,10 +141,9 @@ const createNewExam = async () => {
         });
 };
 
-const createNewPaper = async () => {
-    uploadInfo.pid = true;
-    uploadInfo.pid = await axios.post("/new/paper").then((response) => {
-        if (response.data.pid) return response.data.pid;
+const createNewPaper = () => {
+    axios.post("/new/paper").then((response) => {
+        if (response.data.pid) uploadInfo.pid = response.data.pid;
     });
 };
 
@@ -261,7 +260,6 @@ const newExamGroupDialog = () => {
 };
 
 const CustomUpload = async (options) => {
-    if (!uploadInfo.pid) await createNewPaper();
     if (options.file.file.size > 20 * 1024 * 1024) return false;
     console.log(options);
     uploadInfo.files.push({
@@ -372,6 +370,7 @@ const ConfirmUpload = async () => {
             if (response.data.result == "success") {
                 confirming.value = false;
                 fetchUnions();
+                createNewPaper();
                 fetchExamGroups();
                 dialog.success({
                     title: "成功",
@@ -511,6 +510,7 @@ const tableData = computed(() => {
 });
 
 fetchUnions();
+createNewPaper();
 </script>
 
 <template>

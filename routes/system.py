@@ -71,8 +71,8 @@ def clean_miss(db: Session = Depends(get_db)):
     names = list_object_names()
 
     hashes = list(map(lambda x: x[0], names))
-    db.query(File).filter(~File.md5.in_(hash)).delete(synchronize_session="fetch")
-    db.query(Assign).filter(~Assign.md5.in_(hash)).delete(synchronize_session="fetch")
+    db.query(File).filter(~File.md5.in_(hashes)).delete(synchronize_session="fetch")
+    db.query(Assign).filter(~Assign.md5.in_(hashes)).delete(synchronize_session="fetch")
 
     files = db.query(File.md5).all()
     assigns = db.query(Assign.md5).all()
