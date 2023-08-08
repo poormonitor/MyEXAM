@@ -17,6 +17,5 @@ class Paper(Base):
     uploader_ip = Column(String(128))
     user_token = Column(String(36))
     views = Column(Integer, default=0)
-    status = Column(Integer, default=False)
 
     files = relationship("File")

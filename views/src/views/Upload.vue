@@ -19,7 +19,6 @@ const uploadInfo = reactive({
     nid: null,
     egid: null,
     eid: null,
-    pid: null,
     comment: "",
     files: [],
     date: Date.now(),
@@ -139,12 +138,6 @@ const createNewExam = async () => {
         .then((response) => {
             if (response.data.eid) return response.data.eid;
         });
-};
-
-const createNewPaper = () => {
-    axios.post("/new/paper").then((response) => {
-        if (response.data.pid) uploadInfo.pid = response.data.pid;
-    });
 };
 
 const newUnionDialog = () => {
@@ -271,7 +264,6 @@ const CustomUpload = async (options) => {
     axios
         .post("/new/file", {
             name: options.file.name,
-            pid: uploadInfo.pid,
             md5: await blobToHash(options.file.file),
         })
         .catch(() => SetFailedUpload(options))
@@ -355,9 +347,8 @@ const ConfirmUpload = async () => {
     if (uploadInfo.egid === "create") await createNewExamGroup();
     await createNewExam();
     axios
-        .post("/new/confirm", {
+        .post("/new/paper", {
             eid: uploadInfo.eid,
-            pid: uploadInfo.pid,
             comment: uploadInfo.comment,
             files: uploadInfo.files
                 .filter((item) => item.status === 2)
@@ -370,7 +361,6 @@ const ConfirmUpload = async () => {
             if (response.data.result == "success") {
                 confirming.value = false;
                 fetchUnions();
-                createNewPaper();
                 fetchExamGroups();
                 dialog.success({
                     title: "成功",
@@ -510,7 +500,6 @@ const tableData = computed(() => {
 });
 
 fetchUnions();
-createNewPaper();
 </script>
 
 <template>

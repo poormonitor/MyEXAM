@@ -21,26 +21,6 @@ from models.user import User
 router = APIRouter()
 
 
-@router.post("/clean")
-def clean_paper(db: Session = Depends(get_db)):
-    (
-        db.query(Paper)
-        .filter(Paper.status == 0)
-        .filter(Paper.created_at <= datetime.now() - timedelta(hours=1))
-        .delete()
-    )
-
-    files = db.query(File).filter(~File.pid.in_(db.query(Paper.pid)))
-    files.delete(synchronize_session="fetch")
-
-    assigns = db.query(Assign).filter(~Assign.egid.in_(db.query(ExamGroup.egid)))
-    assigns.delete(synchronize_session="fetch")
-
-    db.commit()
-
-    return {"result": "success"}
-
-
 @router.post("/isolate")
 def clean_isolate(db: Session = Depends(get_db)):
     db.query(ExamGroup).filter(~ExamGroup.nid.in_(db.query(Union.nid))).delete(
@@ -55,11 +35,15 @@ def clean_isolate(db: Session = Depends(get_db)):
         synchronize_session="fetch"
     )
 
-    files = db.query(File).filter(~File.pid.in_(db.query(Paper.pid)))
-    files.delete(synchronize_session="fetch")
+    db.query(File).filter(File.pid == None).delete(synchronize_session="fetch")
 
-    assigns = db.query(Assign).filter(~Assign.egid.in_(db.query(ExamGroup.egid)))
-    assigns.delete(synchronize_session="fetch")
+    db.query(File).filter(~File.pid.in_(db.query(Paper.pid))).delete(
+        synchronize_session="fetch"
+    )
+
+    db.query(Assign).filter(~Assign.egid.in_(db.query(ExamGroup.egid))).delete(
+        synchronize_session="fetch"
+    )
 
     db.commit()
 

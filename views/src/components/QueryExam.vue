@@ -35,8 +35,9 @@ const getOptions = (items) =>
     }));
 
 const goQuery = () => {
+    if (!searchInfo.s) return;
     loading.value = true;
-    if (searchInfo.s) router.push({ query: { s: searchInfo.s, t: "exam" } });
+    router.push({ query: { s: searchInfo.s, t: 0, p: pagination.page } });
     axios
         .post("/search/exam", {
             name: searchInfo.s,

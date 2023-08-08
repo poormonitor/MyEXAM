@@ -55,7 +55,6 @@ class OnePaper(BaseModel):
     comment: str
     views: int
     created_at: datetime
-    status: int
     fcnt: int
     owner: str
 
@@ -131,7 +130,6 @@ def search_exam(
         )
         .filter(Exam.date >= info.start)
         .filter(Exam.date <= info.end)
-        .filter(Paper.status == 1)
     )
 
     if info.courses:
@@ -174,7 +172,6 @@ def search_file(
         .filter(and_(File.ocr.contains(i) for i in k))
         .filter(Exam.date >= info.start)
         .filter(Exam.date <= info.end)
-        .filter(Paper.status == 1)
     )
 
     if info.courses:

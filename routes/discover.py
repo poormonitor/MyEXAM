@@ -51,7 +51,6 @@ def discover_exams(data: Optional[SearchInfo] = None, db: Session = Depends(get_
         .outerjoin(Union, Union.nid == ExamGroup.nid)
         .outerjoin(Paper, Paper.eid == Exam.eid)
         .group_by(Exam.eid)
-        .filter(Paper.status == 1)
     )
 
     if data.latest:

@@ -10,6 +10,7 @@ const loading = ref(true);
 const UserKeyword = ref(null);
 const CurrentUID = ref(null);
 const ShowModify = ref(false);
+const ShowNewUser = ref(false);
 
 const pagination = reactive({
     page: 1,
@@ -68,6 +69,7 @@ const tableColumns = [
                             删除用户
                         </n-button>
                     ),
+                    default: () => "确认删除？",
                 }}
             </n-popconfirm>
         ),
@@ -125,15 +127,19 @@ fetchData();
 </script>
 
 <template>
+    <NewUser v-model:show="ShowNewUser" @finish="fetchData" />
     <PasswordModify :uid="CurrentUID" v-model:show="ShowModify" />
     <p class="text-3xl font-bold pb-4 pt-2">用户管理</p>
     <div>
-        <div class="flex gap-x-4 mx-8 md:mx-auto md:w-1/2 lg:w-1/3 mb-6">
+        <div class="flex gap-x-4 mx-8 md:mx-auto md:w-1/2 lg:w-2/5 mb-6">
             <n-input
                 @keyup.enter="fetchData"
                 v-model:value="UserKeyword"
             ></n-input>
-            <n-button @click="fetchData">过滤</n-button>
+            <n-button type="info" @click="fetchData">过滤</n-button>
+            <n-button type="primary" @click="ShowNewUser = true"
+                >添加用户</n-button
+            >
         </div>
         <n-data-table
             :data="data"

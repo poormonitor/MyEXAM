@@ -59,15 +59,6 @@ class ExamGroups(BaseModel):
     assigns: List[OneAssign]
 
 
-class OnePaper(BaseModel):
-    pid: str
-    comment: str
-    views: int
-    fcnt: int
-    owner: str
-    created_at: datetime
-
-
 class OneFile(BaseModel):
     fid: str
     name: str
@@ -89,8 +80,17 @@ class Papers(BaseModel):
     comment: str
     views: int
     owner: str
-    files: List[OneFile]
     created_at: datetime
+    files: List[OneFile]
+
+
+class OnePaper(BaseModel):
+    pid: str
+    comment: str
+    views: int
+    owner: str
+    created_at: datetime
+    files: List[OneFile]
 
 
 class Exams(BaseModel):
@@ -179,7 +179,6 @@ def get_exam(eid: str, db: Session = Depends(get_db)):
         .outerjoin(ExamGroup, ExamGroup.egid == Exam.egid)
         .outerjoin(Union, Union.nid == ExamGroup.nid)
         .filter(Exam.eid == eid)
-        .filter(Paper.status == 1)
         .group_by(Exam.eid)
     )
     result = query.first()
@@ -191,7 +190,11 @@ def get_exam(eid: str, db: Session = Depends(get_db)):
     union = OneUnion(**vars(result[1]))
     examgroup = OneExamGroup(**vars(result[2]), courses=get_courses(result[2].exams))
     papers = [
-        OnePaper(**vars(i), fcnt=len(i.files), owner=get_owner(i.user_token, db))
+        OnePaper(
+            **vars(i),
+            files=[OneFile(**vars(j)) for j in i.files],
+            owner=get_owner(i.user_token, db),
+        )
         for i in exam.papers
     ]
 
@@ -244,7 +247,9 @@ def get_paper(pid: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="项目未找到。")
 
     data = OnePaper(
-        **vars(paper), fcnt=len(paper.files), owner=get_owner(paper.user_token, db)
+        **vars(paper),
+        files=[OneFile(**vars(j)) for j in paper.files],
+        owner=get_owner(paper.user_token, db),
     )
 
     paper.views += 1

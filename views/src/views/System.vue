@@ -24,14 +24,6 @@ const StaColumns = [
     { name: "任务", key: "task", unit: "个" },
 ];
 
-const CleanAction = () => {
-    axios.post("/system/clean").then((response) => {
-        if (response.data.result === "success") {
-            message.success("清理成功。");
-        }
-    });
-};
-
 const CleanIsolateAction = () => {
     axios.post("/system/isolate").then((response) => {
         if (response.data.result === "success") {
@@ -102,18 +94,8 @@ FetchApiSta();
         </div>
     </n-card>
     <div class="flex flex-col gap-y-8">
-        <n-card title="清理未完成试卷">
-            清理系统中用户创建但没有完成上传的试卷。
-            <template #action>
-                <div class="flex justify-end">
-                    <n-button type="primary" @click="CleanAction">
-                        清理
-                    </n-button>
-                </div>
-            </template>
-        </n-card>
         <n-card title="清理孤立项目">
-            清理系统中孤立的项目，包括考试、试卷和文件。
+            清理系统中孤立的项目，包括考试、试卷和文件，以及清理系统中用户创建但没有完成上传的试卷。
             <template #action>
                 <div class="flex justify-end">
                     <n-button type="primary" @click="CleanIsolateAction">

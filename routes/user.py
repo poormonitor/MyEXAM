@@ -26,12 +26,6 @@ class UserToken(BaseModel):
     token_type: str = "bearer"
 
 
-class UserRegister(BaseModel):
-    email: str
-    nick: str
-    password: str
-
-
 class UserPasswd(BaseModel):
     old: str
     new: str

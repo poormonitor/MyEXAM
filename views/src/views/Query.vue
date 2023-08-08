@@ -3,17 +3,17 @@ import { useRoute } from "vue-router";
 
 const route = useRoute();
 
-const currentTab = ref("exam");
-if (["exam", "file"].includes(route.query.t)) currentTab.value = route.query.t;
+const currentTab = ref("0");
+if (route.query.t) currentTab.value = route.query.t;
 </script>
 
 <template>
     <div class="mt-8 flex flex-col items-center md:mt-10">
         <n-tabs type="segment" v-model:value="currentTab">
-            <n-tab-pane name="exam" tab="搜索考试">
+            <n-tab-pane name="0" tab="搜索考试">
                 <QueryExam />
             </n-tab-pane>
-            <n-tab-pane name="file" tab="搜索文件">
+            <n-tab-pane name="1" tab="搜索文件">
                 <QueryFile />
             </n-tab-pane>
         </n-tabs>

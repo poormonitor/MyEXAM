@@ -63,8 +63,8 @@ const addCart = (pid) => {
 
 const tableColumns = [
     {
-        title: "上传者",
-        key: "uploader",
+        title: "试卷",
+        key: "paper",
         render: (row) => (
             <div class="flex flex-col gap-y-1">
                 {row.owner && (
@@ -126,7 +126,7 @@ const tableColumns = [
             <div id={row.pid}>
                 <n-collapse default-expanded-names={defaultExpanded}>
                     <n-collapse-item
-                        title={"共计 " + row.fcnt + " 个文件"}
+                        title={"共计 " + row.files.length + " 个文件"}
                         name={"#" + row.pid}
                     >
                         <Suspense>
@@ -145,7 +145,7 @@ const tableColumns = [
                                 default: () => (
                                     <FileList
                                         onPreview={previewFile}
-                                        pid={row.pid}
+                                        data={row.files}
                                     />
                                 ),
                             }}
@@ -166,8 +166,8 @@ onMounted(() => {
 await fetchExam();
 
 const defaultExpanded = route.hash
-    ? route.hash
-    : "#" + (showData.value.papers.length ? showData.value.papers[0].pid : "");
+    ? [route.hash]
+    : "#" + showData.value.papers.map(item => item.pid);
 </script>
 
 <template>

@@ -2,7 +2,7 @@ import os
 import subprocess
 import sys
 from datetime import date
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
@@ -44,7 +44,7 @@ class NewExam(BaseModel):
 class NewFile(BaseModel):
     md5: str
     name: str
-    pid: str
+    pid: Optional[str] = None
 
 
 class DeleteFile(BaseModel):
@@ -56,8 +56,7 @@ class ConfirmFile(BaseModel):
     type: int
 
 
-class NewConfirm(BaseModel):
-    pid: str
+class NewPaper(BaseModel):
     eid: str
     comment: str
 
@@ -104,25 +103,22 @@ def new_exam(data: NewExam, db: Session = Depends(get_db)):
     return {"result": "success", "eid": new_exam.eid}
 
 
-@router.post("/paper")
-def new_paper(db: Session = Depends(get_db)):
-    new_paper = Paper()
-    db.add(new_paper)
-    db.commit()
-    db.refresh(new_paper)
-    return {"result": "success", "pid": new_paper.pid}
-
-
 @router.post("/file")
 def new_file(data: NewFile, db: Session = Depends(get_db)):
     ext = os.path.splitext(data.name)[1].replace(".", "")
-
-    file = db.query(File).filter_by(ext=ext).filter_by(md5=data.md5).first()
 
     new_file = File(**vars(data), ext=ext)
     db.add(new_file)
     db.commit()
     db.refresh(new_file)
+
+    file = (
+        db.query(File)
+        .filter(File.pid != None)
+        .filter_by(ext=ext)
+        .filter_by(md5=data.md5)
+        .first()
+    )
 
     if file:
         return {"result": "exists", "fid": new_file.fid}
@@ -143,49 +139,47 @@ def delete_file(data: DeleteFile, db: Session = Depends(get_db)):
     return {"result": "success"}
 
 
-@router.post("/confirm")
-def confirm_paper(
-    data: NewConfirm,
+@router.post("/paper")
+def new_paper(
+    data: NewPaper,
     request: Request,
     db: Session = Depends(get_db),
     user: str = Depends(get_current_user),
 ):
-    paper = db.query(Paper).filter_by(pid=data.pid).first()
+    paper = Paper(
+        comment=data.comment,
+        created_at=func.now(),
+        uploader_ip=request.client.host,
+        user_token=user,
+        eid=data.eid,
+    )
+    db.add(paper)
+    db.commit()
+    db.refresh(paper)
 
-    if not paper:
-        raise HTTPException(status_code=404, detail="项目未找到。")
-
-    paper.comment = data.comment
-    paper.created_at = func.now()
-    paper.uploader_ip = request.client.host
-    paper.user_token = user
-    paper.eid = data.eid
-    paper.status = 1
-
-    files = db.query(File).filter_by(pid=data.pid).all()
     target = {i.fid: i.type for i in data.files}
-    for i in files:
-        if i.fid in target:
-            i.type = target[i.fid]
-            i.upload_time = func.now()
+    for i in target.keys():
+        file = db.query(File).filter_by(fid=i).first()
+        if file:
+            file.pid = paper.pid
+            file.type = target[i]
+            file.upload_time = func.now()
 
             same = (
                 db.query(File)
-                .filter(File.md5 == i.md5)
+                .filter(File.md5 == file.md5)
                 .filter(File.ocr != None)
-                .filter(File.fid != i.fid)
+                .filter(File.fid != i)
                 .order_by(File.upload_time.desc())
                 .first()
             )
+
             if same:
-                i.ocr = same.ocr
+                file.ocr = same.ocr
             else:
-                task = Task(type="ocr", data=i.fid)
+                task = Task(type="ocr", data=i)
                 db.add(task)
 
-        else:
-            db.delete(i)
-    
     db.commit()
 
     processing = db.query(Task).count()

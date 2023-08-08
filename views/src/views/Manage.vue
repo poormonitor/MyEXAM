@@ -127,7 +127,7 @@ const tableColumns = [
             <div class="flex flex-col gap-y-1">
                 {row.papers.map((item) => (
                     <n-button
-                        type={item.status === 1 ? "info" : "warning"}
+                        type="info"
                         size="small"
                         secondary
                         on-click={() => {

@@ -31,6 +31,12 @@ class SwitchAdmin(BaseModel):
     admin: bool
 
 
+class UserRegister(BaseModel):
+    email: str
+    nick: str
+    password: str
+
+
 @router.get("/list")
 def list_users(s: str = "", page: int = 0, db: Session = Depends(get_db)):
     query = db.query(User).filter(or_(User.nick.contains(s), User.email.contains(s)))
@@ -72,4 +78,23 @@ def switch_admin(data: SwitchAdmin, db: Session = Depends(get_db)):
 
     user.admin = data.admin
     db.commit()
+    return {"result": "success"}
+
+
+@router.post("/new", tags=["user"])
+def new_user(
+    data: UserRegister,
+    db: Session = Depends(get_db),
+):
+    current = db.query(User).filter_by(email=data.email).count()
+    if current > 0:
+        raise HTTPException(status_code=400, detail="邮箱已经注册。")
+
+    hashed = hash_passwd(data.password)
+    new_user = User(email=data.email, passwd=hashed, nick=data.nick)
+
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
     return {"result": "success"}

@@ -1,9 +1,9 @@
 <script setup lang="jsx">
 import { GetFullTime } from "../func";
 import { file_types } from "../const";
-import { OpenOutline, CloudDownloadOutline } from "@vicons/ionicons5";
+import { OpenOutline } from "@vicons/ionicons5";
 
-const props = defineProps(["pid", "data"]);
+const props = defineProps(["data"]);
 const emits = defineEmits(["preview"]);
 const axios = inject("axios");
 
@@ -81,14 +81,6 @@ const columns = [
         cellProps: cellProps,
     },
 ];
-
-const data = props.data
-    ? props.data
-    : await axios
-          .get("/list/files", { params: { pid: props.pid } })
-          .then((response) => {
-              if (response.data.list) return response.data.list;
-          });
 </script>
 
 <template>
@@ -96,6 +88,6 @@ const data = props.data
         class="whitespace-nowrap"
         size="small"
         :columns="columns"
-        :data="data"
+        :data="props.data"
     />
 </template>

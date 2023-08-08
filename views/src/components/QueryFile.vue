@@ -35,8 +35,9 @@ const getOptions = (items) =>
     }));
 
 const goQuery = () => {
+    if (!searchInfo.s) return;
     loading.value = true;
-    if (searchInfo.s) router.push({ query: { s: searchInfo.s, t: "file" } });
+    router.push({ query: { s: searchInfo.s, t: 1, p: pagination.page } });
     axios
         .post("/search/file", {
             s: searchInfo.s,
@@ -141,9 +142,11 @@ const tableColumns = [
                     {row.paper.owner}
                 </n-tag>
                 {row.paper.comment &&
-                    row.paper.comment
-                        .split()
-                        .map((item) => <n-tag type="info">{item}</n-tag>)}
+                    row.paper.comment.split().map((item) => (
+                        <n-tag class="!cursor-pointer" type="info">
+                            {item}
+                        </n-tag>
+                    ))}
             </div>
         ),
         cellProps: cellProps,
