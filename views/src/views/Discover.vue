@@ -10,13 +10,13 @@ const data = ref(null);
 const requestForm = reactive({
     course: null,
     grade: null,
-    latest: false,
+    latest: 0,
 });
 
 const resetForm = () => {
     requestForm.course = null;
     requestForm.grade = null;
-    requestForm.latest = false;
+    requestForm.latest = 0;
 };
 
 const getOptions = (items) =>
@@ -26,8 +26,8 @@ const getOptions = (items) =>
     }));
 
 const latestOpitons = [
-    { label: "最新", value: true },
-    { label: "最热", value: false },
+    { label: "最新", value: 1 },
+    { label: "最热", value: 0 },
 ];
 
 const gotoExam = (eid) => {
@@ -51,10 +51,7 @@ watch(
     () => {
         data.value = null;
         axios
-            .post("/discover/exams", {
-                course: requestForm.course,
-                grade: requestForm.grade,
-            })
+            .post("/discover/exams", requestForm)
             .then((response) => {
                 if (response.data.list) {
                     data.value = response.data.list;

@@ -64,7 +64,7 @@ const menuOptions = [
         <div class="pl-3 select-none flex items-baseline">
             <router-link
                 :to="{ name: 'home' }"
-                class="font-sans text-2xl font-bold gradient-title from-indigo-600 via-violet-500 to-purple-400"
+                class="font-sans text-2xl font-bold gradient-title from-cyan-500 via-sky-600 to-blue-800"
             >
                 MyExam
             </router-link>

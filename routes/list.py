@@ -325,3 +325,21 @@ def get_assign_url(aid: str, db: Session = Depends(get_db)):
     db.commit()
 
     return {"url": url}
+
+
+@router.get("/statistic")
+def get_statistic(db: Session = Depends(get_db)):
+    union = db.query(Union).count()
+    examgroup = db.query(ExamGroup).count()
+    exam = db.query(Exam).count()
+    paper = db.query(Paper).count()
+    file = db.query(File).count()
+    assign = db.query(Assign).count()
+
+    return {
+        "union": union,
+        "examgroup": examgroup,
+        "exam": exam,
+        "paper": paper,
+        "file": file + assign,
+    }

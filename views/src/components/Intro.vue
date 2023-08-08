@@ -3,9 +3,7 @@ import Card from "./Card.vue";
 </script>
 
 <template>
-    <div
-        class="md:mx-auto md:w-[90vw] xl:w-[70vw] grid grid-cols-1 md:grid-cols-3 gap-x-2 gap-y-4"
-    >
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-x-2 gap-y-4">
         <Card title="一站式">
             <template #content>
                 MyEXAM
@@ -14,8 +12,8 @@ import Card from "./Card.vue";
         </Card>
         <Card title="免登录">
             <template #content>
-                和其他的竞品不同，MyEXAM
-                不需要注册和登录即可上传和下载，让用户无障碍使用。
+                和其他的竞品不同，MyEXAM 不需要注册和登录即可下载，免去下载 App
+                的烦恼。
             </template>
         </Card>
         <Card title="共享化">

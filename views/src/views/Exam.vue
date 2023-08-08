@@ -167,7 +167,7 @@ await fetchExam();
 
 const defaultExpanded = route.hash
     ? [route.hash]
-    : "#" + showData.value.papers.map(item => item.pid);
+    : showData.value.papers.map(item => "#" + item.pid);
 </script>
 
 <template>
