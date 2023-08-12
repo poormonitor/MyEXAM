@@ -1,0 +1,70 @@
+{
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "MyEXAM"
+			}
+		}, {
+			"path": "pages/search/search",
+			"style": {
+				"navigationBarTitleText": "搜索"
+			}
+		}, {
+			"path": "pages/examgroup/examgroup",
+			"style": {
+				"navigationBarTitleText": "联考"
+			}
+		}, {
+			"path": "pages/exam/exam",
+			"style": {
+				"navigationBarTitleText": "考试"
+			}
+		}, {
+			"path": "pages/union/union",
+			"style": {
+				"navigationBarTitleText": "联盟"
+			}
+		}, {
+			"path": "pages/jump/jump",
+			"style": {
+				"navigationBarTitleText": "跳转"
+			}
+		}, {
+			"path": "pages/carts/carts",
+			"style": {
+				"navigationBarTitleText": "收藏",
+				"enablePullDownRefresh": true
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "white",
+		"navigationBarTitleText": "MyEXAM",
+		"navigationBarBackgroundColor": "#7f0f1d",
+		"backgroundColor": "#ffffff"
+	},
+	"tabBar": {
+		"color": "#46484b",
+		"selectedColor": "#7f0f1d",
+		"borderStyle": "black",
+		"backgroundColor": "#ffffff",
+		"list": [{
+			"pagePath": "pages/index/index",
+			"iconPath": "static/icons8-home-48.png",
+			"selectedIconPath": "static/icons8-home-48-hl.png",
+			"text": "主页"
+		}, {
+			"pagePath": "pages/search/search",
+			"iconPath": "static/icons8-search-48.png",
+			"selectedIconPath": "static/icons8-search-48-hl.png",
+			"text": "搜索"
+		}, {
+			"pagePath": "pages/carts/carts",
+			"iconPath": "static/icons8-star-48.png",
+			"selectedIconPath": "static/icons8-star-48-hl.png",
+			"text": "收藏"
+		}]
+	},
+	"uniIdRouter": {}
+}
