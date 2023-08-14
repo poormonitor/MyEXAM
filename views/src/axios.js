@@ -4,7 +4,7 @@ import { useUserStore } from "./stores/user";
 import router from "./router/index";
 
 const instance = ax.create({
-    baseURL: import.meta.env.VITE_API_URL,
+    baseURL: "/api",
     timeout: 10000,
 });
 
