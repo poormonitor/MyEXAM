@@ -25,6 +25,21 @@ def get_owner(uid: str, db: Session):
     return owner.nick if owner else None
 
 
+def create_admin():
+    from hashlib import sha256
+    from misc.auth import hash_passwd
+    from models.user import User
+    from models import get_db
+
+    db = list(get_db())[0]
+    admin = db.query(User).filter_by(admin=True).count()
+    if not admin:
+        passwd = hash_passwd(sha256("admin".encode("utf-8")).hexdigest())
+        admin = User(email="root@localhost", nick="管理员", passwd=passwd, admin=True)
+        db.add(admin)
+        db.commit()
+
+
 model_map = {
     "exam": [Exam, "eid"],
     "examgroup": [ExamGroup, "egid"],

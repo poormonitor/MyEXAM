@@ -56,6 +56,9 @@ const submitRequest = () => {
                 .then((respoelse) => {
                     if (respoelse.data.result == "success") {
                         visible.value = false;
+                        passwdSet.old = "";
+                        passwdSet.new = "";
+                        passwdSet.repeat = "";
                         message.success("密码修改成功。");
                     }
                 });

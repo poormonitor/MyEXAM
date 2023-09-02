@@ -11,6 +11,5 @@ class User(Base):
     uid = Column(String(36), primary_key=True, index=True, default=gen_id)
     nick = Column(String(32))
     passwd = Column(String(64))
-    email = Column(String(64))
+    email = Column(String(64), unique=True)
     admin = Column(Boolean, default=False)
-    cart = Column(Text)
