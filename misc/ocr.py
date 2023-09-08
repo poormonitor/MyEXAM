@@ -125,10 +125,7 @@ if __name__ == "__main__":
 
     task = db.query(Task).filter_by(type="ocr").order_by(Task.created.asc()).first()
     while task:
-        try:
-            WriteOCR(task.data)
-        except:
-            pass
+        WriteOCR(task.data)
         db.delete(task)
         db.commit()
         task = db.query(Task).filter_by(type="ocr").order_by(Task.created.asc()).first()
