@@ -40,8 +40,7 @@ def perform_ocr_file(data: ReOCRFile, db: Session = Depends(get_db)):
     if not processing:
         current = os.path.dirname(os.path.abspath(__file__))
         path = os.path.join(current, "..", "misc", "ocr.py")
-        parent_directory = os.path.dirname(os.getcwd())
-        subprocess.Popen([sys.executable, path], cwd=parent_directory)
+        subprocess.Popen([sys.executable, path], cwd=os.getcwd())
 
     return {"result": "success"}
 
@@ -68,7 +67,7 @@ def perform_ocr_paper(data: ReOCRPaper, db: Session = Depends(get_db)):
     if not processing:
         current = os.path.dirname(os.path.abspath(__file__))
         path = os.path.join(current, "..", "misc", "ocr.py")
-        subprocess.Popen([sys.executable, path])
+        subprocess.Popen([sys.executable, path], cwd=os.getcwd())
 
     return {"result": "success"}
 

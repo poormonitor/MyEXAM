@@ -94,7 +94,8 @@ def get_text(file_path: str, ext: str) -> str:
     else:
         text = ""
 
-    text = re.sub("([^\u4e00-\u9fa5\u0041-\u005a\u0061-\u007a\u0030-\u0039])", "", text)
+    text = re.sub(r"\s+", " ", text)
+    text = re.sub(r"\s{2,}", " ", text)
 
     return text
 

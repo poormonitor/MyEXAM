@@ -187,8 +187,7 @@ def new_paper(
     if not processing:
         current = os.path.dirname(os.path.abspath(__file__))
         path = os.path.join(current, "..", "misc", "ocr.py")
-        parent_directory = os.path.dirname(os.getcwd())
-        subprocess.Popen([sys.executable, path], cwd=parent_directory)
+        subprocess.Popen([sys.executable, path], cwd=os.getcwd())
 
     db.commit()
     return {"result": "success"}
