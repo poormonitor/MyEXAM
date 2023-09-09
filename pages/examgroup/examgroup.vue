@@ -53,9 +53,9 @@ if (props.egid) {
 </script>
 
 <template>
-	<view class="p-30" v-if="data">
+	<view class="px-30 pt-30" v-if="data">
 		<view class="flex justify-between">
-			<view id="title" class="mb-20">
+			<view id="title" class="mb-15">
 				<view
 					class="text-xl text-red mb-3 flex items-start"
 					@click="gotoUnion(data.union.nid)"
@@ -73,12 +73,12 @@ if (props.egid) {
 				</view>
 				<view class="text-sm">{{ data.views }} 浏览</view>
 			</view>
-			<!--  #ifdef MP -->
-			<view class="pt-30">
-				<button open-type="share" size="mini" type="info">分享</button>
-			</view>
-			<!--  #endif -->
 		</view>
+		<!--  #ifdef MP -->
+		<view class="mb-10">
+			<button open-type="share" size="mini" type="info">分享</button>
+		</view>
+		<!--  #endif -->
 		<view v-if="data.assigns.length">
 			<view class="text-center text-bold mb-16">赋分表</view>
 			<view v-for="item in data.assigns">

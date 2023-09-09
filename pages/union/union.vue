@@ -52,10 +52,13 @@ if (props.nid) {
 		<view class="flex justify-between">
 			<view id="title" class="mb-30">
 				<view class="text-2xl text-bold mb-8">{{ data.name }}</view>
-				<view class="mb-10" v-if="data.member">
+				<view
+					class="mb-10 flex flex-wrap gap-4"
+					style="line-height: 160%"
+					v-if="data.member"
+				>
 					<uni-tag
 						type="error"
-						class="mr-3 mb-3"
 						:text="tag"
 						v-for="tag in data.member.split(' ')"
 					></uni-tag>
@@ -75,16 +78,20 @@ if (props.nid) {
 						<view class="text-bold text-xl text-black mb-12">
 							{{ GetYearMonth(eg.date) + ' ' + eg.name }}
 						</view>
-						<view v-for="i in Object.keys(eg.courses)">
+						<view class="flex" v-for="i in Object.keys(eg.courses)">
 							<text class="mb-6 mr-10 text-black">
 								{{ grades[i] }}
 							</text>
-							<uni-tag
-								class="mr-3 mb-3"
-								type="error"
-								:text="courses[e[0]]"
-								v-for="e in eg.courses[i]"
-							></uni-tag>
+							<view
+								class="flex flex-wrap gap-4"
+								style="line-height: 160%"
+							>
+								<uni-tag
+									type="error"
+									:text="courses[e[0]]"
+									v-for="e in eg.courses[i]"
+								></uni-tag>
+							</view>
 						</view>
 					</view>
 				</uni-card>

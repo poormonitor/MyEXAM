@@ -4,6 +4,7 @@ import { GetYearMonth, getOptions, cleanEmpty } from '../../func';
 import { courses, grades } from '../../const';
 const data = ref([]);
 const s = inject('s');
+const loading = ref(false);
 const SearchInfo = reactive({
 	latest: true,
 	course: null,
@@ -30,12 +31,14 @@ const goSearch = () => {
 };
 
 const requestRecent = () => {
+	loading.value = true;
 	uni.request({
 		url: 'https://exam.techo.cool/api/discover/exams',
 		data: cleanEmpty(SearchInfo),
 		method: 'POST',
 		success: (response) => {
 			if (response.data.list) data.value = response.data.list;
+			loading.value = false;
 		}
 	});
 };
@@ -86,9 +89,12 @@ watch(SearchInfo, requestRecent, { immediate: true });
 					</view>
 				</view>
 			</view>
+			<view class="flex flex-col justify-center mt-30" v-if="loading">
+				<text class="mb-10 text-center">加载中</text>
+			</view>
 			<view
 				class="flex flex-col justify-center mt-30"
-				v-if="!data.length"
+				v-else-if="!data.length"
 			>
 				<text class="mb-10 text-center">这里什么也没有</text>
 				<button size="mini" @click="cleanOption">清空条件</button>
@@ -96,22 +102,23 @@ watch(SearchInfo, requestRecent, { immediate: true });
 			<view v-for="item in data">
 				<uni-card @click="gotoExam(item.eid)">
 					<view class="flex justify-between mb-4">
-						<view>
-							<view class="text-bold text-red mb-2">
-								{{ item.union.name }}
-							</view>
-							<view class="text-bold text-lg text-black">
-								{{ GetYearMonth(item.examgroup.date) }}
-								{{ item.examgroup.name }}
-							</view>
+						<view class="text-bold text-red">
+							{{ item.union.name }}
 						</view>
 						<view class="text-right">
-							<view class="mb-2">{{ item.date }}</view>
-							<view class="text-black text-bold text-lg">
-								{{ grades[item.grade] }}
-								{{ courses[item.course] }}
-							</view>
+							<view>{{ item.date }}</view>
 						</view>
+					</view>
+					<view
+						class="text-bold text-lg text-black"
+						style="line-height: 130%"
+					>
+						{{ GetYearMonth(item.examgroup.date) }}
+						{{ item.examgroup.name }}
+					</view>
+					<view>
+						{{ grades[item.grade] }}
+						{{ courses[item.course] }}
 					</view>
 				</uni-card>
 			</view>
