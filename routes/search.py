@@ -130,6 +130,7 @@ def search_exam(
         )
         .filter(Exam.date >= info.start)
         .filter(Exam.date <= info.end)
+        .order_by(ExamGroup.date.desc(), Exam.date.desc())
     )
 
     if info.courses:
@@ -172,6 +173,7 @@ def search_file(
         .filter(and_(File.ocr.contains(i) for i in k))
         .filter(Exam.date >= info.start)
         .filter(Exam.date <= info.end)
+        .order_by(ExamGroup.date.desc(), Exam.date.desc())
     )
 
     if info.courses:

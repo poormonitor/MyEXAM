@@ -12,7 +12,7 @@ const loading = ref(false);
 
 const searchInfo = reactive({
     s: route.query.s ? route.query.s : "",
-    range: [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()],
+    range: [Date.now() - 1000 * 60 * 60 * 24 * 180, Date.now()],
     grade: null,
     courses: [],
 });

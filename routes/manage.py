@@ -2,6 +2,7 @@ import os
 import subprocess
 import sys
 from datetime import datetime
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -156,6 +157,7 @@ class EditFile(BaseModel):
     fid: str
     name: str
     type: str
+    pid: Optional[str] = None
 
 
 @router.post("/edit/file")
@@ -167,6 +169,9 @@ def edit_file(data: EditFile, db: Session = Depends(get_db)):
 
     file.name = data.name
     file.type = data.type
+
+    if data.pid:
+        file.pid = data.pid
 
     db.commit()
     return {"result": "success"}

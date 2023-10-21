@@ -115,30 +115,32 @@ const submit = () => {
 };
 defineExpose({ submit });
 
-const renderStatus = (row) => {
-    if (!row.status || row.status === 2)
-        return <n-icon color="green" component={Checkmark}></n-icon>;
-    else if (row.status === 0)
-        return <n-icon color="blue" component={ArrowUp}></n-icon>;
-    else return <n-icon color="red" component={Close}></n-icon>;
-};
-
 const tableColumns = [
+    {
+        key: "status",
+        render: (row) => {
+            let icon;
+            if (!row.status || row.status === 2)
+                icon = <n-icon color="green" component={Checkmark}></n-icon>;
+            else if (row.status === 0)
+                icon = <n-icon color="blue" component={ArrowUp}></n-icon>;
+            else icon = <n-icon color="red" component={Close}></n-icon>;
+
+            return <div class="flex items-center gap-x-2">{icon}</div>;
+        },
+    },
     {
         title: "文件名",
         key: "name",
         render: (row) => (
-            <div class="flex items-center gap-x-2">
-                {renderStatus(row)}
-                <div class="w-64 lg:w-auto">
-                    <n-input
-                        size="small"
-                        value={row.name}
-                        on-update:value={(val) =>
-                            ModifyFile(row.fid, row.type, val)
-                        }
-                    ></n-input>
-                </div>
+            <div class="w-64 lg:w-auto">
+                <n-input
+                    size="small"
+                    value={row.name}
+                    on-update:value={(val) =>
+                        ModifyFile(row.fid, row.type, val)
+                    }
+                ></n-input>
             </div>
         ),
     },
@@ -259,7 +261,6 @@ const CustomUpload = async (options) => {
     axios
         .post("/new/file", {
             name: options.file.name,
-            pid: props.pid,
             md5: await blobToHash(options.file.file),
         })
         .catch(() => SetFailedUpload(options))
@@ -287,6 +288,7 @@ const SetFinishUpload = (options) => {
         fid: object.fid,
         name: object.name,
         type: object.type,
+        pid: props.pid,
     });
     options.onFinish();
 };

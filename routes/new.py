@@ -44,7 +44,6 @@ class NewExam(BaseModel):
 class NewFile(BaseModel):
     md5: str
     name: str
-    pid: Optional[str] = None
 
 
 class DeleteFile(BaseModel):
