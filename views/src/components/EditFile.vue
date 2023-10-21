@@ -35,6 +35,7 @@ const fetchFiles = async () => {
         .then((response) => {
             if (response.data.list) {
                 data.value = response.data.list;
+                data.value.map((item) => (item.status = 2));
                 return true;
             }
         });
@@ -120,11 +121,11 @@ const tableColumns = [
         key: "status",
         render: (row) => {
             let icon;
-            if (!row.status || row.status === 2)
-                icon = <n-icon color="green" component={Checkmark}></n-icon>;
+            if (row.status === 2)
+                icon = <n-icon color="#18a058" component={Checkmark}></n-icon>;
             else if (row.status === 0)
-                icon = <n-icon color="blue" component={ArrowUp}></n-icon>;
-            else icon = <n-icon color="red" component={Close}></n-icon>;
+                icon = <n-icon color="#2080f0" component={ArrowUp}></n-icon>;
+            else icon = <n-icon color="#d03050" component={Close}></n-icon>;
 
             return <div class="flex items-center gap-x-2">{icon}</div>;
         },
