@@ -25,7 +25,7 @@ def get_text_pdf(file_path: str) -> str:
 
         texts.append(text)
 
-    if len((text := "\n".join(texts))) > 64:
+    if len((text := "\n".join(texts))) > 64 * document.page_count:
         return text
 
     texts.clear()
