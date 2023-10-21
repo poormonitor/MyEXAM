@@ -105,6 +105,9 @@ def WriteOCR(fid: str):
 
     file = db.query(File).filter_by(fid=fid).first()
 
+    if not file:
+        return
+
     file_path = get_file_local(file.ext, file.md5)
     text = get_text(file_path, file.ext)
 
