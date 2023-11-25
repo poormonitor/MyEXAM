@@ -99,10 +99,10 @@ watch(
                     >
                         <template #description>
                             <n-space size="small" class="mt-2">
-                                <n-tag type="info" size="small">
+                                <n-tag type="error" size="small">
                                     {{ courses[item.course] }}
                                 </n-tag>
-                                <n-tag type="info" size="small">
+                                <n-tag type="error" size="small">
                                     {{ grades[item.grade] }}
                                 </n-tag>
                                 <span class="ml-4 flex items-center gap-x-1">

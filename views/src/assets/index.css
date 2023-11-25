@@ -7,5 +7,5 @@
 }
 
 .router-link {
-    @apply hover:text-sky-800 text-sky-700 transition;
+    @apply hover:text-red-900 text-red-800 transition;
 }

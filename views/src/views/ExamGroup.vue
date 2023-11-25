@@ -106,7 +106,7 @@ const data = await axios
     />
     <div class="flex justify-between mb-8">
         <div>
-            <p class="text-2xl mb-0.5 text-purple-800">
+            <p class="text-2xl mb-0.5 text-red-800">
                 {{ data.union.name }}
             </p>
             <p class="text-4xl font-bold mb-3">

@@ -124,7 +124,7 @@ const tableColumns = [
             <div>
                 {row.papers.map((item) => (
                     <n-tag
-                        type="info"
+                        type="error"
                         class="!cursor-pointer"
                         onClick={() => gotoPaper(row.eid, item.pid)}
                     >

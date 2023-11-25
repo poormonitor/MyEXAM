@@ -15,6 +15,7 @@ const searchInfo = reactive({
     range: [Date.now() - 1000 * 60 * 60 * 24 * 180, Date.now()],
     grade: null,
     courses: [],
+    file_type: null,
 });
 
 const queryResult = reactive({
@@ -46,6 +47,7 @@ const goQuery = () => {
             courses: searchInfo.courses,
             grade: searchInfo.grade,
             page: pagination.page,
+            file_type: searchInfo.file_type,
         })
         .then((response) => {
             if (response.data.list) {
@@ -77,10 +79,7 @@ const tableColumns = [
         renderExpand: (row) => {
             let text = row.text.map((item) =>
                 item
-                    .replaceAll(
-                        "*s*",
-                        `<span class="font-bold text-indigo-600">`
-                    )
+                    .replaceAll("*s*", `<span class="font-bold text-red-600">`)
                     .replaceAll("*e*", "</span>")
             );
             return (
@@ -138,12 +137,12 @@ const tableColumns = [
         key: "version",
         render: (row) => (
             <div class="flex gap-1">
-                <n-tag class="!cursor-pointer" type="info">
+                <n-tag class="!cursor-pointer" type="error">
                     {row.paper.owner}
                 </n-tag>
                 {row.paper.comment &&
                     row.paper.comment.split().map((item) => (
-                        <n-tag class="!cursor-pointer" type="info">
+                        <n-tag class="!cursor-pointer" type="error">
                             {item}
                         </n-tag>
                     ))}
@@ -206,12 +205,11 @@ if (route.query.s) {
                         <n-form-item label="年级">
                             <n-select
                                 v-model:value="searchInfo.grade"
-                                type="daterange"
                                 :options="getOptions(grades)"
                             />
                         </n-form-item>
                     </div>
-                    <div class="w-full md:w-2/5">
+                    <div class="w-full md:w-1/5">
                         <n-form-item label="科目">
                             <n-select
                                 v-model:value="searchInfo.courses"
@@ -228,6 +226,15 @@ if (route.query.s) {
                                 v-model:value="searchInfo.range"
                                 type="daterange"
                                 clearable
+                            />
+                        </n-form-item>
+                    </div>
+                    <div class="w-full md:w-1/5">
+                        <n-form-item label="类型">
+                            <n-select
+                                v-model:value="searchInfo.file_type"
+                                clearable
+                                :options="getOptions(file_types)"
                             />
                         </n-form-item>
                     </div>

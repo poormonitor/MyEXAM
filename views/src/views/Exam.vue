@@ -72,7 +72,7 @@ const tableColumns = [
                         <n-tooltip trigger="hover">
                             {{
                                 trigger: () => (
-                                    <span class="flex items-center gap-x-0.5 text-green-600 mb-1">
+                                    <span class="flex items-center gap-x-0.5 text-red-800 mb-1">
                                         <n-icon component={Ribbon}></n-icon>
                                         <span>{row.owner}</span>
                                     </span>
@@ -85,7 +85,7 @@ const tableColumns = [
                 {row.comment && (
                     <div class="flex justify-center">
                         {row.comment.split().map((item) => (
-                            <n-tag type="success">{item}</n-tag>
+                            <n-tag type="error">{item}</n-tag>
                         ))}
                     </div>
                 )}
@@ -94,7 +94,7 @@ const tableColumns = [
                     <n-button
                         circle
                         secondary
-                        type={cartStore.has(row.pid) ? "error" : "success"}
+                        type={cartStore.has(row.pid) ? "error" : "tertiary"}
                         onClick={
                             cartStore.has(row.pid)
                                 ? () => delCart(row.pid)
@@ -107,8 +107,8 @@ const tableColumns = [
                                     size="1.2rem"
                                     component={
                                         cartStore.has(row.pid)
-                                            ? HeartDislikeOutline
-                                            : HeartOutline
+                                            ? HeartOutline
+                                            : HeartDislikeOutline
                                     }
                                 ></n-icon>
                             ),
@@ -179,7 +179,7 @@ const defaultExpanded = route.hash
     />
     <div class="flex justify-between mb-4 lg:mb-8">
         <div>
-            <p class="text-2xl mb-0.5 text-purple-800">
+            <p class="text-2xl mb-0.5 text-red-800">
                 {{ showData.union.name }}
             </p>
             <p class="text-4xl font-bold mb-3">

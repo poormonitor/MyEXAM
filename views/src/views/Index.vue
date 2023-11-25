@@ -13,7 +13,7 @@ const showShare = ref(false);
             secondary
             @click="showShare = true"
             size="large"
-            type="success"
+            type="error"
         >
             <template #icon>
                 <n-icon><ArrowRedo /></n-icon>
@@ -26,7 +26,7 @@ const showShare = ref(false);
             secondary
             @click="showCart = true"
             size="large"
-            type="info"
+            type="error"
         >
             <template #icon>
                 <n-icon><CartIcon /></n-icon>

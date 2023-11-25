@@ -26,6 +26,7 @@ class SearchFile(BaseModel):
     courses: Optional[List[int]] = []
     grade: Optional[int] = None
     page: Optional[int] = 0
+    file_type: Optional[int] = None
 
 
 class SearchExam(BaseModel):
@@ -108,9 +109,7 @@ def GetHighlight(text: str, keyword: str):
 
 
 @router.post("/exam")
-def search_exam(
-    info: SearchExam, db: Session = Depends(get_db)
-):
+def search_exam(info: SearchExam, db: Session = Depends(get_db)):
     k = info.name.split(" ")
     query = (
         db.query(Exam, Union, ExamGroup, Paper)
@@ -180,6 +179,8 @@ def search_file(
         query = query.filter(Exam.course.in_(info.courses))
     if info.grade:
         query = query.filter(Exam.grade == info.grade)
+    if info.file_type:
+        query = query.filter(File.type == info.file_type)
 
     cnt = query.count()
     result = query.limit(10).offset((info.page - 1) * 10).all()

@@ -62,7 +62,7 @@ const handleSelect = (key) => {
         登录
     </n-button>
     <n-dropdown trigger="hover" :options="option" @select="handleSelect" v-else>
-        <div class="flex items-center gap-x-1 hover:text-green-600 transition">
+        <div class="flex items-center gap-x-1 hover:text-red-800 transition">
             <span>{{ user }}</span>
             <n-icon size="0.7rem" :component="CaretDown"></n-icon>
         </div>

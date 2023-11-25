@@ -125,7 +125,7 @@ const tableData = computed(() => {
                 {{ data.name }}
             </p>
             <div class="mb-4" v-if="data.member">
-                <n-tag type="info" v-for="item in data.member.split('\n')">
+                <n-tag type="error" v-for="item in data.member.split('\n')">
                     {{ item }}
                 </n-tag>
             </div>

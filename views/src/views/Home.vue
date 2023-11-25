@@ -48,7 +48,7 @@ FetchApiSta();
 
 <template>
     <div class="select-none pt-16 text-center font-black md:pt-20">
-        <div class="gradient-title from-cyan-500 via-sky-600 to-blue-800">
+        <div class="gradient-title from-rose-900 via-pink-800 to-red-700">
             <div class="text-4xl md:text-6xl tracking-wider">
                 试卷分享平台
             </div>

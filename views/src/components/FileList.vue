@@ -46,7 +46,7 @@ const columns = [
         key: "preview",
         render: (row) => (
             <n-button
-                type="info"
+                type="error"
                 size="small"
                 secondary
                 on-click={() => emits("preview", row.fid, row.ext, row.name)}

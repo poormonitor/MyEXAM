@@ -82,7 +82,7 @@ const tableColumns = [
         key: "paper",
         render: (row) => (
             <div>
-                <p class="text-indigo-800/70">{row.union.name}</p>
+                <p class="text-red-800/70">{row.union.name}</p>
                 <p class="text-lg">
                     {GetYearMonth(row.examgroup.date) +
                         " " +
@@ -125,7 +125,7 @@ const tableColumns = [
                         ),
                     }}
                 </Suspense>
-                <div class="text-green-600 my-2">
+                <div class="text-red-800 my-2">
                     共计 {row.files.length} 个文件
                 </div>
             </div>

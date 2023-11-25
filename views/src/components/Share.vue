@@ -23,7 +23,7 @@ const handleUpdateShow = () => {
 <template>
     <n-popover trigger="click" @update:show="handleUpdateShow">
         <template #trigger>
-            <n-button size="small" type="info" secondary>
+            <n-button size="small" type="error" secondary>
                 <template #icon>
                     <n-icon><ArrowRedo /></n-icon>
                 </template>
