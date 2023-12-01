@@ -284,7 +284,7 @@ watch(() => props.id, fetchData);
                 >
                     <n-popconfirm @positive-click="DeleteSelf">
                         <template #trigger>
-                            <n-button type="error" size="small" secondary>
+                            <n-button type="error" size="small" strong>
                                 删除{{ tpe.name }}
                             </n-button>
                         </template>

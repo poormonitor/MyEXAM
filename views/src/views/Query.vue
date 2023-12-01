@@ -8,7 +8,7 @@ if (route.query.t) currentTab.value = route.query.t;
 </script>
 
 <template>
-    <div class="mt-8 flex flex-col items-center md:mt-10">
+    <div class="mt-8 flex flex-col items-center md:mt-10 pb-12">
         <n-tabs type="segment" v-model:value="currentTab">
             <n-tab-pane name="0" tab="搜索考试">
                 <QueryExam />

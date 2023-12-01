@@ -136,7 +136,7 @@ fetchData();
                 @keyup.enter="fetchData"
                 v-model:value="UserKeyword"
             ></n-input>
-            <n-button type="info" @click="fetchData">过滤</n-button>
+            <n-button type="error" secondary @click="fetchData">过滤</n-button>
             <n-button type="primary" @click="ShowNewUser = true"
                 >添加用户</n-button
             >

@@ -191,7 +191,6 @@ const tableColumns = [
                     strong
                     secondary
                     round
-                    type="info"
                     on-click={() => ReOCRFile(row.fid)}
                 >
                     重新识别
@@ -209,7 +208,6 @@ const tableColumns = [
                         <n-button
                             size="small"
                             strong
-                            secondary
                             round
                             type="error"
                         >
@@ -326,10 +324,10 @@ await fetchFiles();
         >
             <n-button size="small">上传文件</n-button>
         </n-upload>
-        <n-button @click="showPDF = true" type="info" size="small">
+        <n-button @click="showPDF = true" size="small">
             图片生成PDF
         </n-button>
-        <n-button type="info" secondary @click="ReOCRPaper" size="small">
+        <n-button @click="ReOCRPaper" size="small">
             重新OCR
         </n-button>
     </div>

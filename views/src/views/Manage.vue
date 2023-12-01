@@ -67,7 +67,7 @@ const tableColumns = [
         render: (row) => (
             <n-button
                 text
-                type="info"
+                type="error"
                 on-click={() => {
                     ModifyAction.current = row;
                     ModifyAction.id = row.union.nid;
@@ -85,7 +85,7 @@ const tableColumns = [
         render: (row) => (
             <n-button
                 text
-                type="info"
+                type="error"
                 on-click={() => {
                     ModifyAction.current = row;
                     ModifyAction.id = row.examgroup.egid;
@@ -127,7 +127,7 @@ const tableColumns = [
             <div class="flex flex-col gap-y-1">
                 {row.papers.map((item) => (
                     <n-button
-                        type="info"
+                        type="error"
                         size="small"
                         secondary
                         on-click={() => {
@@ -148,7 +148,7 @@ const tableColumns = [
         key: "edit",
         render: (row) => (
             <n-button
-                type="info"
+                type="error"
                 size="small"
                 on-click={() => {
                     ModifyAction.current = row;

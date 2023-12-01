@@ -1,7 +1,7 @@
 <script setup></script>
 
 <template>
-    <div class="mx-8 w-auto lg:mx-auto lg:w-[70vw] my-8">
+    <div class="mx-8 w-auto lg:mx-auto lg:w-[70vw] pt-8 pb-12">
         <Suspense>
             <router-view />
             <template #fallback>

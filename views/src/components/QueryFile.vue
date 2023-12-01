@@ -243,7 +243,7 @@ if (route.query.s) {
         </n-collapse>
     </div>
     <n-divider></n-divider>
-    <div class="px-8 w-full md:mx-auto md:w-[80vw] mb-4">
+    <div class="px-8 w-full md:mx-auto md:w-[80vw]">
         <div class="mb-4">
             <n-statistic label="共计找到了" tabular-nums>
                 {{ queryResult.cnt }}
