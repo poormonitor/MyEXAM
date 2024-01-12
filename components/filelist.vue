@@ -55,7 +55,7 @@ onMounted(() => {
 			<view @click.stop="checkIsAllowed(file.fid)">
 				<text
 					class="text-base"
-					:class="props.fid === file.fid ? 'text-blue' : 'text-red'"
+					:class="props.fid === file.fid ? 'text-purple' : 'text-red'"
 					:id="file.fid"
 				>
 					{{ file.name }}

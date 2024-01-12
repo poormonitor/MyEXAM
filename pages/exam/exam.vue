@@ -96,14 +96,13 @@ provide('rewardRef', rewardRef);
 					:title="paper.owner + ' ' + paper.comment"
 					:is-full="true"
 				>
-					<view class="mb-4">
-						<text class="mr-10">
-							{{ paper.files.length }} 份文件
-						</text>
-						<text>浏览量：{{ paper.views }}</text>
-					</view>
-					<view class="flex justify-between">
-						<filelist :files="paper.files" :fid="props.fid" />
+					<view class="mb-5 flex justify-between items-center">
+						<view>
+							<text class="mr-10">
+								{{ paper.files.length }} 份文件
+							</text>
+							<text>浏览量：{{ paper.views }}</text>
+						</view>
 						<view>
 							<button
 								@click="() => carts.remove(paper.pid)"
@@ -122,6 +121,9 @@ provide('rewardRef', rewardRef);
 								<span class="whitespace-nowrap">收藏</span>
 							</button>
 						</view>
+					</view>
+					<view>
+						<filelist :files="paper.files" :fid="props.fid" />
 					</view>
 				</uni-card>
 			</view>

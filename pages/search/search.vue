@@ -32,9 +32,14 @@ onShow(() => {
 <template>
 	<view>
 		<view class="mx-30 mt-20 mb-10">
-			<uni-segmented-control @clickItem="onClickItem" :current="current" :values="items" activeColor="#7f0f1d" />
+			<uni-segmented-control
+				@clickItem="onClickItem"
+				:current="current"
+				:values="items"
+				activeColor="#7f0f1d"
+			/>
 		</view>
-		<view class="content">
+		<view class="content pb-10">
 			<searchexam v-if="current === 0" ref="resultRef1"></searchexam>
 			<searchfile v-if="current === 1" ref="resultRef2"></searchfile>
 		</view>
