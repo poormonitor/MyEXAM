@@ -2,7 +2,7 @@
 import { useRoute, useRouter } from "vue-router";
 import { GetYearMonth } from "../func";
 import { courses, file_types, grades } from "../const";
-import { Search, Ribbon } from "@vicons/ionicons5";
+import { Search } from "@vicons/ionicons5";
 
 const axios = inject("axios");
 const collapsed = inject("collapsed");
@@ -12,7 +12,7 @@ const loading = ref(false);
 
 const searchInfo = reactive({
     s: route.query.s ? route.query.s : "",
-    range: [Date.now() - 1000 * 60 * 60 * 24 * 180, Date.now()],
+    range: [Date.now() - 1000 * 60 * 60 * 24 * 240, Date.now()],
     grade: null,
     courses: [],
     file_type: null,
