@@ -29,6 +29,12 @@ const openDialog = () => {
 	popup.value.open();
 };
 
+const reSearch = () => {
+	page.value = 1;
+	cnt.value = 0;
+	goSearch();
+};
+
 const goSearch = () => {
 	loading.value = true;
 	uni.request({
@@ -75,7 +81,7 @@ defineExpose({ query: goSearch });
 		<button size="mini" class="mx-2 my-12" type="info" @click="openDialog">
 			筛选
 		</button>
-		<button size="mini" class="mx-0 my-12" type="info" @click="goSearch">
+		<button size="mini" class="mx-0 my-12" type="info" @click="reSearch">
 			搜索
 		</button>
 	</view>
@@ -83,7 +89,7 @@ defineExpose({ query: goSearch });
 		ref="popup"
 		background-color="#fff"
 		type="right"
-		@maskClick="goSearch"
+		@maskClick="reSearch"
 	>
 		<view class="text-xl text-bold mx-30 mt-30 mb-10">筛选考试</view>
 		<view class="filter-popup">
@@ -162,8 +168,13 @@ defineExpose({ query: goSearch });
 				></view>
 			</uni-card>
 		</view>
-		<view class="mx-30">
-			<uni-pagination :total="cnt" v-model="page" @change="goSearch" />
+		<view class="mx-30 py-10">
+			<uni-pagination
+				show-icon="true"
+				:total="cnt"
+				v-model="page"
+				@change="goSearch"
+			/>
 		</view>
 	</view>
 	<empty v-else />
