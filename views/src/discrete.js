@@ -14,7 +14,7 @@ const paramsError = async () => {
             router.push({ name: "home" });
         },
     });
-    return new Promise(() => {});
+    return new Promise(() => { });
 };
 
 export { message, paramsError };

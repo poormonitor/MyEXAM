@@ -37,7 +37,7 @@ const goMove = (index, event) => {
     <div class="flex justify-center gap-x-1 md:gap-x-4">
         <input
             ref="inputRef"
-            class="w-10 h-10 md:w-14 md:h-14 block text-center text-2xl md:text-4xl font-bold text-gray-700 bg-white bg-clip-padding focus:ring focus:ring-blue-400 border-2 border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+            class="w-10 h-10 md:w-14 md:h-14 block text-center text-2xl md:text-4xl font-bold text-gray-700 bg-white bg-clip-padding focus:ring focus:ring-red-400 border-2 border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-red-600 focus:outline-none"
             :maxlength="1"
             @input="(e) => onInput(i - 1, e)"
             @keyup="(e) => goMove(i - 1, e)"
