@@ -55,7 +55,7 @@ opt-einsum==3.3.0
 packaging==23.0
 paddle-bfloat==0.1.7
 paddleocr==2.7.0.3
-paddlepaddle==2.6.0
+paddlepaddle==2.6.2
 pandas==1.5.2
 passlib==1.7.4
 pathspec==0.10.3
